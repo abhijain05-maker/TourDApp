@@ -1,0 +1,26 @@
+<mvc:View controllerName="demo.orders.controller.Detail"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core" xmlns:f="sap.ui.layout.form">
+	<Page id="detailPage" title="{i18n>detailTitle}" showNavButton="true" navButtonPress=".onNavBack">
+		<content>
+			<f:SimpleForm id="orderForm" editable="true" layout="ResponsiveGridLayout" title="{i18n>orderDetails}">
+				<Label text="{i18n>customer}" labelFor="customerInput" />
+				<Input id="customerInput" value="{customer}" />
+				<Label text="{i18n>status}" labelFor="statusSelect" />
+				<Select id="statusSelect" selectedKey="{status}">
+					<core:Item key="Open" text="Open" />
+					<core:Item key="Shipped" text="Shipped" />
+					<core:Item key="Closed" text="Closed" />
+				</Select>
+				<Label text="{i18n>date}" labelFor="dateInput" />
+				<DatePicker id="dateInput" value="{date}" valueFormat="yyyy-MM-dd" displayFormat="medium" />
+			</f:SimpleForm>
+		</content>
+		<footer>
+			<OverflowToolbar id="detailFooter">
+				<ToolbarSpacer />
+				<Button id="saveBtn" type="Emphasized" text="{i18n>save}" press=".onSave" />
+				<Button id="deleteBtn" type="Reject" text="{i18n>delete}" press=".onOpenDialog" />
+			</OverflowToolbar>
+		</footer>
+	</Page>
+</mvc:View>

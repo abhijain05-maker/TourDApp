@@ -1,0 +1,1291 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`inventory snapshot > matches the stored demo app inventory (controls, views, routes) 1`] = `
+{
+  "appId": "demo.orders",
+  "controllers": [
+    {
+      "controllerName": "demo.orders.controller.App",
+      "fragments": [],
+      "methods": [],
+      "navigations": [],
+      "path": undefined,
+    },
+    {
+      "controllerName": "demo.orders.controller.Detail",
+      "fragments": [
+        {
+          "idMode": "view",
+          "idPrefix": null,
+          "method": "onOpenDialog",
+          "name": "demo.orders.fragment.ConfirmDialog",
+        },
+      ],
+      "methods": [
+        {
+          "async": false,
+          "name": "onInit",
+          "params": [],
+        },
+        {
+          "async": false,
+          "name": "_onMatched",
+          "params": [
+            "oEvent",
+          ],
+        },
+        {
+          "async": false,
+          "name": "onNavBack",
+          "params": [],
+        },
+        {
+          "async": false,
+          "name": "onSave",
+          "params": [],
+        },
+        {
+          "async": false,
+          "name": "onOpenDialog",
+          "params": [],
+        },
+        {
+          "async": false,
+          "name": "onConfirmDelete",
+          "params": [],
+        },
+        {
+          "async": false,
+          "name": "onCancelDelete",
+          "params": [],
+        },
+      ],
+      "navigations": [
+        {
+          "argValues": {},
+          "args": [],
+          "dynamic": false,
+          "method": "onNavBack",
+          "route": "main",
+        },
+        {
+          "argValues": {},
+          "args": [],
+          "dynamic": false,
+          "method": "onSave",
+          "route": "main",
+        },
+        {
+          "argValues": {},
+          "args": [],
+          "dynamic": false,
+          "method": "onConfirmDelete",
+          "route": "main",
+        },
+      ],
+      "path": undefined,
+    },
+    {
+      "controllerName": "demo.orders.controller.Main",
+      "fragments": [],
+      "methods": [
+        {
+          "async": false,
+          "name": "onSearch",
+          "params": [
+            "oEvent",
+          ],
+        },
+        {
+          "async": false,
+          "name": "onCreate",
+          "params": [],
+        },
+        {
+          "async": false,
+          "name": "onItemPress",
+          "params": [
+            "oEvent",
+          ],
+        },
+        {
+          "async": false,
+          "name": "onExport",
+          "params": [],
+        },
+        {
+          "async": false,
+          "name": "onStartTour",
+          "params": [],
+        },
+      ],
+      "navigations": [
+        {
+          "argValues": {
+            "orderId": "new",
+          },
+          "args": [
+            "orderId",
+          ],
+          "dynamic": false,
+          "method": "onCreate",
+          "route": "detail",
+        },
+        {
+          "argValues": {},
+          "args": [
+            "orderId",
+          ],
+          "dynamic": false,
+          "method": "onItemPress",
+          "route": "detail",
+        },
+      ],
+      "path": undefined,
+    },
+  ],
+  "controls": [
+    {
+      "aggregation": null,
+      "display": null,
+      "handlers": {},
+      "hasStableId": true,
+      "label": null,
+      "localId": "app",
+      "path": [],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.App",
+      "viewName": "demo.orders.view.App",
+    },
+    {
+      "aggregation": null,
+      "display": "Order",
+      "handlers": {
+        "navButtonPress": "onNavBack",
+      },
+      "hasStableId": true,
+      "label": null,
+      "localId": "detailPage",
+      "path": [],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": "Order",
+      "tooltip": null,
+      "type": "sap.m.Page",
+      "viewName": "demo.orders.view.Detail",
+    },
+    {
+      "aggregation": "content",
+      "display": "Order details",
+      "handlers": {},
+      "hasStableId": true,
+      "label": null,
+      "localId": "orderForm",
+      "path": [
+        "Page#detailPage",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": "Order details",
+      "tooltip": null,
+      "type": "sap.ui.layout.form.SimpleForm",
+      "viewName": "demo.orders.view.Detail",
+    },
+    {
+      "aggregation": null,
+      "display": "Customer",
+      "handlers": {},
+      "hasStableId": true,
+      "label": "Customer",
+      "localId": "customerInput",
+      "path": [
+        "Page#detailPage",
+        "SimpleForm#orderForm",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.Input",
+      "viewName": "demo.orders.view.Detail",
+    },
+    {
+      "aggregation": null,
+      "display": "Status",
+      "handlers": {},
+      "hasStableId": true,
+      "label": "Status",
+      "localId": "statusSelect",
+      "path": [
+        "Page#detailPage",
+        "SimpleForm#orderForm",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.Select",
+      "viewName": "demo.orders.view.Detail",
+    },
+    {
+      "aggregation": null,
+      "display": "Date",
+      "handlers": {},
+      "hasStableId": true,
+      "label": "Date",
+      "localId": "dateInput",
+      "path": [
+        "Page#detailPage",
+        "SimpleForm#orderForm",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.DatePicker",
+      "viewName": "demo.orders.view.Detail",
+    },
+    {
+      "aggregation": "footer",
+      "display": null,
+      "handlers": {},
+      "hasStableId": true,
+      "label": null,
+      "localId": "detailFooter",
+      "path": [
+        "Page#detailPage",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.OverflowToolbar",
+      "viewName": "demo.orders.view.Detail",
+    },
+    {
+      "aggregation": null,
+      "display": "Save",
+      "handlers": {
+        "press": "onSave",
+      },
+      "hasStableId": true,
+      "label": null,
+      "localId": "saveBtn",
+      "path": [
+        "Page#detailPage",
+        "OverflowToolbar#detailFooter",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": "Save",
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.Button",
+      "viewName": "demo.orders.view.Detail",
+    },
+    {
+      "aggregation": null,
+      "display": "Delete",
+      "handlers": {
+        "press": "onOpenDialog",
+      },
+      "hasStableId": true,
+      "label": null,
+      "localId": "deleteBtn",
+      "path": [
+        "Page#detailPage",
+        "OverflowToolbar#detailFooter",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": "Delete",
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.Button",
+      "viewName": "demo.orders.view.Detail",
+    },
+    {
+      "aggregation": null,
+      "display": "Orders",
+      "handlers": {},
+      "hasStableId": true,
+      "label": null,
+      "localId": "mainPage",
+      "path": [],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": "Orders",
+      "tooltip": null,
+      "type": "sap.m.Page",
+      "viewName": "demo.orders.view.Main",
+    },
+    {
+      "aggregation": "headerContent",
+      "display": "Start tour",
+      "handlers": {
+        "press": "onStartTour",
+      },
+      "hasStableId": true,
+      "label": null,
+      "localId": "startTourBtn",
+      "path": [
+        "Page#mainPage",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": null,
+      "tooltip": "Start tour",
+      "type": "sap.m.Button",
+      "viewName": "demo.orders.view.Main",
+    },
+    {
+      "aggregation": "subHeader",
+      "display": null,
+      "handlers": {},
+      "hasStableId": true,
+      "label": null,
+      "localId": "mainToolbar",
+      "path": [
+        "Page#mainPage",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.Toolbar",
+      "viewName": "demo.orders.view.Main",
+    },
+    {
+      "aggregation": null,
+      "display": "Search customers",
+      "handlers": {
+        "search": "onSearch",
+      },
+      "hasStableId": true,
+      "label": null,
+      "localId": "searchField",
+      "path": [
+        "Page#mainPage",
+        "Toolbar#mainToolbar",
+      ],
+      "placeholder": "Search customers",
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.SearchField",
+      "viewName": "demo.orders.view.Main",
+    },
+    {
+      "aggregation": null,
+      "display": "Export",
+      "handlers": {
+        "press": "onExport",
+      },
+      "hasStableId": false,
+      "label": null,
+      "localId": null,
+      "path": [
+        "Page#mainPage",
+        "Toolbar#mainToolbar",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": "Export",
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.Button",
+      "viewName": "demo.orders.view.Main",
+    },
+    {
+      "aggregation": null,
+      "display": "Create",
+      "handlers": {
+        "press": "onCreate",
+      },
+      "hasStableId": true,
+      "label": null,
+      "localId": "createBtn",
+      "path": [
+        "Page#mainPage",
+        "Toolbar#mainToolbar",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": "Create",
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.Button",
+      "viewName": "demo.orders.view.Main",
+    },
+    {
+      "aggregation": "content",
+      "display": null,
+      "handlers": {},
+      "hasStableId": true,
+      "label": null,
+      "localId": "ordersTable",
+      "path": [
+        "Page#mainPage",
+      ],
+      "placeholder": null,
+      "scope": "view",
+      "template": false,
+      "text": null,
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.Table",
+      "viewName": "demo.orders.view.Main",
+    },
+    {
+      "aggregation": null,
+      "display": "Delete order",
+      "fragmentName": "demo.orders.fragment.ConfirmDialog",
+      "handlers": {},
+      "hasStableId": true,
+      "label": null,
+      "localId": "confirmDialog",
+      "path": [],
+      "placeholder": null,
+      "scope": "fragment",
+      "template": false,
+      "text": null,
+      "title": "Delete order",
+      "tooltip": null,
+      "type": "sap.m.Dialog",
+      "viewName": "demo.orders.view.Detail",
+    },
+    {
+      "aggregation": "beginButton",
+      "display": "Delete",
+      "fragmentName": "demo.orders.fragment.ConfirmDialog",
+      "handlers": {
+        "press": "onConfirmDelete",
+      },
+      "hasStableId": true,
+      "label": null,
+      "localId": "confirmBtn",
+      "path": [
+        "Dialog#confirmDialog",
+      ],
+      "placeholder": null,
+      "scope": "fragment",
+      "template": false,
+      "text": "Delete",
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.Button",
+      "viewName": "demo.orders.view.Detail",
+    },
+    {
+      "aggregation": "endButton",
+      "display": "Cancel",
+      "fragmentName": "demo.orders.fragment.ConfirmDialog",
+      "handlers": {
+        "press": "onCancelDelete",
+      },
+      "hasStableId": true,
+      "label": null,
+      "localId": "cancelBtn",
+      "path": [
+        "Dialog#confirmDialog",
+      ],
+      "placeholder": null,
+      "scope": "fragment",
+      "template": false,
+      "text": "Cancel",
+      "title": null,
+      "tooltip": null,
+      "type": "sap.m.Button",
+      "viewName": "demo.orders.view.Detail",
+    },
+  ],
+  "fragments": [
+    {
+      "fragmentName": "demo.orders.fragment.ConfirmDialog",
+      "hosts": [
+        {
+          "idMode": "view",
+          "idPrefix": null,
+          "viewName": "demo.orders.view.Detail",
+        },
+      ],
+      "path": "webapp/fragment/ConfirmDialog.fragment.xml",
+    },
+  ],
+  "i18nKeys": [
+    "appTitle",
+    "mainTitle",
+    "detailTitle",
+    "startTour",
+    "searchPlaceholder",
+    "export",
+    "create",
+    "colId",
+    "colCustomer",
+    "colStatus",
+    "colDate",
+    "colAmount",
+    "orderDetails",
+    "customer",
+    "status",
+    "date",
+    "save",
+    "delete",
+    "cancel",
+    "confirmTitle",
+    "confirmText",
+    "saved",
+  ],
+  "i18nModel": "i18n",
+  "minUI5Version": "1.108.0",
+  "rootViewName": "demo.orders.view.App",
+  "routes": [
+    {
+      "name": "main",
+      "params": [],
+      "pattern": "",
+      "targets": [
+        "main",
+      ],
+      "viewNames": [
+        "demo.orders.view.Main",
+      ],
+    },
+    {
+      "name": "detail",
+      "params": [
+        "orderId",
+      ],
+      "pattern": "order/{orderId}",
+      "targets": [
+        "detail",
+      ],
+      "viewNames": [
+        "demo.orders.view.Detail",
+      ],
+    },
+  ],
+  "views": [
+    {
+      "controllerName": "demo.orders.controller.App",
+      "nestedViews": [],
+      "path": "webapp/view/App.view.xml",
+      "routes": [],
+      "viewId": null,
+      "viewName": "demo.orders.view.App",
+    },
+    {
+      "controllerName": "demo.orders.controller.Detail",
+      "nestedViews": [],
+      "path": "webapp/view/Detail.view.xml",
+      "routes": [
+        "detail",
+      ],
+      "viewId": "detail",
+      "viewName": "demo.orders.view.Detail",
+    },
+    {
+      "controllerName": "demo.orders.controller.Main",
+      "nestedViews": [],
+      "path": "webapp/view/Main.view.xml",
+      "routes": [
+        "main",
+      ],
+      "viewId": "main",
+      "viewName": "demo.orders.view.Main",
+    },
+  ],
+  "warnings": [],
+}
+`;
+
+exports[`rule generator + lint snapshot: devtools.json > matches the stored tour and lint result 1`] = `
+{
+  "lint": {
+    "issues": [
+      {
+        "code": "target.noId",
+        "message": "Step "s6": the control has no id and is found by its text only; give it an id in the view",
+        "path": "steps[6].target",
+        "severity": "warning",
+        "stepId": "s6",
+      },
+    ],
+    "summary": {
+      "errors": 0,
+      "infos": 0,
+      "warnings": 1,
+    },
+  },
+  "mapping": {
+    "actionable": 6,
+    "mapped": 6,
+    "unmapped": 0,
+  },
+  "report": {
+    "skipped": 0,
+    "steps": 7,
+    "unresolved": 0,
+  },
+  "tour": {
+    "id": "create-an-order",
+    "options": {
+      "allowSkip": true,
+      "interactive": true,
+      "overlay": true,
+      "showProgress": true,
+      "waitTimeoutMs": 5000,
+    },
+    "schemaVersion": 1,
+    "steps": [
+      {
+        "before": [],
+        "id": "intro",
+        "meta": {
+          "source": "rules",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "text": "Let us walk through **Create an order** step by step.",
+        "title": "Create an order",
+      },
+      {
+        "before": [],
+        "id": "s1",
+        "meta": {
+          "confidence": 0.95,
+          "source": "recording:2",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "target": {
+          "controlId": "searchField",
+          "fallbacks": [],
+          "viewName": "demo.orders.view.Main",
+        },
+        "text": "Type here to narrow down the list.",
+        "title": "Search",
+      },
+      {
+        "before": [],
+        "id": "s2",
+        "meta": {
+          "confidence": 0.95,
+          "source": "recording:6",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "target": {
+          "controlId": "createBtn",
+          "fallbacks": [
+            {
+              "by": "text",
+              "value": "Create",
+            },
+          ],
+          "viewName": "demo.orders.view.Main",
+        },
+        "text": "Press **Create** to continue.",
+        "title": "Press Create",
+      },
+      {
+        "before": [
+          {
+            "hash": "order/new",
+            "type": "navigate",
+          },
+        ],
+        "id": "s3",
+        "meta": {
+          "confidence": 0.95,
+          "source": "recording:7",
+          "unresolved": false,
+        },
+        "placement": "PreferredRightOrFlip",
+        "target": {
+          "controlId": "customerInput",
+          "fallbacks": [],
+          "viewName": "demo.orders.view.Detail",
+        },
+        "text": "Fill in **Customer**.",
+        "title": "Customer",
+      },
+      {
+        "before": [],
+        "id": "s4",
+        "meta": {
+          "confidence": 0.95,
+          "source": "recording:9",
+          "unresolved": false,
+        },
+        "placement": "PreferredRightOrFlip",
+        "target": {
+          "controlId": "statusSelect",
+          "fallbacks": [],
+          "viewName": "demo.orders.view.Detail",
+        },
+        "text": "Pick a value for **Status**.",
+        "title": "Choose status",
+      },
+      {
+        "before": [],
+        "id": "s5",
+        "meta": {
+          "confidence": 0.95,
+          "source": "recording:10",
+          "unresolved": false,
+        },
+        "placement": "PreferredTopOrFlip",
+        "target": {
+          "controlId": "saveBtn",
+          "fallbacks": [
+            {
+              "by": "text",
+              "value": "Save",
+            },
+          ],
+          "viewName": "demo.orders.view.Detail",
+        },
+        "text": "Press **Save** to continue.",
+        "title": "Press Save",
+      },
+      {
+        "before": [
+          {
+            "hash": "",
+            "type": "navigate",
+          },
+        ],
+        "id": "s6",
+        "meta": {
+          "confidence": 0.7,
+          "source": "recording:11",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "target": {
+          "fallbacks": [
+            {
+              "by": "text",
+              "value": "Export",
+            },
+          ],
+          "viewName": "demo.orders.view.Main",
+        },
+        "text": "Press **Export**.",
+        "title": "Press Export",
+      },
+    ],
+    "title": "Create an order",
+  },
+}
+`;
+
+exports[`rule generator + lint snapshot: opa5.js > matches the stored tour and lint result 1`] = `
+{
+  "lint": {
+    "issues": [
+      {
+        "code": "target.noId",
+        "message": "Step "s4": the control has no id and is found by its text only; give it an id in the view",
+        "path": "steps[4].target",
+        "severity": "warning",
+        "stepId": "s4",
+      },
+    ],
+    "summary": {
+      "errors": 0,
+      "infos": 0,
+      "warnings": 1,
+    },
+  },
+  "mapping": {
+    "actionable": 4,
+    "mapped": 4,
+    "unmapped": 0,
+  },
+  "report": {
+    "skipped": 0,
+    "steps": 5,
+    "unresolved": 0,
+  },
+  "tour": {
+    "id": "guided-tour",
+    "options": {
+      "allowSkip": true,
+      "interactive": true,
+      "overlay": true,
+      "showProgress": true,
+      "waitTimeoutMs": 5000,
+    },
+    "schemaVersion": 1,
+    "steps": [
+      {
+        "before": [],
+        "id": "intro",
+        "meta": {
+          "source": "rules",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "text": "Let us walk through **Guided tour** step by step.",
+        "title": "Guided tour",
+      },
+      {
+        "before": [],
+        "id": "s1",
+        "meta": {
+          "confidence": 0.98,
+          "source": "recording:0",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "target": {
+          "controlId": "createBtn",
+          "fallbacks": [
+            {
+              "by": "text",
+              "value": "Create",
+            },
+          ],
+          "viewName": "demo.orders.view.Main",
+        },
+        "text": "Press **Create**.",
+        "title": "Press Create",
+      },
+      {
+        "before": [
+          {
+            "hash": "order/new",
+            "type": "navigate",
+          },
+        ],
+        "id": "s2",
+        "meta": {
+          "confidence": 0.98,
+          "source": "recording:1",
+          "unresolved": false,
+        },
+        "placement": "PreferredRightOrFlip",
+        "target": {
+          "controlId": "customerInput",
+          "fallbacks": [],
+          "viewName": "demo.orders.view.Detail",
+        },
+        "text": "Fill in **Customer**.",
+        "title": "Customer",
+      },
+      {
+        "before": [],
+        "id": "s3",
+        "meta": {
+          "confidence": 0.98,
+          "source": "recording:2",
+          "unresolved": false,
+        },
+        "placement": "PreferredTopOrFlip",
+        "target": {
+          "controlId": "saveBtn",
+          "fallbacks": [
+            {
+              "by": "text",
+              "value": "Save",
+            },
+          ],
+          "viewName": "demo.orders.view.Detail",
+        },
+        "text": "Press **Save**.",
+        "title": "Press Save",
+      },
+      {
+        "before": [
+          {
+            "hash": "",
+            "type": "navigate",
+          },
+        ],
+        "id": "s4",
+        "meta": {
+          "confidence": 0.7,
+          "source": "recording:3",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "target": {
+          "fallbacks": [
+            {
+              "by": "text",
+              "value": "Export",
+            },
+          ],
+          "viewName": "demo.orders.view.Main",
+        },
+        "text": "Press **Export**.",
+        "title": "Press Export",
+      },
+    ],
+    "title": "Guided tour",
+  },
+}
+`;
+
+exports[`rule generator + lint snapshot: raw.js > matches the stored tour and lint result 1`] = `
+{
+  "lint": {
+    "issues": [],
+    "summary": {
+      "errors": 0,
+      "infos": 0,
+      "warnings": 0,
+    },
+  },
+  "mapping": {
+    "actionable": 1,
+    "mapped": 1,
+    "unmapped": 0,
+  },
+  "report": {
+    "skipped": 0,
+    "steps": 2,
+    "unresolved": 0,
+  },
+  "tour": {
+    "id": "guided-tour",
+    "options": {
+      "allowSkip": true,
+      "interactive": true,
+      "overlay": true,
+      "showProgress": true,
+      "waitTimeoutMs": 5000,
+    },
+    "schemaVersion": 1,
+    "steps": [
+      {
+        "before": [],
+        "id": "intro",
+        "meta": {
+          "source": "rules",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "text": "Let us walk through **Guided tour** step by step.",
+        "title": "Guided tour",
+      },
+      {
+        "before": [],
+        "id": "s1",
+        "meta": {
+          "confidence": 0.98,
+          "source": "recording:0",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "target": {
+          "controlId": "createBtn",
+          "fallbacks": [
+            {
+              "by": "text",
+              "value": "Create",
+            },
+          ],
+          "viewName": "demo.orders.view.Main",
+        },
+        "text": "Press **Create**.",
+        "title": "Press Create",
+      },
+    ],
+    "title": "Guided tour",
+  },
+}
+`;
+
+exports[`rule generator + lint snapshot: txt > matches the stored tour and lint result 1`] = `
+{
+  "lint": {
+    "issues": [],
+    "summary": {
+      "errors": 0,
+      "infos": 0,
+      "warnings": 0,
+    },
+  },
+  "mapping": {
+    "actionable": 5,
+    "mapped": 5,
+    "unmapped": 0,
+  },
+  "report": {
+    "skipped": 1,
+    "steps": 6,
+    "unresolved": 0,
+  },
+  "tour": {
+    "id": "guided-tour",
+    "options": {
+      "allowSkip": true,
+      "interactive": true,
+      "overlay": true,
+      "showProgress": true,
+      "waitTimeoutMs": 5000,
+    },
+    "schemaVersion": 1,
+    "steps": [
+      {
+        "before": [],
+        "id": "intro",
+        "meta": {
+          "source": "rules",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "text": "Let us walk through **Guided tour** step by step.",
+        "title": "Guided tour",
+      },
+      {
+        "before": [],
+        "id": "s1",
+        "meta": {
+          "confidence": 0.6,
+          "source": "recording:0",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "target": {
+          "controlId": "searchField",
+          "fallbacks": [],
+          "viewName": "demo.orders.view.Main",
+        },
+        "text": "Type here to narrow down the list.",
+        "title": "Search",
+      },
+      {
+        "before": [],
+        "id": "s2",
+        "meta": {
+          "confidence": 0.6,
+          "source": "recording:1",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "target": {
+          "controlId": "createBtn",
+          "fallbacks": [
+            {
+              "by": "text",
+              "value": "Create",
+            },
+          ],
+          "viewName": "demo.orders.view.Main",
+        },
+        "text": "Press **Create**.",
+        "title": "Press Create",
+      },
+      {
+        "before": [
+          {
+            "hash": "order/new",
+            "type": "navigate",
+          },
+        ],
+        "id": "s3",
+        "meta": {
+          "confidence": 0.6,
+          "source": "recording:2",
+          "unresolved": false,
+        },
+        "placement": "PreferredRightOrFlip",
+        "target": {
+          "controlId": "customerInput",
+          "fallbacks": [],
+          "viewName": "demo.orders.view.Detail",
+        },
+        "text": "Fill in **Customer**.",
+        "title": "Customer",
+      },
+      {
+        "before": [],
+        "id": "s4",
+        "meta": {
+          "confidence": 0.6,
+          "source": "recording:3",
+          "unresolved": false,
+        },
+        "placement": "PreferredRightOrFlip",
+        "target": {
+          "controlId": "statusSelect",
+          "fallbacks": [],
+          "viewName": "demo.orders.view.Detail",
+        },
+        "text": "Pick a value for **Status**.",
+        "title": "Choose status",
+      },
+      {
+        "before": [],
+        "id": "s5",
+        "meta": {
+          "confidence": 0.6,
+          "source": "recording:4",
+          "unresolved": false,
+        },
+        "placement": "PreferredTopOrFlip",
+        "target": {
+          "controlId": "saveBtn",
+          "fallbacks": [
+            {
+              "by": "text",
+              "value": "Save",
+            },
+          ],
+          "viewName": "demo.orders.view.Detail",
+        },
+        "text": "Press **Save**.",
+        "title": "Press Save",
+      },
+    ],
+    "title": "Guided tour",
+  },
+}
+`;
+
+exports[`rule generator + lint snapshot: wdi5.js > matches the stored tour and lint result 1`] = `
+{
+  "lint": {
+    "issues": [],
+    "summary": {
+      "errors": 0,
+      "infos": 0,
+      "warnings": 0,
+    },
+  },
+  "mapping": {
+    "actionable": 3,
+    "mapped": 3,
+    "unmapped": 0,
+  },
+  "report": {
+    "skipped": 0,
+    "steps": 4,
+    "unresolved": 0,
+  },
+  "tour": {
+    "id": "guided-tour",
+    "options": {
+      "allowSkip": true,
+      "interactive": true,
+      "overlay": true,
+      "showProgress": true,
+      "waitTimeoutMs": 5000,
+    },
+    "schemaVersion": 1,
+    "steps": [
+      {
+        "before": [],
+        "id": "intro",
+        "meta": {
+          "source": "rules",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "text": "Let us walk through **Guided tour** step by step.",
+        "title": "Guided tour",
+      },
+      {
+        "before": [],
+        "id": "s1",
+        "meta": {
+          "confidence": 0.98,
+          "source": "recording:0",
+          "unresolved": false,
+        },
+        "placement": "PreferredBottomOrFlip",
+        "target": {
+          "controlId": "createBtn",
+          "fallbacks": [
+            {
+              "by": "text",
+              "value": "Create",
+            },
+          ],
+          "viewName": "demo.orders.view.Main",
+        },
+        "text": "Press **Create**.",
+        "title": "Press Create",
+      },
+      {
+        "before": [
+          {
+            "hash": "order/new",
+            "type": "navigate",
+          },
+        ],
+        "id": "s2",
+        "meta": {
+          "confidence": 0.98,
+          "source": "recording:1",
+          "unresolved": false,
+        },
+        "placement": "PreferredRightOrFlip",
+        "target": {
+          "controlId": "customerInput",
+          "fallbacks": [],
+          "viewName": "demo.orders.view.Detail",
+        },
+        "text": "Fill in **Customer**.",
+        "title": "Customer",
+      },
+      {
+        "before": [],
+        "id": "s3",
+        "meta": {
+          "confidence": 0.98,
+          "source": "recording:2",
+          "unresolved": false,
+        },
+        "placement": "PreferredTopOrFlip",
+        "target": {
+          "controlId": "saveBtn",
+          "fallbacks": [
+            {
+              "by": "text",
+              "value": "Save",
+            },
+          ],
+          "viewName": "demo.orders.view.Detail",
+        },
+        "text": "Press **Save**.",
+        "title": "Press Save",
+      },
+    ],
+    "title": "Guided tour",
+  },
+}
+`;

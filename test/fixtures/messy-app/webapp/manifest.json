@@ -1,0 +1,20 @@
+{
+  "sap.app": { "id": "messy.app", "type": "application", "i18n": "i18n/i18n.properties" },
+  "sap.ui5": {
+    "dependencies": { "minUI5Version": "1.96.0", "libs": { "sap.m": {} } },
+    "models": {
+      "i18n": { "type": "sap.ui.model.resource.ResourceModel", "settings": { "bundleName": "messy.app.i18n.i18n" } }
+    },
+    "routing": {
+      "config": { "routerClass": "sap.m.routing.Router", "viewType": "XML", "viewPath": "messy.app.view", "controlId": "root", "controlAggregation": "pages" },
+      "routes": [
+        { "name": "overview", "pattern": ":?query:", "target": ["overviewTarget"] },
+        { "name": "item", "pattern": "item/{id}/{tab}", "target": ["overviewTarget", "childTarget"] }
+      ],
+      "targets": {
+        "overviewTarget": { "viewName": "Overview", "viewId": "overviewView" },
+        "childTarget": { "viewName": "Child", "viewPath": "messy.app.view", "viewId": "childView" }
+      }
+    }
+  }
+}

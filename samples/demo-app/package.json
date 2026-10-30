@@ -1,0 +1,1 @@
+{ "name": "demo-orders", "version": "1.0.0", "private": true, "description": "Freestyle UI5 demo app used as TourD fixture and e2e target" }

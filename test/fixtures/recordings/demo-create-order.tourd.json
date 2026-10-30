@@ -1,0 +1,126 @@
+{
+  "format": "tourd-recording",
+  "version": 1,
+  "recordedAt": "2026-10-27T15:28:04.614Z",
+  "recorder": "tourd-recorder 0.1.0",
+  "app": {
+    "url": "http://localhost:8081/index.html",
+    "startHash": "",
+    "title": "Demo Orders",
+    "ui5Version": "1.120.50",
+    "appId": "demo.orders",
+    "locale": "en-US"
+  },
+  "steps": [
+    {
+      "type": "search",
+      "event": "search",
+      "control": {
+        "id": "container-demo---main--searchField",
+        "localId": "searchField",
+        "viewName": "demo.orders.view.Main",
+        "controllerName": "demo.orders.controller.Main",
+        "controlType": "sap.m.SearchField",
+        "stableId": true,
+        "placeholder": "Search customers",
+        "i18n": {
+          "property": "placeholder",
+          "model": "i18n",
+          "key": "searchPlaceholder"
+        }
+      },
+      "value": "Acme",
+      "t": 29,
+      "index": 0
+    },
+    {
+      "type": "press",
+      "event": "press",
+      "control": {
+        "id": "container-demo---main--createBtn",
+        "localId": "createBtn",
+        "viewName": "demo.orders.view.Main",
+        "controllerName": "demo.orders.controller.Main",
+        "controlType": "sap.m.Button",
+        "stableId": true,
+        "text": "Create",
+        "i18n": {
+          "property": "text",
+          "model": "i18n",
+          "key": "create"
+        }
+      },
+      "t": 90,
+      "index": 1
+    },
+    {
+      "type": "navigate",
+      "hash": "/order/new",
+      "url": "http://localhost:8081/index.html#/order/new",
+      "t": 96,
+      "causedBy": 1,
+      "index": 2
+    },
+    {
+      "type": "input",
+      "event": "change",
+      "control": {
+        "id": "container-demo---detail--customerInput",
+        "localId": "customerInput",
+        "viewName": "demo.orders.view.Detail",
+        "controllerName": "demo.orders.controller.Detail",
+        "controlType": "sap.m.Input",
+        "stableId": true,
+        "label": "Customer"
+      },
+      "value": "Acme Corp",
+      "t": 320,
+      "index": 3
+    },
+    {
+      "type": "select",
+      "event": "change",
+      "control": {
+        "id": "container-demo---detail--statusSelect",
+        "localId": "statusSelect",
+        "viewName": "demo.orders.view.Detail",
+        "controllerName": "demo.orders.controller.Detail",
+        "controlType": "sap.m.Select",
+        "stableId": true,
+        "label": "Status"
+      },
+      "value": "Shipped",
+      "valueText": "Shipped",
+      "t": 439,
+      "index": 4
+    },
+    {
+      "type": "press",
+      "event": "press",
+      "control": {
+        "id": "container-demo---detail--saveBtn",
+        "localId": "saveBtn",
+        "viewName": "demo.orders.view.Detail",
+        "controllerName": "demo.orders.controller.Detail",
+        "controlType": "sap.m.Button",
+        "stableId": true,
+        "text": "Save",
+        "i18n": {
+          "property": "text",
+          "model": "i18n",
+          "key": "save"
+        }
+      },
+      "t": 704,
+      "index": 5
+    },
+    {
+      "type": "navigate",
+      "hash": "",
+      "url": "http://localhost:8081/index.html#",
+      "t": 712,
+      "causedBy": 5,
+      "index": 6
+    }
+  ]
+}

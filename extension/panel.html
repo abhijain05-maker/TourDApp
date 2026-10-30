@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TourD Recorder</title>
+    <link rel="stylesheet" href="panel.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <span class="logo" aria-hidden="true">T</span>
+        <div>
+          <h1>TourD Recorder</h1>
+          <p id="target-info" class="muted" data-testid="target-info">No tab selected</p>
+        </div>
+      </div>
+      <button
+        id="btn-settings"
+        class="icon"
+        aria-label="Settings"
+        aria-expanded="false"
+        data-testid="open-settings"
+      >
+        &#9881;
+      </button>
+    </header>
+
+    <main>
+      <section id="settings" class="card" hidden data-testid="settings">
+        <h2>Connect to TourD</h2>
+        <label for="tourd-url">TourD address</label>
+        <input
+          id="tourd-url"
+          type="url"
+          placeholder="http://localhost:4044"
+          data-testid="tourd-url"
+        />
+        <label for="tourd-token">Pairing token</label>
+        <input
+          id="tourd-token"
+          type="password"
+          autocomplete="off"
+          placeholder="tourd_..."
+          data-testid="tourd-token"
+        />
+        <p class="hint">
+          In TourD open <b>Browser extension</b>, create a token and paste it here. It is kept in
+          this browser only.
+        </p>
+        <div class="row">
+          <button id="btn-save-settings" class="primary" data-testid="save-settings">
+            Save and connect
+          </button>
+          <span id="connection" class="muted" role="status" data-testid="connection"></span>
+        </div>
+      </section>
+
+      <section class="card" id="rec-card">
+        <div class="row between">
+          <span id="status-pill" class="pill" data-testid="status">Ready</span>
+          <span id="step-count" class="muted" data-testid="step-count"></span>
+        </div>
+        <div class="row buttons">
+          <button id="btn-start" class="primary" data-testid="start">
+            &#9679; Start recording
+          </button>
+          <button id="btn-pause" data-testid="pause" hidden>Pause</button>
+          <button id="btn-resume" data-testid="resume" hidden>Resume</button>
+          <button id="btn-stop" data-testid="stop" hidden>Stop</button>
+          <button
+            id="btn-check"
+            data-testid="add-check"
+            title="Point at a control in the app: tests check what it shows now"
+            hidden
+          >
+            &#10004; Add a check
+          </button>
+        </div>
+        <p id="rec-message" class="message" hidden role="status" data-testid="rec-message"></p>
+        <ol id="steps" class="steps" aria-label="Recorded steps" data-testid="steps"></ol>
+        <form id="note-form" class="row" hidden>
+          <input
+            id="note"
+            type="text"
+            maxlength="300"
+            placeholder="Add a note for the tour..."
+            aria-label="Note"
+            data-testid="note"
+          />
+          <button type="submit" data-testid="add-note">Add</button>
+        </form>
+      </section>
+
+      <section class="card" id="send-card" hidden data-testid="send-card">
+        <h2>Send to TourD</h2>
+        <label for="send-project">Project</label>
+        <select id="send-project" data-testid="send-project"></select>
+        <label for="send-name">Name</label>
+        <input id="send-name" type="text" data-testid="send-name" />
+        <div class="row buttons">
+          <button id="btn-send" class="primary" data-testid="send">Send to TourD</button>
+          <button id="btn-save" data-testid="save-file">Save file</button>
+          <button id="btn-copy" data-testid="copy">Copy</button>
+        </div>
+        <p id="send-message" class="message" hidden role="status" data-testid="send-message"></p>
+      </section>
+
+      <section class="card" id="play-card" data-testid="play-card">
+        <h2>Play a tour in this app</h2>
+        <label for="play-project">Project</label>
+        <select id="play-project" data-testid="play-project"></select>
+        <label for="play-tour">Tour</label>
+        <select id="play-tour" data-testid="play-tour"></select>
+        <div class="row buttons">
+          <button id="btn-play" class="primary" data-testid="play">&#9654; Play</button>
+          <button id="btn-stop-tour" data-testid="stop-tour">Stop tour</button>
+        </div>
+        <p id="play-message" class="message" hidden role="status" data-testid="play-message"></p>
+      </section>
+
+      <section class="card" id="help-card" data-testid="help-card">
+        <h2>Write help for this app</h2>
+        <p class="hint">
+          Point at a control in the app, say what it is for, and see the help in the app at once,
+          like the help panel of the BTP cockpit. Topics are saved in the project of TourD.
+        </p>
+        <label for="help-project">Project</label>
+        <select id="help-project" data-testid="help-project"></select>
+        <div class="row buttons">
+          <button id="btn-help-start" class="primary" data-testid="help-start">
+            &#9998; Start writing help
+          </button>
+          <button id="btn-help-stop" data-testid="help-stop" hidden>Done</button>
+        </div>
+        <p id="help-message" class="message" hidden role="status" data-testid="help-message"></p>
+
+        <div id="help-work" hidden data-testid="help-work">
+          <div class="help-sticky">
+          <div class="row buttons">
+            <button id="btn-help-pick" class="primary" data-testid="help-pick">
+              &#9737; Point at a control
+            </button>
+            <button id="btn-help-new" data-testid="help-new">New topic</button>
+            <button id="btn-help-panel" data-testid="help-panel" title="Open the help panel in the app">
+              Show in app
+            </button>
+          </div>
+          <p id="help-control" class="hint" data-testid="help-control"></p>
+          </div>
+          <div id="help-form" hidden data-testid="help-form">
+            <button id="btn-help-repoint" data-testid="help-repoint" title="Keep the text, point at another control">
+              Point at another control
+            </button>
+            <label for="help-instruction">AI: what should it write? (optional)</label>
+            <input
+              id="help-instruction"
+              type="text"
+              maxlength="500"
+              placeholder="shorter, in German, mention the Sales role..."
+              data-testid="help-instruction"
+            />
+            <div class="row buttons">
+              <select id="help-provider" aria-label="AI provider" data-testid="help-provider"></select>
+              <button id="btn-help-ai" data-testid="help-ai">&#10024; Write with AI</button>
+              <button id="btn-help-undo" data-testid="help-undo" hidden>Undo</button>
+            </div>
+            <label for="help-title">Title</label>
+            <input id="help-title" type="text" maxlength="200" data-testid="help-title" />
+            <label for="help-summary">Short description (shown in the topic list)</label>
+            <input id="help-summary" type="text" maxlength="300" data-testid="help-summary" />
+            <label for="help-text">Text (**bold**, *italic*, - lists, [links](https://...))</label>
+            <textarea id="help-text" rows="5" maxlength="8000" data-testid="help-text"></textarea>
+            <label for="help-note">Note (optional, shown highlighted)</label>
+            <textarea id="help-note" rows="2" maxlength="2000" data-testid="help-note"></textarea>
+            <label for="help-links">Related links (one per line: Label | https://...)</label>
+            <textarea id="help-links" rows="2" data-testid="help-links"></textarea>
+            <div class="row buttons">
+              <button id="btn-help-save" class="primary" data-testid="help-save">
+                Save to TourD
+              </button>
+              <button id="btn-help-delete" data-testid="help-delete" hidden>Delete topic</button>
+            </div>
+          </div>
+          <h2 class="sub">Topics of this project</h2>
+          <ol id="help-topics" class="steps" aria-label="Help topics" data-testid="help-topics"></ol>
+        </div>
+      </section>
+
+      <section class="card" id="replay-card" data-testid="replay-card">
+        <h2>Replay wdi5 tests in this app</h2>
+        <p class="hint">
+          Runs the steps of a test plan of the project above in the app you have open, and says
+          which step passes. The controls are found the way wdi5 finds them.
+        </p>
+        <label for="replay-plan">Tests</label>
+        <select id="replay-plan" data-testid="replay-plan"></select>
+        <div class="row buttons">
+          <button id="btn-replay" class="primary" data-testid="replay">&#9654; Replay</button>
+          <button id="btn-stop-replay" data-testid="stop-replay">Stop</button>
+        </div>
+        <p id="replay-message" class="message" hidden role="status" data-testid="replay-message"></p>
+        <ol id="replay-results" class="steps" aria-label="Replay result" data-testid="replay-results"></ol>
+      </section>
+    </main>
+
+    <script src="shared.js"></script>
+    <script src="panel.js"></script>
+  </body>
+</html>

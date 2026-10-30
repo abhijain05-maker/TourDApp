@@ -1,0 +1,12 @@
+{
+  "semi": false,
+  "singleQuote": true,
+  "printWidth": 100,
+  "trailingComma": "all",
+  "overrides": [
+    {
+      "files": ["player/**", "sandbox/**", "samples/**"],
+      "options": { "semi": true, "singleQuote": false, "useTabs": true, "trailingComma": "none" }
+    }
+  ]
+}

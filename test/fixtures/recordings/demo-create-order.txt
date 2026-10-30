@@ -1,0 +1,6 @@
+1. Search for Acme in the search field
+2. Click Create
+3. Enter "Acme Corp" in Customer
+4. Select the status
+5. Click Save
+Remember to mention that saving returns to the list.

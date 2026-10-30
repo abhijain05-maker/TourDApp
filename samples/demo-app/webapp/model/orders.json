@@ -1,0 +1,40 @@
+{
+	"Orders": [
+		{
+			"id": "1001",
+			"customer": "Acme Corp",
+			"status": "Open",
+			"date": "2026-09-01",
+			"amount": 1250.5
+		},
+		{
+			"id": "1002",
+			"customer": "Globex",
+			"status": "Shipped",
+			"date": "2026-09-08",
+			"amount": 980
+		},
+		{
+			"id": "1003",
+			"customer": "Initech",
+			"status": "Open",
+			"date": "2026-09-15",
+			"amount": 4300.25
+		},
+		{
+			"id": "1004",
+			"customer": "Umbrella",
+			"status": "Closed",
+			"date": "2026-09-21",
+			"amount": 150
+		},
+		{
+			"id": "1005",
+			"customer": "Stark Industries",
+			"status": "Shipped",
+			"date": "2026-10-02",
+			"amount": 22000
+		}
+	],
+	"NewOrder": { "id": "new", "customer": "", "status": "Open", "date": "2026-10-26", "amount": 0 }
+}

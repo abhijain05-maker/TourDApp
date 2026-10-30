@@ -1,0 +1,98 @@
+{
+  "name": "tourd",
+  "version": "0.1.0",
+  "description": "Guided-tour generator for SAPUI5 / Fiori freestyle apps (CAP + React)",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "predev": "node scripts/db-deploy.mjs",
+    "dev": "cds watch --port 4044",
+    "dev:designer": "npm --prefix designer run dev",
+    "prestart": "node scripts/db-deploy.mjs",
+    "start": "cds-serve --port 4044",
+    "build:designer": "npm --prefix designer run build",
+    "build:player": "node scripts/build-player.mjs",
+    "build:extension": "node scripts/build-extension.mjs",
+    "package:extension": "node scripts/package-extension.mjs",
+    "build:schema": "node scripts/build-schema.mjs",
+    "test": "vitest run",
+    "e2e": "npm run build:player && npm run build:extension && npm run build:designer && playwright test",
+    "acceptance": "npm run build:player && npm run build:extension && npm run build:designer && playwright test test/e2e/acceptance.spec.js",
+    "test:live": "vitest run --config vitest.live.config.js",
+    "test:wdi5": "vitest run --config vitest.wdi5.config.js",
+    "format": "prettier --write \"{srv,shared,player,sandbox,recorder,extension,test}/**/*.{js,mjs,json}\"",
+    "build:cf": "npm run build:designer && npm run build:player && npm run build:extension && node scripts/build-cf.mjs"
+  },
+  "cds": {
+    "requires": {
+      "db": {
+        "kind": "sqlite",
+        "credentials": {
+          "url": "db.sqlite"
+        }
+      }
+    },
+    "server": {
+      "body_parser": {
+        "limit": "12mb"
+      }
+    },
+    "[production]": {
+      "requires": {
+        "db": {
+          "kind": "hana"
+        },
+        "auth": {
+          "kind": "xsuaa",
+          "impl": "srv/auth.js",
+          "base": "xsuaa"
+        }
+      },
+      "tourd": {
+        "enforceRoles": true
+      }
+    },
+    "[postgres]": {
+      "requires": {
+        "db": {
+          "kind": "postgres"
+        },
+        "auth": {
+          "kind": "xsuaa",
+          "impl": "srv/auth.js",
+          "base": "xsuaa"
+        }
+      },
+      "tourd": {
+        "enforceRoles": true
+      }
+    }
+  },
+  "dependencies": {
+    "@cap-js/hana": "^3.1.2",
+    "@cap-js/postgres": "^3.1.2",
+    "@cap-js/sqlite": "^3.1.2",
+    "@google/genai": "^2.31.0",
+    "@sap-ai-sdk/orchestration": "^2.17.0",
+    "@sap/cds": "^10.2.1",
+    "acorn": "^8.19.0",
+    "acorn-walk": "^8.3.5",
+    "diff": "^8.0.4",
+    "fast-xml-parser": "^5.11.2",
+    "fflate": "^0.8.3",
+    "prettier": "^3.9.10",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.14.0",
+    "@cap-js/cds-test": "^1.0.2",
+    "@playwright/test": "^1.64.1",
+    "@puppeteer/replay": "^4.0.2",
+    "@sap/cds-dk": "^10.2.0",
+    "@ui5/cli": "^4.0.71",
+    "vitest": "^5.0.5"
+  }
+}

@@ -1,0 +1,10 @@
+node_modules
+app/
+db.sqlite*
+test-results
+samples/demo-app/webapp/tourd/TourPlayer.js
+shared/tour.schema.json
+designer/
+*.xml
+*.properties
+test/fixtures

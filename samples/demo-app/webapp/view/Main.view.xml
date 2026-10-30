@@ -1,0 +1,39 @@
+<mvc:View controllerName="demo.orders.controller.Main"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc">
+	<Page id="mainPage" title="{i18n>mainTitle}">
+		<headerContent>
+			<Button id="startTourBtn" icon="sap-icon://hint" tooltip="{i18n>startTour}" press=".onStartTour" />
+		</headerContent>
+		<subHeader>
+			<Toolbar id="mainToolbar">
+				<SearchField id="searchField" width="20rem" placeholder="{i18n>searchPlaceholder}" search=".onSearch" />
+				<ToolbarSpacer />
+				<!-- deliberately no id: auto-generated id (used by lint tests) -->
+				<Button text="{i18n>export}" press=".onExport" />
+				<Button id="createBtn" type="Emphasized" text="{i18n>create}" press=".onCreate" />
+			</Toolbar>
+		</subHeader>
+		<content>
+			<Table id="ordersTable" items="{/Orders}">
+				<columns>
+					<Column><Text text="{i18n>colId}" /></Column>
+					<Column><Text text="{i18n>colCustomer}" /></Column>
+					<Column><Text text="{i18n>colStatus}" /></Column>
+					<Column><Text text="{i18n>colDate}" /></Column>
+					<Column hAlign="End"><Text text="{i18n>colAmount}" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Navigation" press=".onItemPress">
+						<cells>
+							<ObjectIdentifier title="{id}" />
+							<Text text="{customer}" />
+							<ObjectStatus text="{status}" />
+							<Text text="{date}" />
+							<ObjectNumber number="{amount}" unit="EUR" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</content>
+	</Page>
+</mvc:View>

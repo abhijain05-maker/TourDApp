@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TourD sandbox</title>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    #tourd-status { position: fixed; inset: 0 0 auto 0; padding: 1rem; font: 14px sans-serif; color: #1d2d3e; background: #fff; z-index: 10; }
+    html.tourd-picking, html.tourd-picking * { cursor: crosshair !important; }
+    html.tourd-picking .tourd-shield, html.tourd-picking .tourd-spot, html.tourd-picking .tourd-bubble { display: none !important; }
+  </style>
+  <script>
+    // Filled in by the server: { appId, appBase, ui5, parentOrigin }
+    window.__TOURD__ = /*__TOURD_CONFIG__*/ null;
+    (function () {
+      var cfg = window.__TOURD__;
+      function report(message) {
+        var el = document.getElementById("tourd-status");
+        if (el) { el.textContent = message; }
+        try { window.parent.postMessage({ tourd: "sandbox", type: "error", message: message }, cfg.parentOrigin); } catch (e) { /* not framed */ }
+      }
+      var roots = { tourd: "./rt/" };
+      roots[cfg.appId] = cfg.appBase;
+      var s = document.createElement("script");
+      s.id = "sap-ui-bootstrap";
+      s.src = "https://ui5.sap.com/" + (cfg.ui5 === "latest" ? "" : cfg.ui5 + "/") + "resources/sap-ui-core.js";
+      s.setAttribute("data-sap-ui-async", "true");
+      s.setAttribute("data-sap-ui-theme", "sap_horizon");
+      s.setAttribute("data-sap-ui-compat-version", "edge");
+      s.setAttribute("data-sap-ui-resource-roots", JSON.stringify(roots));
+      s.setAttribute("data-sap-ui-on-init", "module:tourd/sandbox");
+      s.setAttribute("data-sap-ui-oninit", "module:tourd/sandbox");
+      s.onerror = function () { report("UI5 " + cfg.ui5 + " could not be loaded from ui5.sap.com. Are you offline?"); };
+      document.head.appendChild(s);
+    })();
+  </script>
+</head>
+<body class="sapUiBody">
+  <div id="tourd-status">Loading UI5&hellip;</div>
+  <div id="content" style="height: 100%"></div>
+</body>
+</html>

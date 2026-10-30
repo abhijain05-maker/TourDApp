@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mvc:View controllerName="messy.app.controller.Overview"
+	xmlns="sap.m" xmlns:mvc="sap.ui.core.mvc" xmlns:core="sap.ui.core"
+	xmlns:l="sap.ui.layout" xmlns:html="http://www.w3.org/1999/xhtml" xmlns:custom="messy.app.control">
+	<Page id="page" title="{i18n>title}">
+		<content>
+			<html:div class="legacy"><html:span>not a control</html:span></html:div>
+			<Label text="Name" labelFor="nameInput" />
+			<Input id="nameInput" value="{/name}" placeholder="Your name" liveChange=".onLive" />
+			<Text text="{= ${/count} > 0 ? 'Some' : 'None' }" />
+			<Button text="No id here" press="onNoId" />
+			<core:Fragment fragmentName="messy.app.fragment.Inline" type="XML" />
+			<mvc:XMLView id="childHost" viewName="messy.app.view.Child" />
+			<custom:Special id="special" text="Custom control" />
+			<List id="list" items="{/Items}" headerText="{i18n>items.header}">
+				<items>
+					<StandardListItem id="listItem" title="{name}" press=".onItem" type="Active" />
+				</items>
+			</List>
+			<Table id="table" items="{path: '/Rows'}">
+				<columns><Column><Text text="Col" /></Column></columns>
+				<items><ColumnListItem><cells><Text id="cellText" text="{value}" /></cells></ColumnListItem></items>
+			</Table>
+		</content>
+		<footer><Toolbar><ToolbarSpacer /><Button id="saveBtn" text="{i18n>saveAction}" press=".onSave($event, 'x')" /></Toolbar></footer>
+	</Page>
+</mvc:View>

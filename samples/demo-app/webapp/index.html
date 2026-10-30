@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demo Orders</title>
+  <script>
+    // UI5 version is selectable for testing: index.html?ui5=1.120 | 1.148 | latest
+    (function () {
+      var v = new URLSearchParams(location.search).get("ui5") || "1.120";
+      var s = document.createElement("script");
+      s.id = "sap-ui-bootstrap";
+      s.src = "https://ui5.sap.com/" + (v === "latest" ? "" : v + "/") + "resources/sap-ui-core.js";
+      s.setAttribute("data-sap-ui-async", "true");
+      s.setAttribute("data-sap-ui-theme", "sap_horizon");
+      s.setAttribute("data-sap-ui-compat-version", "edge");
+      s.setAttribute("data-sap-ui-resource-roots", JSON.stringify({ "demo.orders": "./" }));
+      s.setAttribute("data-sap-ui-on-init", "module:sap/ui/core/ComponentSupport");
+      s.setAttribute("data-sap-ui-oninit", "module:sap/ui/core/ComponentSupport");
+      document.head.appendChild(s);
+    })();
+  </script>
+</head>
+<body class="sapUiBody" id="content">
+  <div data-sap-ui-component data-name="demo.orders" data-id="container" data-settings='{"id": "demo"}' data-handle-validation="true"></div>
+</body>
+</html>

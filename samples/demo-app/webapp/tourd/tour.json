@@ -1,0 +1,56 @@
+{
+	"schemaVersion": 1,
+	"id": "orders-intro",
+	"title": "Create your first order",
+	"options": { "showProgress": true, "allowSkip": true, "overlay": true, "waitTimeoutMs": 5000 },
+	"steps": [
+		{
+			"id": "welcome",
+			"title": "{i18n>appTitle}",
+			"text": "Welcome! This short tour shows how to **find** and **create** orders."
+		},
+		{
+			"id": "search",
+			"title": "Find orders",
+			"text": "Type a customer name to filter the list.",
+			"target": { "viewName": "demo.orders.view.Main", "controlId": "searchField" },
+			"placement": "PreferredBottomOrFlip"
+		},
+		{
+			"id": "table",
+			"title": "Your orders",
+			"text": "All orders are listed here. Press a row to open it.",
+			"target": { "viewName": "demo.orders.view.Main", "controlId": "ordersTable" },
+			"placement": "PreferredTopOrFlip"
+		},
+		{
+			"id": "create",
+			"title": "Create an order",
+			"text": "Press **Create** to open an empty order.",
+			"target": { "viewName": "demo.orders.view.Main", "controlId": "createBtn" },
+			"placement": "PreferredBottomOrFlip"
+		},
+		{
+			"id": "customer",
+			"title": "Who is the customer?",
+			"text": "Enter the customer name.\n\n- Required\n- Free text",
+			"target": { "viewName": "demo.orders.view.Detail", "controlId": "customerInput" },
+			"placement": "PreferredRightOrFlip",
+			"before": [{ "type": "navigate", "hash": "order/new" }]
+		},
+		{
+			"id": "status",
+			"title": "Set the status",
+			"text": "Orders start as `Open`.",
+			"target": { "viewName": "demo.orders.view.Detail", "controlId": "statusSelect" },
+			"placement": "PreferredRightOrFlip"
+		},
+		{
+			"id": "save",
+			"title": "Save it",
+			"text": "Press **Save** to store the order.",
+			"target": { "viewName": "demo.orders.view.Detail", "controlId": "saveBtn" },
+			"placement": "PreferredTopOrFlip"
+		}
+	]
+}

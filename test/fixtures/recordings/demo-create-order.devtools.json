@@ -1,0 +1,17 @@
+{
+  "title": "Create an order",
+  "steps": [
+    { "type": "setViewport", "width": 1280, "height": 720, "deviceScaleFactor": 1, "isMobile": false, "hasTouch": false, "isLandscape": false },
+    { "type": "navigate", "url": "http://localhost:8081/index.html", "assertedEvents": [{ "type": "navigation", "url": "http://localhost:8081/index.html", "title": "Demo Orders" }] },
+    { "type": "click", "target": "main", "selectors": [["aria/Search customers"], ["#container-demo---main--searchField-I"], ["xpath///*[@id=\"container-demo---main--searchField-I\"]"]], "offsetX": 60, "offsetY": 12 },
+    { "type": "change", "value": "Acme", "selectors": [["aria/Search customers"], ["#container-demo---main--searchField-I"]], "target": "main" },
+    { "type": "keyDown", "target": "main", "key": "Enter" },
+    { "type": "keyUp", "key": "Enter", "target": "main" },
+    { "type": "click", "target": "main", "selectors": [["aria/Create"], ["#container-demo---main--createBtn-BDI-content"], ["xpath///*[@id=\"container-demo---main--createBtn-BDI-content\"]"]], "offsetX": 20, "offsetY": 8, "assertedEvents": [{ "type": "navigation", "url": "http://localhost:8081/index.html#/order/new", "title": "" }] },
+    { "type": "click", "target": "main", "selectors": [["aria/Customer"], ["#container-demo---detail--customerInput-inner"]], "offsetX": 100, "offsetY": 10 },
+    { "type": "change", "value": "Acme Corp", "selectors": [["aria/Customer"], ["#container-demo---detail--customerInput-inner"]], "target": "main" },
+    { "type": "click", "target": "main", "selectors": [["aria/Status"], ["#container-demo---detail--statusSelect-label"]], "offsetX": 30, "offsetY": 9 },
+    { "type": "click", "target": "main", "selectors": [["aria/Save"], ["#container-demo---detail--saveBtn-BDI-content"]], "offsetX": 18, "offsetY": 9, "assertedEvents": [{ "type": "navigation", "url": "http://localhost:8081/index.html#/", "title": "" }] },
+    { "type": "click", "target": "main", "selectors": [["aria/Export"], ["#__button3-BDI-content"]], "offsetX": 24, "offsetY": 9 }
+  ]
+}

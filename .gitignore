@@ -1,0 +1,32 @@
+node_modules/
+.env
+*.sqlite
+*.sqlite-journal
+db.sqlite
+dist/
+app/designer/dist/
+test-results/
+playwright-report/
+.vite/
+*.log
+.DS_Store
+db.sqlite-*
+
+# generated copies of player/TourPlayer.js (scripts/build-player.mjs)
+samples/demo-app/webapp/tourd/TourPlayer.js
+app/player/
+db.sqlite.schema
+db.sqlite.*.bak
+*.sqlite.schema
+*.sqlite-*
+*.sqlite
+
+# built designer (npm run build:designer)
+app/designer/
+
+# built from recorder/ and player/ (npm run build:extension)
+extension/recorder.js
+extension/live-player.js
+extension/live-help.js
+extension-dist/
+gen/

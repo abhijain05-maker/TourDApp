@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "type": "number",
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "options": {
+      "default": {},
+      "type": "object",
+      "properties": {
+        "showProgress": {
+          "default": true,
+          "type": "boolean"
+        },
+        "allowSkip": {
+          "default": true,
+          "type": "boolean"
+        },
+        "overlay": {
+          "default": true,
+          "type": "boolean"
+        },
+        "interactive": {
+          "default": true,
+          "type": "boolean"
+        },
+        "waitTimeoutMs": {
+          "default": 5000,
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 60000
+        }
+      },
+      "additionalProperties": false
+    },
+    "steps": {
+      "minItems": 1,
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "text": {
+            "default": "",
+            "description": "Markdown subset or an {i18n>key} reference",
+            "type": "string"
+          },
+          "target": {
+            "description": "Omit for a centered intro/outro step",
+            "type": "object",
+            "properties": {
+              "viewName": {
+                "description": "Fully qualified view name, e.g. my.app.view.Main. Needed to resolve view-local ids.",
+                "type": "string",
+                "minLength": 1
+              },
+              "controlId": {
+                "description": "View-local control id (global id if no viewName). May be omitted for controls without an id when a fallback is given.",
+                "type": "string",
+                "minLength": 1
+              },
+              "fallbacks": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "by": {
+                      "type": "string",
+                      "enum": [
+                        "id",
+                        "css",
+                        "text"
+                      ],
+                      "description": "How to look the control up when the primary lookup fails"
+                    },
+                    "value": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "required": [
+                    "by",
+                    "value"
+                  ],
+                  "additionalProperties": false
+                }
+              }
+            },
+            "additionalProperties": false
+          },
+          "placement": {
+            "default": "PreferredBottomOrFlip",
+            "type": "string",
+            "enum": [
+              "PreferredBottomOrFlip",
+              "PreferredTopOrFlip",
+              "PreferredLeftOrFlip",
+              "PreferredRightOrFlip",
+              "Bottom",
+              "Top",
+              "Left",
+              "Right",
+              "Vertical",
+              "Horizontal"
+            ]
+          },
+          "before": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "type": {
+                      "type": "string",
+                      "const": "navigate"
+                    },
+                    "hash": {
+                      "type": "string",
+                      "description": "Router hash to navigate to before showing the step, e.g. \"order/new\""
+                    }
+                  },
+                  "required": [
+                    "type",
+                    "hash"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "description": "Where the step came from, e.g. \"recording:3\"",
+                "type": "string"
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "unresolved": {
+                "default": false,
+                "description": "True when the target could not be verified",
+                "type": "boolean"
+              },
+              "note": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "id",
+          "title"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schemaVersion",
+    "id",
+    "title",
+    "steps"
+  ],
+  "additionalProperties": false
+}

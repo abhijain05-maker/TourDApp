@@ -1,0 +1,401 @@
+:root {
+  --bg: #f5f6f7;
+  --card: #ffffff;
+  --text: #1d2d3e;
+  --muted: #5b6b7b;
+  --line: #e3e7eb;
+  --accent: #0a6ed1;
+  --accent-text: #ffffff;
+  --danger: #c4314b;
+  --ok: #107e3e;
+  --warn: #b57600;
+  --chip: #eef2f6;
+  --shadow: 0 1px 2px rgba(20, 40, 60, 0.06), 0 4px 14px rgba(20, 40, 60, 0.05);
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12171c;
+    --card: #1b232b;
+    --text: #e8eef4;
+    --muted: #9fb0c0;
+    --line: #2b3641;
+    --accent: #4aa3ff;
+    --accent-text: #08121c;
+    --danger: #ff7a90;
+    --ok: #5fd08a;
+    --warn: #f2b84b;
+    --chip: #25303a;
+    --shadow: none;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font:
+    14px/1.45 system-ui,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #0a6ed1, #6a4fd8);
+  color: #fff;
+  font-weight: 800;
+}
+
+h1 {
+  margin: 0;
+  font-size: 15px;
+}
+
+h2 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+p {
+  margin: 0;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: var(--shadow);
+}
+
+.card[hidden] {
+  display: none;
+}
+
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.hint {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 6px 0 10px;
+}
+
+label {
+  display: block;
+  margin: 8px 0 3px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* the buttons and the chosen control stay in view while the form below is scrolled */
+.help-sticky {
+  position: sticky;
+  top: 58px;
+  z-index: 1;
+  margin: 0 -12px;
+  padding: 0 12px 6px;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+}
+
+.help-sticky .row.buttons {
+  margin-top: 0;
+  padding-top: 8px;
+}
+
+.help-sticky .hint {
+  margin: 6px 0 0;
+}
+
+h2.sub {
+  margin-top: 14px;
+}
+
+textarea {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  resize: vertical;
+}
+
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.steps li.clickable {
+  cursor: pointer;
+}
+
+.steps li.current {
+  border-color: var(--accent);
+}
+
+input,
+select {
+  width: 100%;
+  padding: 7px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+}
+
+input:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.row.between {
+  justify-content: space-between;
+}
+
+.row.buttons {
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+button {
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--chip);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+button[hidden] {
+  display: none;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 600;
+}
+
+button.primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+  background: var(--accent);
+}
+
+button.icon {
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  font-size: 17px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--chip);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.pill::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+
+.pill.recording {
+  color: var(--danger);
+}
+
+.pill.recording::before {
+  background: var(--danger);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.pill.paused {
+  color: var(--warn);
+}
+
+.pill.paused::before {
+  background: var(--warn);
+}
+
+.pill.stopped {
+  color: var(--ok);
+}
+
+.pill.stopped::before {
+  background: var(--ok);
+}
+
+@keyframes pulse {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pill.recording::before {
+    animation: none;
+  }
+}
+
+.message {
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--chip);
+  font-size: 13px;
+}
+
+.message.error {
+  color: var(--danger);
+}
+
+.message.ok {
+  color: var(--ok);
+}
+
+.steps {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 46vh;
+  overflow: auto;
+}
+
+.steps:empty {
+  display: none;
+}
+
+.steps li {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 8px;
+  align-items: start;
+  padding: 7px 8px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+.steps .icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  background: var(--chip);
+  font-size: 12px;
+}
+
+.steps .title {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.steps .detail {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.steps .where {
+  color: var(--muted);
+  font:
+    11px ui-monospace,
+    Consolas,
+    monospace;
+  overflow-wrap: anywhere;
+}
+
+.steps .unstable {
+  color: var(--warn);
+}
+
+.steps button {
+  padding: 2px 7px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--muted);
+}
+
+#note-form {
+  margin-top: 10px;
+}
