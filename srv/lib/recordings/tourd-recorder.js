@@ -45,6 +45,13 @@ function ui5Of(control) {
     i18n: control.i18n ?? null,
     stableId: control.stableId,
     ...(control.inList ? { inList: true } : {}),
+    ...(control.itemText
+      ? {
+          itemText: control.itemText,
+          itemTextType: control.itemTextType,
+          itemTextProperty: control.itemTextProperty,
+        }
+      : {}),
     ...(control.inDialog ? { inDialog: true } : {}),
     runtimeId: control.id,
     ...(control.selector ? { selector: control.selector } : {}),
@@ -89,10 +96,10 @@ export function parse(raw) {
       continue
     }
     if (s.type === 'note') {
-      steps.push({ ...base, action: 'note', note: s.note })
+      steps.push({ ...base, action: 'note', note: s.note, text: s.note, authored: true })
       continue
     }
-    const ui5 = ui5Of(s.control)
+    const ui5 = s.control ? ui5Of(s.control) : undefined // (a message toast check has no control)
     let step
     switch (s.type) {
       case 'press':
@@ -125,6 +132,7 @@ export function parse(raw) {
         continue
     }
     if (s.redacted) step.redacted = true
+    if (s.explain) step.explain = s.explain
     position.set(s.index, steps.length)
     steps.push(step)
   }
@@ -136,5 +144,6 @@ export function parse(raw) {
     app: { appId: rec.app.appId, ui5Version: rec.app.ui5Version, locale: rec.app.locale },
     steps,
     skipped,
+    ...(rec.purpose ? { purpose: rec.purpose } : {}),
   }
 }

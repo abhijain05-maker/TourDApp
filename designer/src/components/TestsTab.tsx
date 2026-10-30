@@ -22,7 +22,7 @@ import '@ui5/webcomponents-icons/dist/delete.js'
 import '@ui5/webcomponents-icons/dist/add.js'
 import { api } from '../api'
 import type { Project, RecordingRow, TestPlanRow } from '../types'
-import { ConfirmDialog, ErrorStrip, Tag } from './common'
+import { ConfirmDialog, ErrorStrip, PURPOSE_LABEL, Tag, purposeOf, recordingsFor } from './common'
 import { formatDate } from '../format'
 import { DEFAULT_SETTINGS, type Wdi5Settings } from '../../../shared/wdi5-plan.mjs'
 import { AUTH_LABEL, FRAMEWORK_LABEL } from '../wdi5'
@@ -140,7 +140,11 @@ export default function TestsTab({ project, onNeedRecording }: { project: Projec
 }
 
 function NewTestDialog(props: { project: Project; recordings: RecordingRow[]; onClose: () => void; onCreated: (id: string) => void }) {
-  const [recordingID, setRecordingID] = useState(props.recordings[0]?.ID ?? '')
+  const [showAll, setShowAll] = useState(false)
+  // tests are made from recordings made for tests (or for both): the others only when asked for
+  const { shown, hidden, noneFit } = recordingsFor(props.recordings, 'test', showAll)
+  const [chosen, setRecordingID] = useState('')
+  const recordingID = shown.some((r) => r.ID === chosen) ? chosen : (shown[0]?.ID ?? '')
   const [name, setName] = useState('')
   const [framework, setFramework] = useState<Wdi5Settings['framework']>('mocha')
   const [auth, setAuth] = useState<Wdi5Settings['auth']>('none')
@@ -174,12 +178,22 @@ function NewTestDialog(props: { project: Project; recordings: RecordingRow[]; on
         <div>
           <Label showColon>Recording</Label>
           <Select style={{ width: '100%' }} accessibleName="Recording" data-testid="test-recording" onChange={(e) => setRecordingID(e.detail.selectedOption.value ?? "")}>
-            {props.recordings.map((r) => (
+            {shown.map((r) => (
               <Option key={r.ID} value={r.ID} selected={r.ID === recordingID}>
-                {r.name}
+                {showAll || noneFit ? `${r.name} (${PURPOSE_LABEL[purposeOf(r)].toLowerCase()})` : r.name}
               </Option>
             ))}
           </Select>
+          {noneFit && (
+            <Text className="muted" data-testid="test-none-fit" style={{ display: 'block' }}>
+              None of the recordings was made for tests; all are shown.
+            </Text>
+          )}
+          {hidden > 0 && (
+            <a href="#" data-testid="test-show-all" onClick={(e) => (e.preventDefault(), setShowAll(true))}>
+              Show all recordings ({hidden} more, made for tours)
+            </a>
+          )}
         </div>
         <div>
           <Label showColon>Name</Label>

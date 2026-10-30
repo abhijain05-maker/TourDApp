@@ -46,7 +46,7 @@ without losing data (`scripts/lib/db-migrate.mjs`). `TOURD_DB_RESET=1 npm run de
 
 ## API (OData V4, `/odata/v4/tour`)
 Entities `Projects`, `Sources`, `Recordings`, `Tours`, `TourVersions`, `GenerationJobs`; actions `importSources`,
-`importRecording`, `generateTour`, `createTour`, `saveTour`, `restoreVersion`; functions `getInventory`,
+`importRecording` (optional `purpose`: tour, test or both), `setRecordingPurpose`, `generateTour`, `createTour`, `saveTour`, `restoreVersion`; functions `getInventory`,
 `getRecording`, `getTourVersion`, `lintTour`, `providers`. Generation runs as a job: poll `GenerationJobs(<id>)`
 until `status` is `done` or `failed`. Help: entity `HelpSets`; actions `saveHelpTopic`, `deleteHelpTopic`,
 `saveHelpSet`, `improveHelpTopic`, `previewHelpApply`, `applyHelpToProject` (see [docs/HELP.md](docs/HELP.md)).

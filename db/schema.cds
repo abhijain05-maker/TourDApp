@@ -46,6 +46,7 @@ entity Recordings : cuid, managed {
   format  : String(30) not null;
   raw     : LargeString not null;
   summary : LargeString; // JSON: steps / mapped / unmapped
+  purpose : String(10) default 'both'; // tour | test | both: what it was recorded for
 }
 
 /** A tour. `definition` is the validated tour JSON (shared/tour-schema.mjs). */

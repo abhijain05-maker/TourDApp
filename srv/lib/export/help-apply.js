@@ -71,6 +71,115 @@ export function patchComponent(text) {
   return { text: addMember(text, target, method) }
 }
 
+// ---- Component.ts -------------------------------------------------------------------------------------------------
+
+/** The text with comments and the insides of strings blanked out (same length), so braces and names can be searched. */
+function mask(text) {
+  const NL = String.fromCharCode(10)
+  const BS = String.fromCharCode(92)
+  let out = ''
+  let i = 0
+  while (i < text.length) {
+    const c = text[i]
+    const n = text[i + 1]
+    if (c === '/' && n === '/') {
+      while (i < text.length && text[i] !== NL) {
+        out += ' '
+        i++
+      }
+    } else if (c === '/' && n === '*') {
+      const end = text.indexOf('*/', i + 2)
+      const stop = end < 0 ? text.length : end + 2
+      for (; i < stop; i++) out += text[i] === NL ? NL : ' '
+    } else if (c === '"' || c === "'" || c === '`') {
+      out += c
+      i++
+      while (i < text.length && text[i] !== c) {
+        if (text[i] === BS) {
+          out += '  '
+          i += 2
+        } else {
+          out += text[i] === NL ? NL : ' '
+          i++
+        }
+      }
+      if (i < text.length) {
+        out += c
+        i++
+      }
+    } else {
+      out += c
+      i++
+    }
+  }
+  return out
+}
+
+/** The index of the "}" that closes the "{" at `open` (in masked text); -1 when it never closes. */
+function closeOf(masked, open) {
+  let depth = 0
+  for (let i = open; i < masked.length; i++) {
+    if (masked[i] === '{') depth++
+    else if (masked[i] === '}' && --depth === 0) return i
+  }
+  return -1
+}
+
+const startLinesTs = (indent, unit) =>
+  [
+    'sap.ui.require(["tourd/HelpLayer"], (HelpLayer: any) => {',
+    `${unit}HelpLayer.start(sap.ui.require.toUrl("tourd/help.json"), { component: this });`,
+    '});',
+  ]
+    .map((l) => indent + l)
+    .join('\n')
+
+const CLASS_RE = /\bclass\s+[\w$]+\s+extends\s+[\w$.]+(?:<[^{>]*>)?\s*\{/
+const INIT_RE =
+  /(?:^|[\s;}])((?:(?:public|protected|override)\s+)*init)\s*\(\s*\)\s*(?::\s*[^{]+?)?\s*\{/
+
+/**
+ * Component.ts (the Fiori tools TypeScript template, or any `class X extends Y`) with the lines that start the help
+ * layer in init(); null when they are there already. TypeScript cannot be parsed here, so the file is searched as text
+ * (comments and strings blanked out first): the class, its init() if it has one, else an init() is added at the end.
+ */
+export function patchComponentTs(text) {
+  if (text.includes(MARK)) return { text: null }
+  const m = mask(text)
+  const cls = CLASS_RE.exec(m)
+  if (!cls) return { error: 'no Component class ("class ... extends ...") was found in the file' }
+  const open = cls.index + cls[0].length - 1
+  const close = closeOf(m, open)
+  if (close < 0) return { error: 'the Component class is not closed' }
+  const unit = indentUnit(text)
+  const body = m.slice(open + 1, close)
+
+  const init = INIT_RE.exec(body)
+  if (init) {
+    const at = open + 1 + init.index + init[0].indexOf(init[1])
+    const iOpen = open + 1 + init.index + init[0].length - 1
+    const iClose = closeOf(m, iOpen)
+    if (iClose < 0) return { error: 'init in Component.ts is not closed' }
+    const member = lineIndent(text, at)
+    const first = /\S/.exec(m.slice(iOpen + 1, iClose))
+    const indent = first ? lineIndent(text, iOpen + 1 + first.index) : member + unit
+    const before = text.slice(0, iClose).replace(/\s*$/, '')
+    return { text: `${before}\n${startLinesTs(indent, unit)}\n${member}${text.slice(iClose)}` }
+  }
+
+  // no init yet: add one that calls the parent's init first, as every UI5 Component must
+  const firstMember = /\n([ \t]*)\S/.exec(body)
+  const member = firstMember ? firstMember[1] : unit
+  const method = [
+    `${member}public override init(): void {`,
+    `${member}${unit}super.init();`,
+    startLinesTs(member + unit, unit),
+    `${member}}`,
+  ].join('\n')
+  const before = text.slice(0, close).replace(/\s*$/, '')
+  return { text: `${before}\n\n${method}\n${lineIndent(text, close)}${text.slice(close)}` }
+}
+
 /** {i18n>key} references in the texts of the topics. */
 export function helpI18nKeys(help) {
   const keys = new Set()
@@ -185,19 +294,22 @@ export function planHelpApply({ help, inventory, files, playerSource, helpSource
   }
 
   // 3. start the layer when the app starts
-  const component = byPath.get(`${root}Component.js`)
+  // (TypeScript first: it is the source of an app that is transpiled)
+  const component = byPath.get(`${root}Component.ts`) ?? byPath.get(`${root}Component.js`)
   const manual = `Add this to the init of your Component: sap.ui.require(["tourd/HelpLayer"], function (HelpLayer) { HelpLayer.start(sap.ui.require.toUrl("tourd/help.json"), { component: oComponent }); });`
   if (!component)
     notes.push({
       code: 'apply.component',
-      message: `${root}Component.js is not in the project, so nothing starts the help. ${manual}`,
+      message: `${root}Component.js (or Component.ts) is not in the project, so nothing starts the help. ${manual}`,
     })
   else {
-    const patched = patchComponent(component.content)
+    const patched = component.path.endsWith('.ts')
+      ? patchComponentTs(component.content)
+      : patchComponent(component.content)
     if (patched.error)
       notes.push({
         code: 'apply.component',
-        message: `Component.js was not changed: ${patched.error}. ${manual}`,
+        message: `${component.path.split('/').pop()} was not changed: ${patched.error}. ${manual}`,
       })
     else if (patched.text !== null)
       put(component.path, patched.text, 'Starts the help layer in the init of the Component')

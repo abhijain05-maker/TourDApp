@@ -46,6 +46,15 @@ service TourService {
     mapped     : Integer;
     unmapped   : Integer;
     skipped    : Integer;
+    purpose    : String;
+  }
+
+  type PreviewResult {
+    kind       : String;
+    definition : LargeString; // the test plan or the tour, as JSON
+    actionable : Integer;
+    mapped     : Integer;
+    unmapped   : Integer;
   }
 
   type LintIssue  { path : String; code : String; severity : String; message : String; stepId : String; }
@@ -88,7 +97,10 @@ service TourService {
   action applyTourToProject(tourID : UUID, paths : many String, accept : Boolean) returns ApplyResult;
 
   // recordings
-  action importRecording(projectID : UUID, name : String, raw : LargeString, format : String) returns RecordingResult;
+  action importRecording(projectID : UUID, name : String, raw : LargeString, format : String, purpose : String) returns RecordingResult;
+  // what TourD would make of a recording that is not sent yet (nothing is saved); kind: test | tour
+  action previewRecording(projectID : UUID, raw : LargeString, kind : String) returns PreviewResult;
+  action setRecordingPurpose(recordingID : UUID, purpose : String) returns Recordings;
   function getRecording(recordingID : UUID) returns LargeString; // mapped against the current inventory
 
   // tours

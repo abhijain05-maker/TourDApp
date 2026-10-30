@@ -24,7 +24,7 @@ import '@ui5/webcomponents-icons/dist/delete.js'
 import '@ui5/webcomponents-icons/dist/detail-view.js'
 import { api } from '../api'
 import type { Project, RecordingResult, RecordingRow, RecordingSummary } from '../types'
-import { ErrorStrip, Tag } from './common'
+import { ErrorStrip, PURPOSE_LABEL, Tag, purposeOf, type Purpose } from './common'
 import { formatDate } from '../format'
 
 const FORMATS = [
@@ -40,6 +40,20 @@ const FORMAT_LABEL: Record<string, string> = {
   'ui5-test-recorder': 'UI5 Test Recorder',
   'plain-text': 'Plain text',
 }
+
+const PURPOSES: Purpose[] = ['both', 'tour', 'test']
+
+/** A recording written by the TourD extension says what it is for; other files do not. */
+const purposeInFile = (raw: string): Purpose | null => {
+  try {
+    const p = (JSON.parse(raw) as { purpose?: string }).purpose
+    return p === 'tour' || p === 'test' || p === 'both' ? p : null
+  } catch {
+    return null
+  }
+}
+
+type Filter = 'all' | 'tour' | 'test'
 
 const shortName = (name?: string | null) => (name ?? '').split('.').slice(-1)[0]
 
@@ -80,6 +94,8 @@ export default function RecordingsTab({ project }: { project: Project }) {
   const [name, setName] = useState('')
   const [format, setFormat] = useState('')
   const [raw, setRaw] = useState('')
+  const [purpose, setPurpose] = useState<Purpose>('both')
+  const [filter, setFilter] = useState<Filter>('all')
   const [last, setLast] = useState<RecordingResult | null>(null)
   const [details, setDetails] = useState<RecordingRow | null>(null)
   const empty = project.parseStatus === 'empty'
@@ -88,7 +104,7 @@ export default function RecordingsTab({ project }: { project: Project }) {
   const refresh = () => qc.invalidateQueries({ queryKey: ['recordings', project.ID] })
 
   const importRec = useMutation({
-    mutationFn: () => api.importRecording(project.ID, name.trim(), raw, format),
+    mutationFn: () => api.importRecording(project.ID, name.trim(), raw, format, purpose),
     onSuccess: (r) => {
       setLast(r)
       setRaw('')
@@ -97,6 +113,14 @@ export default function RecordingsTab({ project }: { project: Project }) {
     },
   })
   const remove = useMutation({ mutationFn: (id: string) => api.deleteRecording(id), onSuccess: refresh })
+  const relabel = useMutation({ mutationFn: (v: { id: string; purpose: Purpose }) => api.setRecordingPurpose(v.id, v.purpose), onSuccess: refresh })
+  // pasting or loading a file from the extension: what it says it is for is already chosen
+  const setRawText = (text: string) => {
+    setRaw(text)
+    const inFile = purposeInFile(text)
+    if (inFile) setPurpose(inFile)
+  }
+  const shown = (recordings.data ?? []).filter((r) => filter === 'all' || purposeOf(r) === 'both' || purposeOf(r) === filter)
 
   return (
     <div className="stack" data-testid="recordings-tab">
@@ -142,7 +166,7 @@ export default function RecordingsTab({ project }: { project: Project }) {
             onChange={async (e) => {
               const f = e.target.files?.[0]
               if (f) {
-                setRaw(await f.text())
+                setRawText(await f.text())
                 if (!name) setName(f.name.replace(/\.[^.]+$/, ''))
               }
               e.target.value = ''
@@ -151,7 +175,20 @@ export default function RecordingsTab({ project }: { project: Project }) {
         </div>
         <div>
           <Label for="rec-raw">Recording</Label>
-          <TextArea id="rec-raw" rows={10} style={{ width: '100%' }} value={raw} placeholder="Paste the recording here" onInput={(e) => setRaw(e.target.value)} data-testid="rec-raw" />
+          <TextArea id="rec-raw" rows={10} style={{ width: '100%' }} value={raw} placeholder="Paste the recording here" onInput={(e) => setRawText(e.target.value)} data-testid="rec-raw" />
+        </div>
+        <div>
+          <Label for="rec-purpose">What is this recording for?</Label>
+          <Select id="rec-purpose" style={{ width: '16rem' }} onChange={(e) => setPurpose((e.detail.selectedOption.value ?? 'both') as Purpose)} data-testid="rec-purpose">
+            {PURPOSES.map((p) => (
+              <Option key={p} value={p} selected={p === purpose}>
+                {PURPOSE_LABEL[p]}
+              </Option>
+            ))}
+          </Select>
+          <Text className="muted" style={{ display: 'block' }}>
+            Tour recordings are offered when you generate a tour, test recordings when you make tests. A file does not say, so the default is both.
+          </Text>
         </div>
         <div className="row">
           <Button design="Emphasized" disabled={empty || !raw.trim() || importRec.isPending} onClick={() => importRec.mutate()} data-testid="rec-import">
@@ -163,12 +200,19 @@ export default function RecordingsTab({ project }: { project: Project }) {
         {last && (
           <MessageStrip design={last.unmapped ? 'Critical' : 'Positive'} hideCloseButton data-testid="rec-result">
             Imported a {FORMAT_LABEL[last.format] ?? last.format} recording: {last.steps} step(s), {last.mapped} of {last.actionable} matched to a control
-            {last.unmapped ? `, ${last.unmapped} could not be found in your files` : ''}.
+            {last.unmapped ? `, ${last.unmapped} could not be found in your files` : ''}. Made for {PURPOSE_LABEL[purposeOf(last)].toLowerCase()}.
           </MessageStrip>
         )}
       </div>
 
-      <ErrorStrip error={recordings.error ?? remove.error} />
+      <ErrorStrip error={recordings.error ?? remove.error ?? relabel.error} />
+      <div className="row" role="group" aria-label="Show recordings for" data-testid="rec-filters">
+        {(['all', 'tour', 'test'] as Filter[]).map((f) => (
+          <Button key={f} design={filter === f ? 'Emphasized' : 'Default'} onClick={() => setFilter(f)} data-testid={`rec-filter-${f}`}>
+            {f === 'all' ? 'All' : f === 'tour' ? 'For tours' : 'For tests'}
+          </Button>
+        ))}
+      </div>
       <div className="card" style={{ padding: 0 }}>
         <Table
           data-testid="recordings-table"
@@ -177,19 +221,34 @@ export default function RecordingsTab({ project }: { project: Project }) {
             <TableHeaderRow sticky>
               <TableHeaderCell>Name</TableHeaderCell>
               <TableHeaderCell>Format</TableHeaderCell>
+              <TableHeaderCell width="11rem">Used for</TableHeaderCell>
               <TableHeaderCell>Matched</TableHeaderCell>
               <TableHeaderCell>Imported</TableHeaderCell>
               <TableHeaderCell width="7rem" />
             </TableHeaderRow>
           }
         >
-          {(recordings.data ?? []).map((r) => {
+          {shown.map((r) => {
             const s = summaryOf(r)
             return (
               <TableRow key={r.ID} rowKey={r.ID} data-testid="recording-row">
                 <TableCell>{r.name}</TableCell>
                 <TableCell>
                   <Tag colorScheme="8">{FORMAT_LABEL[r.format] ?? r.format}</Tag>
+                </TableCell>
+                <TableCell>
+                  <Select
+                    accessibleName={`Used for: ${r.name}`}
+                    style={{ width: '9rem' }}
+                    onChange={(e) => relabel.mutate({ id: r.ID, purpose: (e.detail.selectedOption.value ?? 'both') as Purpose })}
+                    data-testid="rec-purpose-row"
+                  >
+                    {PURPOSES.map((p) => (
+                      <Option key={p} value={p} selected={p === purposeOf(r)}>
+                        {PURPOSE_LABEL[p]}
+                      </Option>
+                    ))}
+                  </Select>
                 </TableCell>
                 <TableCell>
                   {s ? (

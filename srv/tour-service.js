@@ -6,11 +6,13 @@ import { inventoryWithLive } from './lib/service/live-inventory.js'
 import { routerHashOf } from './lib/recordings/devtools-recorder.js'
 import { lintTour as lint } from './lib/validate/lint.js'
 import { validateTour } from '../shared/tour-schema.mjs'
+import { PURPOSES } from '../shared/recording-schema.mjs'
 import { prepareFiles, InputError, LIMITS, sha256 } from './lib/service/sources.js'
 import { backfillWorkspace, registerWorkspace } from './lib/service/workspace.js'
 import { registerTourApply } from './lib/service/tour-apply.js'
 import { registerTestPlans } from './lib/service/test-plans.js'
 import { registerHelp } from './lib/service/help.js'
+import { registerPreviewRecording } from './lib/service/preview-recording.js'
 import { registerAuthz } from './lib/service/authz.js'
 import { mint, SCOPES } from './lib/capability.js'
 import { getProvider, listProviders, defaultProviderId } from './lib/llm/provider.js'
@@ -276,7 +278,9 @@ export default class TourService extends cds.ApplicationService {
     this.on(
       'importRecording',
       guarded(async (req) => {
-        const { projectID, name, raw, format } = req.data
+        const { projectID, name, raw, format, purpose: asked } = req.data
+        if (asked && !PURPOSES.includes(asked))
+          return req.reject(400, `purpose must be one of: ${PURPOSES.join(', ')}`)
         const inventory = await inventoryOf(req, projectID)
         if (typeof raw !== 'string' || !raw.trim()) return req.reject(400, 'The recording is empty')
         if (Buffer.byteLength(raw, 'utf8') > LIMITS.recordingBytes)
@@ -294,9 +298,12 @@ export default class TourService extends cds.ApplicationService {
         const mapped = mapRecording(normalized, inventory)
         const summary = { steps: mapped.steps.length, skipped: mapped.skipped, ...mapped.mapping }
         const ID = uuid()
+        // what was asked, else what the recorder wrote into the file, else both (a file does not say)
+        const purpose = asked || normalized.purpose || 'both'
         await INSERT.into(Recordings).entries({
           ID,
           project_ID: projectID,
+          purpose,
           name: (
             name ||
             normalized.title ||
@@ -314,9 +321,20 @@ export default class TourService extends cds.ApplicationService {
           mapped: summary.mapped,
           unmapped: summary.unmapped,
           skipped: summary.skipped,
+          purpose,
         }
       }),
     )
+
+    // the label "for tours / for tests / for both" can be changed later; the recording itself never is
+    this.on('setRecordingPurpose', async (req) => {
+      const { recordingID, purpose } = req.data
+      if (!PURPOSES.includes(purpose))
+        return req.reject(400, `purpose must be one of: ${PURPOSES.join(', ')}`)
+      const n = await UPDATE(Recordings).set({ purpose }).where({ ID: recordingID })
+      if (!n) return req.reject(404, 'Recording not found')
+      return SELECT.one.from(srv.Recordings).where({ ID: recordingID })
+    })
 
     this.on('getRecording', async (req) => {
       const rec = await SELECT.one.from(Recordings).where({ ID: req.data.recordingID })
@@ -587,6 +605,7 @@ export default class TourService extends cds.ApplicationService {
     registerTourApply(this, { project, rebuildInventory, guarded, workspace })
     registerTestPlans(this, { project, rebuildInventory, guarded, workspace })
     registerHelp(this, { project, rebuildInventory, guarded, workspace })
+    registerPreviewRecording(this, { project, guarded })
     // files uploaded before the workspace existed get their hashes once
     cds.once('served', () =>
       backfillWorkspace().catch((e) => LOG.error('workspace backfill failed', e)),

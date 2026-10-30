@@ -6,7 +6,7 @@ import '@ui5/webcomponents-icons/dist/error.js'
 import '@ui5/webcomponents-icons/dist/circle-task.js'
 import { api } from '../api'
 import type { Job, Project, ProviderInfo, RecordingRow } from '../types'
-import { ErrorStrip } from './common'
+import { ErrorStrip, PURPOSE_LABEL, purposeOf, recordingsFor } from './common'
 
 const STAGES: [string, string][] = [
   ['context', 'Reading your files and the recording'],
@@ -90,13 +90,16 @@ export default function GenerateDialog(props: {
   const { open, project, recordings, onClose, onDone } = props
   const providers = useQuery({ queryKey: ['providers'], queryFn: api.providers, enabled: open })
   const [recordingID, setRecordingID] = useState('')
+  const [showAll, setShowAll] = useState(false)
+  // tours are made from recordings made for tours (or for both): the others only when asked for
+  const { shown, hidden, noneFit } = recordingsFor(recordings, 'tour', showAll)
   const [provider, setProvider] = useState<string>(() => remembered() ?? 'rules')
   const [model, setModel] = useState('')
   const [title, setTitle] = useState('')
   const [jobID, setJobID] = useState<string | null>(null)
 
   const start = useMutation({
-    mutationFn: () => api.generateTour({ projectID: project.ID, recordingID: recordingID || recordings[0].ID, provider, model: model.trim(), title: title.trim() }),
+    mutationFn: () => api.generateTour({ projectID: project.ID, recordingID: shown.some((r) => r.ID === recordingID) ? recordingID : shown[0].ID, provider, model: model.trim(), title: title.trim() }),
     onSuccess: (job) => {
       try {
         localStorage.setItem(LAST_PROVIDER, provider)
@@ -128,7 +131,7 @@ export default function GenerateDialog(props: {
           endContent={
             <>
               {!jobID && (
-                <Button design="Emphasized" disabled={!usable || !recordings.length || start.isPending} onClick={() => start.mutate()} data-testid="generate-start">
+                <Button design="Emphasized" disabled={!usable || !shown.length || start.isPending} onClick={() => start.mutate()} data-testid="generate-start">
                   Generate
                 </Button>
               )}
@@ -150,12 +153,22 @@ export default function GenerateDialog(props: {
               Recording
             </Label>
             <Select id="gen-recording" style={{ width: '100%' }} onChange={(e) => setRecordingID(e.detail.selectedOption.value ?? '')} data-testid="gen-recording">
-              {recordings.map((r, i) => (
-                <Option key={r.ID} value={r.ID} selected={recordingID ? r.ID === recordingID : i === 0}>
-                  {r.name}
+              {shown.map((r, i) => (
+                <Option key={r.ID} value={r.ID} selected={shown.some((x) => x.ID === recordingID) ? r.ID === recordingID : i === 0}>
+                  {showAll || noneFit ? `${r.name} (${PURPOSE_LABEL[purposeOf(r)].toLowerCase()})` : r.name}
                 </Option>
               ))}
             </Select>
+            {noneFit && (
+              <Text className="muted" data-testid="gen-none-fit" style={{ display: 'block' }}>
+                None of the recordings was made for tours; all are shown.
+              </Text>
+            )}
+            {hidden > 0 && (
+              <a href="#" data-testid="gen-show-all" onClick={(e) => (e.preventDefault(), setShowAll(true))}>
+                Show all recordings ({hidden} more, made for tests)
+              </a>
+            )}
           </div>
           <div>
             <Label required for="gen-provider">

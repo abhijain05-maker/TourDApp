@@ -52,7 +52,13 @@ export function slug(text, fallback = 'journey') {
 export function selectorCandidates({ ui5, recorded, control }) {
   const controlType = ui5?.type ?? recorded?.controlType ?? null
   const viewName = ui5?.viewName ?? recorded?.viewName ?? null
-  const base = { ...(controlType ? { controlType } : {}), ...(viewName ? { viewName } : {}) }
+  // A control in a dialog is looked for in the open dialogs: without that a button named Save is the Save of the page,
+  // and its view is not the view the dialog is in.
+  const inDialog = recorded?.inDialog === true
+  const base = {
+    ...(controlType ? { controlType } : {}),
+    ...(inDialog ? { searchOpenDialogs: true } : viewName ? { viewName } : {}),
+  }
   const out = []
   const localId = ui5?.localId ?? recorded?.controlId ?? null
   if (localId && (ui5?.hasStableId ?? recorded?.stableId ?? true) && viewName)
@@ -70,19 +76,60 @@ export function selectorCandidates({ ui5, recorded, control }) {
   const label = recorded?.label ?? control?.label ?? null
   if (label && LABELLED.test(controlType ?? '') && viewName)
     out.push({ strategy: 'label', selector: { ...base, labelFor: { text: label } } })
-  if (recorded?.bindingPath && controlType && viewName)
+  if (recorded?.bindingPath && !isTransient(recorded.bindingPath) && controlType && viewName)
     out.push({
       strategy: 'binding',
       selector: { ...base, bindingPath: { propertyPath: recorded.bindingPath } },
     })
   // UI5's own selector for this very control (what its Test Recorder would write): the way to find a control that
   // has no id of its own. With an id the id stays first, it is the most readable.
-  const own = ownSelector(recorded?.selector)
+  const own = ownSelector(withoutTransient(recorded?.selector, recorded))
   if (own && !out.some((c) => JSON.stringify(c.selector) === JSON.stringify(own))) {
     const idFirst = out[0]?.strategy === 'id'
     out.splice(idFirst ? 1 : 0, 0, { strategy: 'ui5', selector: own })
   }
   return out
+}
+
+// A path like /TravelStatus($uid=id-1793188072908-826) names a row by a client-side id that is made up again in every
+// session: a selector that holds one finds nothing the next time.
+const TRANSIENT = /[$]uid=/
+export const isTransient = (value) =>
+  TRANSIENT.test(typeof value === 'string' ? value : JSON.stringify(value ?? ''))
+
+/**
+ * The selector with its temporary binding paths replaced by the text the row showed when it was recorded: a row (or the
+ * text inside it) that shows that text is the same row in the next session.
+ * @returns the selector, or null when it has a temporary path and the row's text is not known
+ */
+export function withoutTransient(selector, recorded) {
+  if (!isTransient(selector)) return selector
+  const text = recorded?.itemText
+  if (!text) return null
+  const prop = recorded.itemTextProperty || 'text'
+  const type = recorded.itemTextType || 'sap.m.Text'
+  const rewrite = (node) => {
+    if (Array.isArray(node)) return node.map(rewrite)
+    if (!node || typeof node !== 'object') return node
+    const out = {}
+    for (const [key, value] of Object.entries(node))
+      if (key !== 'bindingPath') out[key] = rewrite(value)
+    if (node.bindingPath !== undefined && !isTransient(node.bindingPath))
+      out.bindingPath = node.bindingPath
+    if (isTransient(node.bindingPath)) {
+      if (node.controlType === type) out.properties = { ...(out.properties ?? {}), [prop]: text }
+      else
+        out.descendant = out.descendant ?? {
+          controlType: type,
+          properties: { [prop]: text },
+          ...(node.searchOpenDialogs ? { searchOpenDialogs: true } : {}),
+          ...(node.viewId ? { viewId: node.viewId } : {}),
+          ...(node.viewName ? { viewName: node.viewName } : {}),
+        }
+    }
+    return out
+  }
+  return rewrite(selector)
 }
 
 /** The selector UI5 gave, as a wdi5 selector: only what wdi5 understands, nothing that is not plain data. */
@@ -110,6 +157,10 @@ function ownSelector(selector) {
 
 const typeOf = (s) => s.ui5?.type ?? s.recorded?.controlType ?? ''
 const idOf = (s) => s.recorded?.controlId ?? s.ui5?.localId ?? ''
+// the id of a control in a dialog has no view in front of it: its full id is all there is
+const anyIdOf = (s) => idOf(s) || s.recorded?.runtimeId || ''
+// the fields around a control: sap.ui.mdc.Field, sap.fe.macros.Field, FieldAPI
+const WRAPPER = /\.Field(Base|API)?$/
 
 /**
  * One action on a Fiori elements screen is reported by several controls: the field and the control inside it, the
@@ -125,18 +176,49 @@ export function tidySteps(steps) {
     if (s.action === 'input' && /\.FilterBar(API)?$/.test(type)) return false // the Go button does the search
     if (/HideFormGroupAutomatically$|RowActionItem$/.test(type)) return false // helpers of the screen, not of the person
     if (!actionable(s)) return true
-    const near = [list[i - 2], list[i - 1], list[i + 1], list[i + 2]].filter((x) => x && actionable(x))
+    const near = [list[i - 2], list[i - 1], list[i + 1], list[i + 2]].filter(
+      (x) => x && actionable(x),
+    )
     // the field around the control that was typed into / toggled
-    if (s.action === 'input' && /\.Field(API)?$/.test(type) && id)
+    if (s.action === 'input' && WRAPPER.test(type)) {
+      const mine = anyIdOf(s)
+      // the control inside it has a step of its own (its id continues the id of the field): that is what was done
       if (
+        mine &&
+        list.some((o) => {
+          if (o === s || !actionable(o) || WRAPPER.test(typeOf(o))) return false
+          const theirs = anyIdOf(o)
+          return (
+            theirs !== mine && theirs.startsWith(mine) && /^[-:]/.test(theirs.slice(mine.length))
+          )
+        })
+      )
+        return false
+      if (
+        mine &&
         near.some(
           (o) =>
-            idOf(o) !== id &&
-            ((o.action === 'input' && o.value === s.value && idOf(o).startsWith(id)) ||
+            anyIdOf(o) !== mine &&
+            ((o.action === 'input' && o.value === s.value && anyIdOf(o).startsWith(mine)) ||
               (o.toggled !== undefined && /^(true|false)$/.test(String(s.value)))),
         )
       )
         return false
+    }
+    // One tick in a list reports two clicks: the checkbox (or radio button) and the row around it. Replaying both would
+    // switch the item on and off again, so the row step is left out; the box is the one that says what happened.
+    if (s.action === 'click' && /ListItem$/.test(type)) {
+      const before = list[i - 1]
+      const row = s.recorded?.bindingPath
+      if (
+        before &&
+        before.action === 'click' &&
+        /(CheckBox|RadioButton)$/.test(typeOf(before)) &&
+        row &&
+        before.recorded?.bindingPath === row
+      )
+        return false
+    }
     // the picker icon that opened the date that was typed next
     if (s.action === 'click' && /-edit-icon$/.test(id))
       if (near.some((o) => o.action === 'input' && idOf(o) === id.replace(/-edit-icon$/, '-edit')))
@@ -167,6 +249,7 @@ export function buildPlan({ mapped, inventory, name, settings = {} }) {
     const bases = [
       identifier(own, ''),
       identifier(`${display ?? ''} ${type}`, ''),
+      identifier(`${recorded?.itemText ?? ''} ${type}`, ''),
       identifier(type, 'control'),
     ]
     const base = bases.find(Boolean)
@@ -178,11 +261,12 @@ export function buildPlan({ mapped, inventory, name, settings = {} }) {
   }
   const locatorFor = (step) => {
     const { ui5, recorded } = step
-    const id = `${ui5.viewName}::${ui5.localId ?? ui5.display}`
-    const existing = Object.entries(locators).find(([, l]) => l.__id === id)
-    if (existing) return existing[0]
     const candidates = selectorCandidates({ ui5, recorded, control: controlOf(inventory, ui5) })
     if (!candidates.length) return null
+    // (not the view and id alone: controls without an id are told apart by their selector)
+    const id = JSON.stringify([ui5.viewName, candidates[0].selector])
+    const existing = Object.entries(locators).find(([, l]) => l.__id === id)
+    if (existing) return existing[0]
     const key = keyFor(ui5, recorded)
     used.add(key)
     const [best, ...alternatives] = candidates
@@ -231,6 +315,23 @@ export function buildPlan({ mapped, inventory, name, settings = {} }) {
       opened = true
       add({ kind: 'open', title: 'Open the app' })
     }
+    if (s.action === 'check' && s.check?.kind === 'toast') {
+      // the app showed a message toast: no control to find, the text of the message is the whole check. It is put
+      // right after the step that showed it, before the checks TourD adds by itself (the page is the start page
+      // again): those wait for the app to settle, and a toast is gone after about three seconds.
+      add({
+        kind: 'assert',
+        title: `A message shows "${s.check.expected ?? ''}"`,
+        locator: null,
+        assertion: { type: 'toast', expected: s.check.expected ?? '' },
+        from: from(s),
+      })
+      const made = steps.pop()
+      let at = steps.length
+      while (at > 0 && steps[at - 1].heuristic) at--
+      steps.splice(at, 0, made)
+      continue
+    }
     if (s.action === 'check') {
       // something the person pointed at while recording: a check of what the control showed then
       const shown = s.ui5?.display ?? s.recorded?.text ?? s.ui5?.localId ?? 'the control'
@@ -263,11 +364,18 @@ export function buildPlan({ mapped, inventory, name, settings = {} }) {
       s.recorded?.text ??
       s.dom?.ariaLabel ??
       s.ui5?.localId ??
-      (type ? `the ${lastSegment(type)}` : 'the control')
+      (s.recorded?.itemText && type
+        ? `the ${lastSegment(type)} of "${s.recorded.itemText}"`
+        : type
+          ? `the ${lastSegment(type)}`
+          : 'the control')
     const locator = s.ui5 ? locatorFor(s) : null
     const unresolved = !locator
+    const temporary = isTransient(s.recorded?.selector) || isTransient(s.recorded?.bindingPath)
     const note = unresolved
-      ? `The control was not found in the app's files${s.dom?.ariaLabel ? ` ("${s.dom.ariaLabel}")` : ''}: pick one in the step table or leave the step out.`
+      ? temporary
+        ? 'This item can only be found by a temporary id that is made up again in every session. Record the flow again with the updated extension (it notes the text of the row), or leave the step out.'
+        : `The control was not found in the app's files${s.dom?.ariaLabel ? ` ("${s.dom.ariaLabel}")` : ''}: pick one in the step table or leave the step out.`
       : undefined
     const base = { locator, from: from(s), ...(unresolved ? { enabled: false, note } : {}) }
 

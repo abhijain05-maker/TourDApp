@@ -211,11 +211,18 @@ export function collapseSteps(steps) {
   const out = []
   for (const s of steps) {
     const prev = out[out.length - 1]
-    if (s.action === 'input' && prev?.action === 'click' && targetKey(prev) === targetKey(s)) {
+    // (a tick is not a click into a field that is typed into next: a checkbox and the field around it have the same name)
+    if (
+      s.action === 'input' &&
+      prev?.action === 'click' &&
+      prev.toggled === undefined &&
+      targetKey(prev) === targetKey(s)
+    ) {
       out[out.length - 1] = {
         ...s,
         index: prev.index,
         ...(prev.navigatesTo ? { navigatesTo: prev.navigatesTo } : {}),
+        ...(s.explain || prev.explain ? { explain: s.explain ?? prev.explain } : {}),
       }
     } else if (s.action === 'key' && s.value === 'Enter' && prev?.action === 'input') {
       out[out.length - 1] = { ...prev, submit: true }
@@ -227,6 +234,7 @@ export function collapseSteps(steps) {
       targetKey(prev) === targetKey(s) &&
       !prev.navigatesTo
     ) {
+      if (s.explain && !prev.explain) prev.explain = s.explain // the same click twice: the words survive
       continue
     } else {
       out.push(s)

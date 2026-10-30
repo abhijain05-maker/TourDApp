@@ -205,6 +205,53 @@
     return undefined
   }
 
+  // Controls whose text identifies a list row: [type, the getter that holds the text, the property it is]
+  var ROW_TEXT = [
+    ['sap.m.Text', 'getText', 'text'],
+    ['sap.m.Label', 'getText', 'text'],
+    ['sap.m.Title', 'getText', 'text'],
+    ['sap.m.Link', 'getText', 'text'],
+    ['sap.m.ObjectStatus', 'getText', 'text'],
+    ['sap.m.ObjectIdentifier', 'getTitle', 'title'],
+  ]
+
+  function rowTextOf(control) {
+    for (var i = 0; i < ROW_TEXT.length; i++) {
+      if (isA(control, ROW_TEXT[i][0])) {
+        var t = clean(call(control, ROW_TEXT[i][1]))
+        if (t) return { text: t, type: ROW_TEXT[i][0], prop: ROW_TEXT[i][2] }
+      }
+    }
+    return null
+  }
+
+  /**
+   * What is written in the list row a control is in (or is): the first cell that shows text. A row has no id of its
+   * own and its binding path can be a temporary one (".../TravelStatus($uid=id-1793188-826)", different in every
+   * session), so this text is what finds the same row again.
+   */
+  function rowOf(control) {
+    var item = null
+    for (var p = control; p && !item; p = call(p, 'getParent')) {
+      if (isA(p, 'sap.m.ListItemBase')) item = p
+    }
+    if (!item) return null
+    var cells = call(item, 'getCells') || []
+    for (var i = 0; i < cells.length; i++) {
+      var found = rowTextOf(cells[i])
+      var inner = []
+      try {
+        inner = (cells[i].findAggregatedObjects && cells[i].findAggregatedObjects(true)) || []
+      } catch (e) {
+        /* a cell without children */
+      }
+      for (var j = 0; !found && j < inner.length; j++) found = rowTextOf(inner[j])
+      if (found) return found
+    }
+    var title = clean(call(item, 'getTitle'))
+    return title ? { text: title, type: 'sap.m.StandardListItem', prop: 'title' } : null
+  }
+
   /** Everything the recording says about one control. Never throws. */
   function describe(control) {
     var id = call(control, 'getId') || ''
@@ -239,6 +286,16 @@
       } catch (e) {
         /* ignore */
       }
+      try {
+        var row = rowOf(control)
+        if (row) {
+          d.itemText = row.text
+          d.itemTextType = row.type
+          d.itemTextProperty = row.prop
+        }
+      } catch (e) {
+        /* the row text is a help: never break recording for it */
+      }
     }
     if (insideOverlay(control)) d.inDialog = true
     return d
@@ -263,6 +320,9 @@
     if (!last || step.t - last.t > RECENT_MS) return false
     return (
       last.type === step.type &&
+      (!last.check ||
+        !step.check ||
+        (last.check.kind === step.check.kind && last.check.expected === step.check.expected)) &&
       (last.control && step.control
         ? last.control.id === step.control.id
         : !last.control && !step.control) &&
@@ -318,6 +378,19 @@
       var dom = call(control, 'getDomRef')
       if (!ui || !ui.require || !dom || !step || !step.control) return
       var local = step.index
+      // A button in a dialog that closes and destroys itself when it is pressed (the "Save" of a dialog) is gone before
+      // UI5 has answered. Its own id, which the app wrote, finds it again, so that is the selector until UI5 answers.
+      var fullId = step.control.id
+      if (
+        fullId &&
+        (step.control.inDialog || !step.control.localId) &&
+        !/^__|-__/.test(fullId) &&
+        !step.control.selector
+      )
+        setTimeout(function () {
+          if (!step.control.selector)
+            done(step.control.inDialog ? { id: fullId, searchOpenDialogs: true } : { id: fullId })
+        }, 0)
       var done = function (found) {
         var selector
         try {
@@ -415,6 +488,10 @@
         controlStep('select', 'change', source, { value: info.value, valueText: info.valueText })
       } else if (isA(source, 'sap.m.InputBase') || typeof source.getValue === 'function') {
         var v = call(source, 'getValue')
+        // The field around a control (sap.ui.mdc.Field, a Fiori elements macro Field) holds its value the way the model
+        // does: [12, "USD"] for an amount, true for a checkbox. Written down as text that is "12,USD,", which replays
+        // as that text typed into the box. The control inside the field has its own step with what the person typed.
+        if (v !== undefined && typeof v !== 'string' && typeof v !== 'number') return
         controlStep('input', 'change', source, { value: v === undefined ? '' : String(v) })
       }
     },
@@ -582,12 +659,31 @@
     doc.head.appendChild(cursor)
     var note = null
     if (hint) {
+      // The page's own CSS must not reach this (a rule like "body > div { height: 100% }" once stretched it over the whole
+      // app): the host is reset with !important and the text lives in a shadow root.
       note = doc.createElement('div')
       note.setAttribute('data-tourd-ui', '')
       note.setAttribute('role', 'status')
-      note.textContent = hint
-      note.style.cssText =
-        'position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:2147483001;pointer-events:none;background:#0b1f3a;color:#fff;font:600 13px/1.3 system-ui,Segoe UI,sans-serif;padding:8px 16px;border-radius:999px;box-shadow:0 4px 16px rgba(0,0,0,.3)'
+      var hostCss = {
+        all: 'initial',
+        position: 'fixed',
+        top: '12px',
+        left: '0',
+        right: '0',
+        height: 'auto',
+        display: 'flex',
+        'justify-content': 'center',
+        'pointer-events': 'none',
+        'z-index': '2147483001',
+      }
+      Object.keys(hostCss).forEach(function (k) {
+        note.style.setProperty(k, hostCss[k], 'important')
+      })
+      var pill = doc.createElement('div')
+      pill.textContent = hint
+      pill.style.cssText =
+        'box-sizing:border-box;max-width:calc(100vw - 24px);background:#0b1f3a;color:#fff;font:600 13px/1.3 system-ui,Segoe UI,sans-serif;text-align:center;padding:8px 16px;border-radius:14px;box-shadow:0 4px 16px rgba(0,0,0,.3)'
+      note.attachShadow({ mode: 'open' }).appendChild(pill)
       doc.body.appendChild(note)
     }
     var box = doc.createElement('div')
@@ -663,6 +759,43 @@
     return { kind: 'visible' }
   }
 
+  /**
+   * A message toast is no control (plain HTML, no id, gone after about three seconds), so it cannot be pointed at. This
+   * waits for the next one the app shows (MessageToast.show) and records its text as a check. It looks after the step
+   * that caused it: the toast can come from inside the handler of the press that is being recorded.
+   */
+  function armToast() {
+    disarmToast()
+    var armed = (state.toast = { restore: null, timer: null })
+    root.sap.ui.require(['sap/m/MessageToast'], function (MT) {
+      if (state.toast !== armed) return // given up while the module loaded
+      var original = MT.show
+      var wrapper = function (message) {
+        var result = original.apply(this, arguments)
+        disarmToast()
+        var text = clean(typeof message === 'string' ? message : String(message))
+        if (text)
+          setTimeout(function () {
+            emit({ type: 'check', event: 'toast', check: { kind: 'toast', expected: text } })
+          }, 80)
+        return result
+      }
+      MT.show = wrapper
+      armed.restore = function () {
+        if (MT.show === wrapper) MT.show = original
+      }
+      armed.timer = setTimeout(disarmToast, 120000)
+    })
+  }
+
+  function disarmToast() {
+    var t = state.toast
+    state.toast = null
+    if (!t) return
+    clearTimeout(t.timer)
+    if (t.restore) t.restore()
+  }
+
   // ------------------------------------------------------------------ public API
 
   function recording() {
@@ -724,6 +857,7 @@
       state.recording = false
       state.paused = false
       stopPick()
+      disarmToast()
       unhook()
       if (wasRecording) bridge({ type: 'stopped', count: state.steps.length })
       return recording()
@@ -791,7 +925,12 @@
 
     /** Highlights controls under the pointer; the next click calls callback(description) (null on Escape). */
     pick: startPick,
-    cancelPick: stopPick,
+    /** The next message toast the app shows becomes a check (the step that shows it comes first). */
+    pickToast: armToast,
+    cancelPick: function () {
+      stopPick()
+      disarmToast()
+    },
 
     /** The description of a control (or of the control a DOM element belongs to). */
     describe: function (target) {

@@ -23,7 +23,7 @@ never sent to an AI provider.
 3. Do the flow you want to explain, **in the order a new user should learn it**: open the list, press *Create*,
    fill the first field, press *Save*. Do not wander: every click may become a step.
 4. **End recording**. Use **Export** and pick **JSON**.
-5. In TourD: project → **Recordings** → **Import recording**, choose the file (or paste it).
+5. In TourD: project → **Recordings** → **Import recording**, choose the file (or paste it), and say what it is for: **Tour**, **Tests** or **Tour and tests** (a file does not say, so the default is both; a recording from the extension says it itself). Generating a tour offers the recordings for tours, making tests offers those for tests; the label can be changed in the list.
 
 TourD finds the UI5 control behind each recorded element: it removes the suffixes UI5 adds to inner DOM elements
 (`-inner`, `-content`, `-img`, …) and looks for the control id inside your views. The import shows every recorded step with

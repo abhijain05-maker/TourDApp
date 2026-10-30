@@ -9,7 +9,7 @@ export const FRAMEWORKS = ['mocha', 'jasmine']
 export const AUTH_MODES = ['none', 'basic', 'btp', 'custom']
 export const STRATEGIES = ['id', 'ui5', 'i18n', 'text', 'label', 'binding']
 export const STEP_KINDS = ['open', 'press', 'enterText', 'search', 'select', 'assert']
-export const ASSERT_TYPES = ['url', 'value', 'selectedKey', 'visible', 'text']
+export const ASSERT_TYPES = ['url', 'value', 'selectedKey', 'visible', 'text', 'toast']
 
 /**
  * Versions the generated package.json asks for. wdio-ui5-service 3 has WebdriverIO 9 as a peer: the latest

@@ -51,16 +51,91 @@ body {
     sans-serif;
 }
 
+/* header, project and tabs stay in view; everything below scrolls under them */
+.chrome {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--card);
+  border-bottom: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
 .top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 14px;
-  background: var(--card);
-  border-bottom: 1px solid var(--line);
-  position: sticky;
-  top: 0;
-  z-index: 2;
+  padding: 10px 14px 6px;
+}
+
+.projectbar {
+  padding: 0 14px 8px;
+}
+
+.projectbar label {
+  margin: 0 0 3px;
+}
+
+.projectbar select {
+  font-weight: 600;
+}
+
+.projectbar p {
+  margin-top: 3px;
+  min-height: 1.2em;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  padding: 0 10px;
+}
+
+.tab {
+  position: relative;
+  padding: 8px 4px 9px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  border-radius: 8px 8px 0 0;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.tab:hover:not(:disabled) {
+  background: var(--chip);
+}
+
+.tab[aria-selected='true'] {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+/* a tab whose job is running: recording, or writing help */
+.tab .dot {
+  display: none;
+  width: 8px;
+  height: 8px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--danger);
+  vertical-align: 1px;
+}
+
+.tab[data-live] .dot {
+  display: inline-block;
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.pane[hidden] {
+  display: none;
+}
+
+.pane {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .brand {
@@ -137,7 +212,7 @@ label {
 /* the buttons and the chosen control stay in view while the form below is scrolled */
 .help-sticky {
   position: sticky;
-  top: 58px;
+  top: var(--chrome-h, 120px);
   z-index: 1;
   margin: 0 -12px;
   padding: 0 12px 6px;
@@ -398,4 +473,20 @@ button.icon {
 
 #note-form {
   margin-top: 10px;
+}
+
+/* One recording block serves two tabs: Tests (checks) and Tour (words for every step) */
+#rec-block[data-mode='test'] .only-tour,
+#rec-block[data-mode='tour'] .only-test {
+  display: none !important;
+}
+
+.steps .explain {
+  width: 100%;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+#rec-elsewhere p {
+  margin: 0 0 8px;
 }

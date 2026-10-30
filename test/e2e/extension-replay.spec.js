@@ -72,7 +72,8 @@ const tabIdOf = (part) =>
 
 /** Other specs create projects at the same time: pick the one of this test, not "the newest". */
 async function chooseProject(panel, project) {
-  await tid(panel, 'play-project').selectOption(project.ID)
+  await tid(panel, 'project').selectOption(project.ID)
+  await tid(panel, 'tab-tests').click() // the tests are on their own tab
 }
 
 async function openPanel(forTabId, token) {

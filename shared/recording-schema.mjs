@@ -18,8 +18,14 @@ export const STEP_TYPES = [
   'check',
 ]
 
-/** What a check looks at: that the control is there, the text it shows, or the value it holds. */
-export const CHECK_KINDS = ['visible', 'text', 'value']
+/**
+ * What a check looks at: that the control is there, the text it shows, the value it holds, or that the app showed a
+ * message toast (which is no control: it has no id and is gone after a few seconds).
+ */
+export const CHECK_KINDS = ['visible', 'text', 'value', 'toast']
+
+/** What a recording is for: a tour, tests, or both. Recordings from before this field count as both. */
+export const PURPOSES = ['tour', 'test', 'both']
 
 const text = z.string().max(500)
 
@@ -60,6 +66,19 @@ export const controlSchema = z.strictObject({
     .boolean()
     .optional()
     .describe('True when the control is a clone from a bound aggregation'),
+  itemText: text
+    .optional()
+    .describe(
+      'For a control in a list row: the first text the row shows (a row has no id, and its binding path can be a temporary one)',
+    ),
+  itemTextType: z
+    .string()
+    .optional()
+    .describe('Type of the control that shows itemText, e.g. sap.m.Text'),
+  itemTextProperty: z
+    .string()
+    .optional()
+    .describe('Property of that control that holds itemText: text or title'),
   inDialog: z.boolean().optional().describe('True when the control is inside a Dialog or Popover'),
   selector: z
     .record(z.string(), z.unknown())
@@ -104,15 +123,33 @@ export const stepSchema = z
       .optional()
       .describe('Index of the step that triggered this navigation'),
     note: text.optional(),
+    explain: z
+      .string()
+      .max(600)
+      .optional()
+      .describe(
+        'What the author says this step is for: the text of the tour step (tests ignore it)',
+      ),
     check: z
       .strictObject({ kind: z.enum(CHECK_KINDS), expected: text.optional() })
       .optional()
       .describe('For a check step: what the person pointed at and what it showed at that moment'),
   })
   .superRefine((s, ctx) => {
+    const toast = s.type === 'check' && s.check?.kind === 'toast'
     if (s.type === 'check' && !s.check)
       ctx.addIssue({ code: 'custom', path: ['check'], message: 'A "check" step needs a check' })
-    if (['press', 'input', 'select', 'search', 'toggle', 'check'].includes(s.type) && !s.control)
+    if (toast && !s.check.expected)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['check', 'expected'],
+        message: 'A toast check needs the text of the message',
+      })
+    if (
+      ['press', 'input', 'select', 'search', 'toggle', 'check'].includes(s.type) &&
+      !s.control &&
+      !toast
+    )
       ctx.addIssue({
         code: 'custom',
         path: ['control'],
@@ -139,6 +176,10 @@ export const recordingSchema = z
     version: z.literal(RECORDING_VERSION),
     recordedAt: z.string().describe('ISO time the recording started'),
     recorder: z.string().default('').describe('Name and version of the recorder that wrote it'),
+    purpose: z
+      .enum(PURPOSES)
+      .optional()
+      .describe('What the person recorded it for; TourD asks when it is missing'),
     app: appSchema,
     steps: z.array(stepSchema),
   })

@@ -12,10 +12,10 @@ There are three steps, and you do the first one in the running app, not in a fil
 
 Set up the extension once ([EXTENSION.md](EXTENSION.md)). Then:
 
-1. Open your app in a tab and the extension's side panel. Under **Write help for this app** choose the project and press **Start writing help**. The help panel of the app opens (empty at first); the app moves aside, so nothing is covered.
+1. Open your app in a tab and the extension's side panel. The project is chosen at the top (it is the one of the open app, if there is one). On the **Help** tab press **Start writing help**. The help panel of the app opens (empty at first); the app moves aside, so nothing is covered.
 2. Press **Point at a control** and click the control in the app. Nothing is pressed. The panel asks for a title, a short description (shown in the list), the text, an optional note and related links (`Label | https://...`, one per line).
-3. Type. The app shows your help as you write: the badge, the list entry and the popover, exactly as your users will see them.
-4. **Save to TourD.** Topics are kept in the project (**Help** tab). Click a topic in the list to edit it, point at another control to move it, or delete it.
+3. Type. The app shows your help as you write: the badge, the list entry and the popover, exactly as your users will see them. **Stop writing help** (next to **Point at a control**) ends it and takes the preview out of the app.
+4. **Save to TourD.** Topics are kept in the project. To see all of them in the app as your users will, press **Show help in the app** (and **Hide** to take it away). Click a topic in the list to edit it, point at another control to move it, or delete it.
 
 Text understands `**bold**`, `*italic*`, `` `code` ``, `- lists` and `[links](https://...)`. A text may also be `{i18n>key}`; the key is then added to your i18n file when the help is added to the project.
 

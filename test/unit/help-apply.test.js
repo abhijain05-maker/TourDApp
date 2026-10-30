@@ -4,7 +4,7 @@ import cds from '@sap/cds'
 import { describe, it, expect } from 'vitest'
 import { buildInventory } from '../../srv/lib/context/inventory.js'
 import { patchController } from '../../srv/lib/export/apply.js'
-import { patchComponent, planHelpApply } from '../../srv/lib/export/help-apply.js'
+import { patchComponent, patchComponentTs, planHelpApply } from '../../srv/lib/export/help-apply.js'
 import { demoSources } from '../helpers/sources.js'
 
 const { POST, GET } = cds.test(import.meta.dirname + '/../..')
@@ -112,6 +112,94 @@ describe('starting the help from the Component', () => {
     const controller = files.find((f) => f.path.endsWith('Main.controller.js')).content
     const done = patchController(controller)
     expect(done.text === null || typeof done.text === 'string').toBe(true)
+  })
+})
+
+// the Fiori tools TypeScript template (as in cap-sflight): init is only there as a comment
+const FIORI_TS = `import BaseComponent from "sap/fe/core/AppComponent";
+
+/**
+ * @namespace sap.fe.cap.travel
+ */
+export default class Component extends BaseComponent {
+
+\tpublic static metadata = {
+\t\tmanifest: "json"
+\t};
+
+    /**
+     * The component is initialized by UI5 automatically during the startup of the app and calls the init method once.
+     */
+\t//public init() : void {
+    //    super.init();
+\t//}
+}
+`
+
+describe('starting the help from a TypeScript Component', () => {
+  it('adds an init after the commented template one, calling the parent first (the Fiori tools template)', () => {
+    const { text } = patchComponentTs(FIORI_TS)
+    expect(text).toContain(
+      '\tpublic override init(): void {\n\t\tsuper.init();\n\t\tsap.ui.require(["tourd/HelpLayer"], (HelpLayer: any) => {',
+    )
+    expect(text).toContain(
+      'HelpLayer.start(sap.ui.require.toUrl("tourd/help.json"), { component: this });',
+    )
+    expect(text.indexOf('//public init()')).toBeLessThan(text.indexOf('public override init()')) // the comment is kept
+    expect(text.trimEnd().endsWith('\t}\n}')).toBe(true) // the class still closes after the new method
+  })
+
+  it('appends to an init that is there, in its own indentation', () => {
+    const ts =
+      'export default class C extends Base {\n  public init(): void {\n    super.init();\n    this.getRouter().initialize();\n  }\n}\n'
+    const { text } = patchComponentTs(ts)
+    expect(text).toContain(
+      '    this.getRouter().initialize();\n    sap.ui.require(["tourd/HelpLayer"], (HelpLayer: any) => {\n      HelpLayer.start(',
+    )
+    expect(text.match(/init\(\): void/g)).toHaveLength(1) // still one init method (super.init() is a call)
+    expect(text.endsWith('  }\n}\n')).toBe(true)
+  })
+
+  it('handles a one-line init, and braces or init( inside strings and comments', () => {
+    const one = patchComponentTs(
+      'export default class C extends Base { override init(): void { super.init(); } }\n',
+    ).text
+    expect(one).toContain('super.init();\nsap.ui.require')
+    expect(one.match(/init\(\): void/g)).toHaveLength(1)
+    const tricky = patchComponentTs(
+      'export default class C extends Base {\n  static label = "init() { }";\n  // init() {\n}\n',
+    )
+    expect(tricky.text).toContain('public override init(): void {') // the real class has no init: one is added
+  })
+
+  it('leaves a Component that starts the help alone, and says what it cannot read', () => {
+    const done = patchComponentTs(FIORI_TS).text
+    expect(patchComponentTs(done)).toEqual({ text: null })
+    expect(patchComponentTs('export const x = 1\n').error).toMatch(/no Component class/)
+    expect(patchComponentTs('export default class C extends Base {\n  foo() {\n').error).toMatch(
+      /not closed/,
+    )
+  })
+
+  it('is what the plan uses for a project with Component.ts, and it is preferred to a Component.js next to it', () => {
+    const noJs = plainFiles().filter((f) => !f.path.endsWith('Component.js'))
+    const p = plan([...noJs, { path: 'webapp/Component.ts', content: FIORI_TS }])
+    expect(p.notes.map((n) => n.code)).toEqual([])
+    expect(edit(p, 'webapp/Component.ts').after).toContain('HelpLayer.start(')
+    expect(p.edits.some((e) => e.path === 'webapp/Component.js')).toBe(false)
+    const both = plan([...plainFiles(), { path: 'webapp/Component.ts', content: FIORI_TS }])
+    expect(both.edits.some((e) => e.path === 'webapp/Component.ts')).toBe(true)
+    expect(both.edits.some((e) => e.path === 'webapp/Component.js')).toBe(false)
+  })
+
+  it('names Component.ts in the note when it cannot be changed', () => {
+    const files = [
+      ...plainFiles().filter((f) => !f.path.endsWith('Component.js')),
+      { path: 'webapp/Component.ts', content: 'export const x = 1\n' },
+    ]
+    const n = plan(files).notes.find((x) => x.code === 'apply.component')
+    expect(n.message).toMatch(/^Component\.ts was not changed: no Component class/)
+    expect(n.message).toContain('HelpLayer.start')
   })
 })
 

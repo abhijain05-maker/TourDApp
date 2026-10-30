@@ -35,6 +35,7 @@ const ASSERT_LABEL = {
   selectedKey: 'The selected key is',
   visible: 'Is visible',
   text: 'The text is',
+  toast: 'A message shows',
 }
 const DRY_LABEL: Record<string, string> = { found: 'found in the app', missing: 'not in the app', ambiguous: 'several match', unchecked: 'checked when it runs' }
 const DRY_DESIGN: Record<string, 'Positive' | 'Negative' | 'Critical' | 'Information'> = { found: 'Positive', missing: 'Negative', ambiguous: 'Critical', unchecked: 'Information' }
@@ -340,7 +341,7 @@ function PlanEditor({ id, row: first }: { id: string; row: TestPlanRow }) {
                     </div>
                   </td>
                   <td>
-                    {s.kind !== 'open' && !(s.assertion?.type === 'url') && (
+                    {s.kind !== 'open' && s.assertion?.type !== 'url' && s.assertion?.type !== 'toast' && (
                       <Select
                         style={{ width: '100%' }}
                         accessibleName={`Control of step ${i + 1}`}

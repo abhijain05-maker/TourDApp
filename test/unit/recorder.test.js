@@ -327,6 +327,50 @@ describe('recorder: steps from UI5 events', () => {
     expect(brief(w.rec().getRecording())).toEqual([['input', 'name', 'Anna']])
   })
 
+  it('the field around an input keeps its value as the model does ([12, "USD"], true): not a step, the input inside is', () => {
+    const { w, v } = setup()
+    const inner = w.ctl(v, 'fee-edit-inner', 'sap.ui.mdc.field.FieldInput', {
+      types: ['sap.m.InputBase'],
+      props: { value: '12.00' },
+    })
+    const field = w.ctl(v, 'fee-edit', 'sap.ui.mdc.Field', {
+      props: { value: [12, 'USD', undefined] },
+    })
+    const macro = w.ctl(v, 'fee', 'sap.fe.macros.Field', { props: { value: true } })
+    w.fire(inner, 'change', { value: '12.00' })
+    w.fire(field, 'change', { value: [12, 'USD'] })
+    w.fire(macro, 'change', {})
+    expect(brief(w.rec().getRecording())).toEqual([['input', 'fee-edit-inner', '12.00']])
+  })
+
+  it('a button in a dialog that is gone before UI5 has answered is found again by its own id', async () => {
+    const { w } = setup()
+    const dialog = new w.Control('myFragment--dlg', 'sap.m.Dialog', { types: ['sap.m.Dialog'] })
+    const save = new w.Control('myFragment--Save', 'sap.m.Button', {
+      parent: dialog,
+      props: { text: 'Save' },
+    })
+    save.dom = {} // there when it is pressed; the dialog destroys itself in the handler
+    w.fire(save, 'press', {})
+    await new Promise((r) => setTimeout(r, 20))
+    const [step] = plain(w.rec().getRecording().steps)
+    expect(step.control).toMatchObject({ inDialog: true })
+    expect(step.control.selector).toEqual({ id: 'myFragment--Save', searchOpenDialogs: true })
+    // a generated id is no selector: it is made up again every time
+    const gen = new w.Control('__button7', 'sap.m.Button', { parent: dialog })
+    gen.dom = {}
+    w.fire(gen, 'press', {})
+    await new Promise((r) => setTimeout(r, 20))
+    expect(plain(w.rec().getRecording().steps)[1].control.selector).toBeUndefined()
+  })
+
+  it('a number in a StepInput is still typed text', () => {
+    const { w, v } = setup()
+    const step = w.ctl(v, 'qty', 'sap.m.StepInput', { props: { value: 3 } })
+    w.fire(step, 'change', {})
+    expect(brief(w.rec().getRecording())).toEqual([['input', 'qty', '3']])
+  })
+
   it("a search is a search step; the field's own change and the refresh button are not steps", () => {
     const { w, v } = setup()
     const s = w.ctl(v, 'search', 'sap.m.SearchField', { props: { value: 'Acme' } })

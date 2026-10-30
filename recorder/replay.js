@@ -97,6 +97,7 @@
 
   /** Runs one enabled step; resolves with a message for a pass, throws for a failure. */
   function runStep(RR, plan, step, ctx) {
+    if (step.kind !== 'assert') ctx.since = Date.now() // (the toasts of an action are those shown after it began)
     var locator = step.locator ? plan.locators[step.locator] : null
     var selector = locator && locator.selector
     var idle = function () {
@@ -104,17 +105,38 @@
         return RR.waitForUI5()
       })
     }
+    // A control that is drawn a moment after the page is stable (a list that fills when data arrives) is looked for
+    // again for a few seconds, like a person would wait for it; the last answer is the error if it never comes.
     var find = function () {
-      return RR.findDOMElementByControlSelector({ selector: selector }).then(function (dom) {
-        if (!dom) throw new Error('Not found: ' + describeSelector(selector))
-        return dom
+      var lastError = null
+      return eventually(function () {
+        return RR.findDOMElementByControlSelector({ selector: selector }).then(
+          function (dom) {
+            return dom || false
+          },
+          function (e) {
+            lastError = e
+            return false
+          },
+        )
+      }, 8000).then(function (dom) {
+        if (dom) return dom
+        throw lastError || new Error('Not found: ' + describeSelector(selector))
       })
     }
     var act = function (dom, options) {
       mark(dom)
       return sleep(ctx.pause)
         .then(function () {
-          return RR.interactWithControl(Object.assign({ selector: selector }, options))
+          // A press goes to the control that was just found. interactWithControl looks the selector up again, and for
+          // rows of a list that differ only in what they show it can land on another row (it ticked the first item
+          // again instead of the second): the element found here is the one the selector means.
+          var control = options.interactionType === RR.InteractionType.Press ? controlOf(dom) : null
+          if (!control)
+            return RR.interactWithControl(Object.assign({ selector: selector }, options))
+          return load('sap/ui/test/actions/Press').then(function (Press) {
+            new Press().executeOn(control)
+          })
         })
         .then(idle)
     }
@@ -184,12 +206,39 @@
         .then(function () {
           return 'chose "' + step.choice + '"'
         })
-    if (step.kind === 'assert') return assertStep(RR, plan, step, selector, idle)
+    if (step.kind === 'assert') return assertStep(RR, plan, step, selector, idle, ctx)
     return Promise.resolve('nothing to do')
   }
 
-  function assertStep(RR, plan, step, selector, idle) {
+  function assertStep(RR, plan, step, selector, idle, ctx) {
     var a = step.assertion || {}
+    if (a.type === 'toast')
+      // A toast is gone after about three seconds, and the press that shows it ends by waiting for UI5 to be idle, which
+      // can outlast it. So the toasts are written down while the replay runs (see hookToasts) and this reads that list;
+      // the page is looked at too, for a toast that is there right now.
+      return eventually(function () {
+        var want = String(a.expected || '')
+        var seen = ctx.toasts.filter(function (t) {
+          return t.at >= ctx.since
+        })
+        var el = root.document.querySelector('.sapMMessageToast')
+        var now = el ? el.textContent.replace(/\s+/g, ' ').trim() : null
+        ctx.last = seen.length ? seen[seen.length - 1].text : now
+        return (
+          now === want ||
+          seen.some(function (t) {
+            return t.text === want
+          })
+        )
+      }, 8000).then(function (ok) {
+        if (!ok)
+          throw new Error(
+            ctx.last == null
+              ? 'No message toast was shown (expected "' + a.expected + '")'
+              : 'The message is "' + ctx.last + '", it should be "' + a.expected + '"',
+          )
+        return 'the message was shown'
+      })
     if (a.type === 'url')
       return idle().then(function () {
         return eventually(function () {
@@ -235,6 +284,27 @@
     })
   }
 
+  /** Writes down the message toasts the page shows while the replay runs (text and time). */
+  function hookToasts(ctx) {
+    return load('sap/m/MessageToast').then(
+      function (MT) {
+        var original = MT.show
+        var hooked = function (message) {
+          var text = String(message).replace(/\s+/g, ' ').trim()
+          ctx.toasts.push({ text: text, at: Date.now() })
+          return original.apply(this, arguments)
+        }
+        MT.show = hooked
+        ctx.unhook = function () {
+          if (MT.show === hooked) MT.show = original
+        }
+      },
+      function () {
+        /* no MessageToast in this app: the page is still looked at */
+      },
+    )
+  }
+
   /**
    * @param {object} plan a test plan (shared/wdi5-plan.mjs)
    * @param {{pause?: number}} [options] pause: milliseconds to show each control before acting on it
@@ -245,9 +315,19 @@
     if (state.running) return Promise.reject(new Error('A replay is running already.'))
     state.running = true
     state.cancelled = false
-    var ctx = { pause: (options && options.pause) != null ? options.pause : 350 }
+    var ctx = {
+      pause: (options && options.pause) != null ? options.pause : 350,
+      toasts: [],
+      since: 0,
+      unhook: null,
+    }
     var results = []
     return load('sap/ui/test/RecordReplay')
+      .then(function (RR) {
+        return hookToasts(ctx).then(function () {
+          return RR
+        })
+      })
       .then(function (RR) {
         var chain = Promise.resolve()
         var failed = false
@@ -290,6 +370,7 @@
       )
       .finally(function () {
         state.running = false
+        if (ctx.unhook) ctx.unhook()
         unmark()
       })
   }

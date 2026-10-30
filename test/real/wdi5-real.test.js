@@ -157,3 +157,50 @@ describe('generated tests added to a project that has wdi5 already', () => {
     expect(out).toMatch(/Spec Files:\s+2 passed, 2 total/)
   })
 })
+
+describe('a message toast check in generated tests', () => {
+  it('waits for the toast the app shows when Save is pressed, and passes', async () => {
+    const rec = JSON.parse(
+      readFileSync('test/fixtures/recordings/demo-create-order.tourd.json', 'utf8'),
+    )
+    const save = rec.steps.findIndex((s) => s.control?.localId === 'saveBtn')
+    rec.steps.splice(save + 1, 0, {
+      type: 'check',
+      event: 'toast',
+      t: 1,
+      check: { kind: 'toast', expected: 'Order saved' },
+    })
+    rec.steps = rec.steps.map((s, i) => ({ ...s, index: i }))
+    const withToast = mapRecording(parseRecording(JSON.stringify(rec)), inventory)
+    const dir = join(tmpdir(), 'tourd-wdi5-mocha')
+    const plan = buildPlan({
+      mapped: withToast,
+      inventory,
+      name: 'Create an order',
+      settings: { framework: 'mocha', auth: 'none', baseUrl },
+    })
+    const files = demoSources().map((f) => ({ path: f.path, content: f.content }))
+    const result = await planTestApply({ plan, files })
+    expect(result.ok).toBe(true)
+    rmSync(join(dir, 'test'), { recursive: true, force: true })
+    for (const e of result.edits) {
+      if (e.path.startsWith('webapp/')) continue
+      mkdirSync(dirname(join(dir, e.path)), { recursive: true })
+      writeFileSync(join(dir, e.path), e.after)
+    }
+    expect(JSON.stringify(result.edits)).toContain('sapMMessageToast')
+    const install = await run(npm, ['install', '--no-audit', '--no-fund'], { cwd: dir })
+    expect(install.status, install.stderr).toBe(0)
+    const wdio = await run(npx, ['wdio', 'run', 'wdio.conf.js', '--headless'], {
+      cwd: dir,
+      env: {
+        ...process.env,
+        BASE_URL: baseUrl,
+        BROWSER_VERSION: process.env.BROWSER_VERSION ?? 'stable',
+      },
+    })
+    const out = `${wdio.stdout}\n${wdio.stderr}`
+    expect(wdio.status, out.slice(-3000)).toBe(0)
+    expect(out).toMatch(/\b5 passing\b/)
+  })
+})

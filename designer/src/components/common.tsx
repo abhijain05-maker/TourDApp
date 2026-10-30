@@ -101,6 +101,21 @@ export function Tag(props: ComponentProps<typeof UI5Tag>) {
   return <UI5Tag hideStateIcon {...props} />
 }
 
+/** What a recording is for. Recordings from before the label existed count as both. */
+export type Purpose = 'tour' | 'test' | 'both'
+export const PURPOSE_LABEL: Record<Purpose, string> = { tour: 'Tour', test: 'Tests', both: 'Tour and tests' }
+export const purposeOf = (r: { purpose?: string | null }): Purpose => (r.purpose === 'tour' || r.purpose === 'test' ? r.purpose : 'both')
+
+/**
+ * The recordings that fit what is being made (a tour or tests). Recordings made for the other purpose are left out
+ * unless the person asks for all of them; when none fits, all are shown so the list is never empty by surprise.
+ */
+export function recordingsFor<T extends { purpose?: string | null }>(all: T[], purpose: 'tour' | 'test', showAll: boolean) {
+  const fits = all.filter((r) => purposeOf(r) === 'both' || purposeOf(r) === purpose)
+  const shown = showAll || !fits.length ? all : fits
+  return { shown, hidden: all.length - shown.length, noneFit: !fits.length && all.length > 0 }
+}
+
 const GENERATOR_COLOR: Record<string, '6' | '8' | '7' | '9' | '10'> = {
   rules: '8',
   gemini: '6',

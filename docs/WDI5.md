@@ -50,7 +50,7 @@ starting point: remove what is noise, add what matters (the table's **+** adds a
   only known when the app runs). A selector that no longer fits shows up here before anything is run.
 - **The generated files** are shown as code on the plan page, with the commands to run them. They are only written into the project when you add them.
 - **Replay in the open app:** the browser extension runs the steps in the app you have open and reports each step (see
-  [EXTENSION.md](EXTENSION.md)). The checks you point at while recording ("Add a check") come along as checks.
+  [EXTENSION.md](EXTENSION.md)). The checks you point at while recording ("Add a check") come along as checks, and so does a message toast checked with "Add a message check" (it has no control: the test waits for the toast and compares its text).
 
 ## Login
 

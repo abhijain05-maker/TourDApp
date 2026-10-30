@@ -69,6 +69,8 @@ export interface RecordingRow {
   name: string
   format: 'tourd-recorder' | 'devtools-recorder' | 'ui5-test-recorder' | 'plain-text'
   summary: string | null // JSON: { steps, skipped, actionable, mapped, unmapped }
+  /** What it was recorded for; recordings from before this existed count as both */
+  purpose?: 'tour' | 'test' | 'both' | null
   createdAt: string
 }
 
@@ -154,6 +156,7 @@ export interface RecordingResult {
   mapped: number
   unmapped: number
   skipped: number
+  purpose?: string
 }
 
 export interface LintIssue {

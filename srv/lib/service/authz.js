@@ -20,7 +20,8 @@ export const enforcing = () => cds.env.tourd?.enforceRoles === true
 /** The role a request needs, from its HTTP method and the action it calls. */
 export function roleNeeded(method, event) {
   if (READ_METHODS.has(String(method).toUpperCase())) return 'Viewer'
-  if (HELP_BY_EXTENSION.has(event) || event === 'importRecording') return 'Extension'
+  if (HELP_BY_EXTENSION.has(event) || event === 'importRecording' || event === 'previewRecording')
+    return 'Extension'
   return 'Editor'
 }
 

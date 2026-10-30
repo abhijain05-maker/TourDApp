@@ -73,7 +73,8 @@ test('writes a help topic for a control through the panel, previews it in the ap
   await expect(tid(panel, 'connection')).toContainText('Connected')
 
   // start: the help panel of the app is shown (empty so far)
-  await tid(panel, 'help-project').selectOption(project.ID)
+  await tid(panel, 'project').selectOption(project.ID)
+  await tid(panel, 'tab-help').click()
   await tid(panel, 'help-start').click()
   await expect(tid(panel, 'help-work')).toBeVisible()
   await demo.bringToFront()
@@ -163,12 +164,19 @@ test('writes a help topic for a control through the panel, previews it in the ap
   expect(JSON.parse(again[0].definition).topics[0].title).toBe('Create an order')
 
   // the next topic: pointing again starts a new one and leaves the saved topic alone
+  // the page's own CSS must not distort the hint (on a Fiori page it once became a tall dark oval over the app)
+  await demo.addStyleTag({
+    content:
+      'body div, body > div, [role=status] { height: 900px !important; width: 40px !important; border-radius: 999px !important; }',
+  })
   const waiting = demo.getByText('Click the control the help is about')
   await tid(panel, 'help-pick').click()
   await expect(tid(panel, 'help-title')).toHaveValue('')
   await expect(tid(panel, 'help-form')).toBeHidden() // nothing to write until a control is chosen
   await expect(tid(panel, 'help-pick')).toContainText('Cancel pointing')
   await expect(waiting).toBeVisible() // the app says it is waiting for a click
+  expect((await waiting.boundingBox()).height).toBeLessThan(80)
+  expect((await waiting.boundingBox()).width).toBeGreaterThan(200)
   // give up with the button, and with Esc in the panel (the focus is there after a click on the button)
   await tid(panel, 'help-pick').click()
   await expect(tid(panel, 'help-pick')).toContainText('Point at a control')
@@ -246,7 +254,8 @@ test('says to reload the tab when it still has the help layer of an older extens
   await tid(panel, 'tourd-token').fill(token)
   await tid(panel, 'save-settings').click()
   await expect(tid(panel, 'connection')).toContainText('Connected')
-  await tid(panel, 'help-project').selectOption(project.ID)
+  await tid(panel, 'project').selectOption(project.ID)
+  await tid(panel, 'tab-help').click()
   await tid(panel, 'help-start').click()
   await expect(tid(panel, 'help-message')).toContainText('older version of the extension')
   await expect(demo.locator('.tourd-help')).toHaveCount(0)
@@ -254,4 +263,39 @@ test('says to reload the tab when it still has the help layer of an older extens
   // after the reload the page gets the current layer by itself
   await demo.reload()
   await expect(demo.locator('.tourd-help-panel')).toBeVisible({ timeout: 45_000 })
+})
+
+test('a project made in TourD after the panel was opened shows up without reloading the extension', async () => {
+  const { token } = await post('createExtensionToken', { name: 'projects refresh' })
+  const first = await post('Projects', { name: `Before ${Date.now()}` })
+  const leftovers = context.pages()
+  const demo = await context.newPage()
+  await Promise.all(leftovers.map((p) => p.close()))
+  await demo.goto(`${DEMO}?ui5=1.120`)
+  await expect(demo.locator('[data-sap-ui$="--createBtn"]')).toBeVisible({ timeout: 45_000 })
+  const tabId = await worker.evaluate(async () => {
+    const tabs = await chrome.tabs.query({})
+    return tabs.find((t) => t.url && t.url.includes('8081'))?.id
+  })
+  const panel = await context.newPage()
+  await panel.goto(`chrome-extension://${extensionId}/panel.html?tabId=${tabId}`)
+  await panel.locator('body[data-ready="true"]').waitFor()
+  await worker.evaluate(() => chrome.storage.session.clear())
+  if (await tid(panel, 'settings').isHidden()) await tid(panel, 'open-settings').click()
+  await tid(panel, 'tourd-url').fill(TOURD)
+  await tid(panel, 'tourd-token').fill(token)
+  await tid(panel, 'save-settings').click()
+  await expect(tid(panel, 'connection')).toContainText('Connected')
+  const option = (id) => tid(panel, 'project').locator(`option[value="${id}"]`)
+  await expect(option(first.ID)).toHaveCount(1)
+
+  // the person picks the first project, then a new one is made in TourD
+  await tid(panel, 'project').selectOption(first.ID)
+  const second = await post('Projects', { name: `After ${Date.now()}` })
+  await expect(option(second.ID)).toHaveCount(0) // not read yet
+
+  // coming back to the panel reads the list again, and the choice is kept
+  await panel.evaluate(() => window.dispatchEvent(new Event('focus')))
+  await expect(option(second.ID)).toHaveCount(1)
+  await expect(tid(panel, 'project')).toHaveValue(first.ID)
 })

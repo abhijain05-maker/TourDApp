@@ -139,7 +139,9 @@ test('records in the app through the panel, sends the recording to TourD, and pl
   await pair(panel, token)
   await expect(tid(panel, 'connection')).toContainText('Connected')
 
-  // record
+  // record a tour: its tab asks for the words of every step
+  await tid(panel, 'tab-tour').click()
+  await expect(tid(panel, 'add-check')).toBeHidden()
   await expect(tid(panel, 'status')).toHaveText('Ready')
   await tid(panel, 'start').click()
   await expect(tid(panel, 'status')).toHaveText('Recording')
@@ -157,7 +159,13 @@ test('records in the app through the panel, sends the recording to TourD, and pl
   await expect(tid(panel, 'steps')).toContainText('Detail · customerInput')
   await expect(tid(panel, 'step-count')).toHaveText('7 steps')
 
-  // a note can be added and taken out again
+  // every step can say what it is for: under the first one
+  await expect(tid(panel, 'explain')).toHaveCount(5) // (the two page changes have nothing to explain)
+  await tid(panel, 'explain')
+    .first()
+    .fill('Starts a new order: the first thing to do on this page.')
+
+  // an introduction step can be added and taken out again
   await tid(panel, 'note').fill('This is where the order is created')
   await tid(panel, 'add-note').click()
   await expect(tid(panel, 'step')).toHaveCount(8)
@@ -173,7 +181,7 @@ test('records in the app through the panel, sends the recording to TourD, and pl
     )
     .toBe(false)
   await expect(tid(panel, 'send-card')).toBeVisible()
-  await tid(panel, 'send-project').selectOption(project.ID)
+  await tid(panel, 'project').selectOption(project.ID)
   await tid(panel, 'send').click()
   await expect(tid(panel, 'send-message')).toContainText('Sent. 5 of 5 steps matched')
 
@@ -182,7 +190,7 @@ test('records in the app through the panel, sends the recording to TourD, and pl
     await (await fetch(`${API}/Recordings?$filter=project_ID eq ${project.ID}`)).json()
   ).value
   expect(recordings).toHaveLength(1)
-  expect(recordings[0]).toMatchObject({ format: 'tourd-recorder' })
+  expect(recordings[0]).toMatchObject({ format: 'tourd-recorder', purpose: 'tour' }) // from the tab it was recorded in
   const raw = JSON.parse(recordings[0].raw ?? '{}')
   void raw
 
@@ -197,11 +205,17 @@ test('records in the app through the panel, sends the recording to TourD, and pl
     job = await (await fetch(`${API}/GenerationJobs(${job.ID})`)).json()
   }
   expect(job.status, job.error).toBe('done')
+  // the words written under the step are the text of the tour step
+  const made = await (await fetch(`${API}/Tours(${job.tour_ID})`)).json()
+  expect(JSON.parse(made.definition).steps.map((s) => s.text)).toContain(
+    'Starts a new order: the first thing to do on this page.',
+  )
 
   // play it in the app (the panel was opened before the tour existed: reload it, state survives in the extension)
   await panel.reload()
   await expect(tid(panel, 'status')).toHaveText('Stopped')
-  await tid(panel, 'play-project').selectOption(project.ID)
+  await tid(panel, 'project').selectOption(project.ID)
+  await tid(panel, 'tab-tour').click()
   await expect(tid(panel, 'play-tour')).not.toHaveText('')
   await tid(panel, 'play').click()
   await expect(tid(panel, 'play-message')).toContainText('Playing')
@@ -468,4 +482,59 @@ test('"Add a check" points at a control in the app and the recording gets a chec
     check: { kind: 'value', expected: 'Acme' },
   })
   expect(validateRecording(rec).ok).toBe(true)
+  await demo.close() // (the next test looks for the first app tab)
+  await panel.close()
+})
+
+test('a message toast can be checked: it is recorded after the step that shows it, tried, and kept in the plan', async () => {
+  const token = await newToken('toast')
+  const project = await newProject('Toast')
+  const demo = await openDemo()
+  const panel = await openPanel(await tabIdOf('8081'))
+  await pair(panel, token)
+  await expect(tid(panel, 'connection')).toContainText('Connected')
+  await tid(panel, 'project').selectOption(project.ID)
+  await tid(panel, 'tab-tests').click()
+
+  // the toast is gone after three seconds and cannot be pointed at: the next one becomes a check
+  await expect(tid(panel, 'add-toast-check')).toBeHidden()
+  await tid(panel, 'start').click()
+  await recording(demo)
+  await expect(tid(panel, 'add-toast-check')).toBeVisible()
+  await tid(panel, 'add-toast-check').click()
+  await expect(tid(panel, 'rec-message')).toContainText('next message toast')
+  await flow(demo) // ... ends with Save, which shows "Order saved"
+  await expect(tid(panel, 'steps')).toContainText('Check the message shown')
+  await expect(tid(panel, 'steps')).toContainText('“Order saved”')
+  // after the press of Save that caused it
+  const steps = await tid(panel, 'step').allInnerTexts()
+  const save = steps.findIndex((t) => t.includes('Press Save'))
+  expect(save).toBeGreaterThanOrEqual(0)
+  expect(steps.findIndex((t) => t.includes('Check the message shown'))).toBeGreaterThan(save)
+  // only the next one: a second Save would not add a second check
+  await expect(tid(panel, 'step').filter({ hasText: 'Check the message shown' })).toHaveCount(1)
+  await tid(panel, 'stop').click()
+
+  // tried: the replay waits for the toast and finds it
+  await demo.bringToFront()
+  await tid(panel, 'try').click()
+  await expect(tid(panel, 'try-message')).toContainText('passed', { timeout: 90_000 })
+  await expect(tid(panel, 'try-message')).not.toContainText('failed')
+  await expect(tid(panel, 'try-results')).toContainText('A message shows "Order saved"')
+
+  // sent: the plan has a check without a control, and the test waits for the toast
+  await tid(panel, 'send').click()
+  await expect(tid(panel, 'send-message')).toContainText('Sent.')
+  const recordings = (
+    await (await fetch(`${API}/Recordings?$filter=project_ID eq ${project.ID}`)).json()
+  ).value
+  const plan = await post('createTestPlan', {
+    projectID: project.ID,
+    recordingID: recordings[0].ID,
+    name: 'Toast',
+  })
+  const step = JSON.parse(plan.definition).steps.find((s) => s.assertion?.type === 'toast')
+  expect(step).toMatchObject({ locator: null, assertion: { expected: 'Order saved' } })
+  await demo.close()
+  await panel.close()
 })

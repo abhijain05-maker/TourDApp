@@ -8,9 +8,11 @@
   function idleState() {
     return {
       status: 'idle', // idle | recording | paused | stopped
+      purpose: 'both', // what is being recorded: tour | test | both (the tab it was started in)
       startedAt: null,
       t0: 0,
       app: null,
+      startUrl: null, // the full address of the tab when the recording started (to open the app there again)
       recorder: '',
       steps: [],
       error: null,
@@ -76,6 +78,22 @@
     return step
   }
 
+  var PURPOSES = ['tour', 'test', 'both']
+  var EXPLAINABLE = ['press', 'input', 'select', 'search', 'toggle']
+
+  /** What the author says a step is for. It becomes the text of the tour step; tests ignore it. Empty text removes it. */
+  function setExplain(state, index, text) {
+    var step = state.steps[index]
+    if (!step || EXPLAINABLE.indexOf(step.type) < 0) return false
+    var value = String(text || '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .slice(0, 600)
+    if (value) step.explain = value
+    else delete step.explain
+    return true
+  }
+
   /** The finished recording document (shared/recording-schema.mjs); private fields are left out. */
   function buildRecording(state) {
     var app = state.app || {}
@@ -84,6 +102,7 @@
       version: 1,
       recordedAt: new Date(state.startedAt || Date.now()).toISOString(),
       recorder: 'tourd-extension ' + VERSION + (state.recorder ? ' + ' + state.recorder : ''),
+      purpose: PURPOSES.indexOf(state.purpose) >= 0 ? state.purpose : 'both',
       app: {
         url: app.url || '',
         startHash: app.startHash || '',
@@ -127,6 +146,8 @@
     else if (step.type === 'select')
       detail = step.valueText || (step.value !== undefined ? String(step.value) : '')
     else if (step.type === 'toggle') detail = step.value ? 'on' : 'off'
+    else if (step.type === 'check' && step.check && step.check.kind === 'toast')
+      detail = '“' + (step.check.expected || '') + '”'
     else if (step.type === 'check' && step.check)
       detail =
         step.check.kind === 'visible'
@@ -147,6 +168,8 @@
     if (step.type === 'navigate')
       title = 'Opens ' + (step.hash ? '#' + step.hash : 'the start page')
     else if (step.type === 'note') title = step.note
+    else if (step.type === 'check' && step.check && step.check.kind === 'toast')
+      title = 'Check the message shown'
     else if (step.type === 'search' && /search/i.test(name))
       title = name // "Search customers", not "Search Search customers"
     else title = VERB[step.type] + ' ' + name
@@ -171,6 +194,8 @@
   function publicState(state) {
     return {
       status: state.status,
+      purpose: state.purpose,
+      startUrl: state.startUrl,
       startedAt: state.startedAt,
       app: state.app,
       error: state.error,
@@ -278,6 +303,8 @@
     addStep: addStep,
     removeStep: removeStep,
     addNote: addNote,
+    setExplain: setExplain,
+    PURPOSES: PURPOSES,
     buildRecording: buildRecording,
     describeStep: describeStep,
     publicState: publicState,

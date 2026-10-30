@@ -20,7 +20,7 @@ const EXTENSION_ORIGIN = /^(chrome|moz)-extension:\/\/[a-z0-9-]+$/i
 const TOUR_ID = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}'
 
 /**
- * What a paired extension may do: list projects, tours, test plans and help, send a recording, add or remove help
+ * What a paired extension may do: list projects, tours, test plans and help, send a recording, ask what a recording would become (nothing is saved), add or remove help
  * topics, fetch a tour (or the help) to play.
  */
 const EXTENSION_ROUTES = [
@@ -40,6 +40,7 @@ const EXTENSION_ROUTES = [
     path: (p) =>
       [
         '/odata/v4/tour/importRecording',
+        '/odata/v4/tour/previewRecording',
         '/odata/v4/tour/createHelpSet',
         '/odata/v4/tour/saveHelpTopic',
         '/odata/v4/tour/deleteHelpTopic',

@@ -1,0 +1,284 @@
+{
+  "format": "tourd-recording",
+  "version": 1,
+  "recordedAt": "2026-10-30T11:35:02.017Z",
+  "recorder": "tourd-recorder 0.1.0",
+  "app": {
+    "url": "http://localhost:4015/sap.fe.cap.travel/index.html",
+    "startHash": "",
+    "title": "",
+    "ui5Version": "1.139.0",
+    "appId": "sap.fe.cap.travel",
+    "locale": "en-US"
+  },
+  "steps": [
+    {
+      "type": "press",
+      "event": "press",
+      "control": {
+        "id": "sap.fe.cap.travel::TravelList--fe::FilterBar::Travel-btnSearch",
+        "localId": "fe::FilterBar::Travel-btnSearch",
+        "viewName": "sap.fe.templates.ListReport.ListReport",
+        "controllerName": "sap.fe.templates.ListReport.ListReportController",
+        "controlType": "sap.m.Button",
+        "stableId": true,
+        "text": "Go",
+        "selector": {
+          "id": "sap.fe.cap.travel::TravelList--fe::FilterBar::Travel-btnSearch"
+        }
+      },
+      "t": 1664,
+      "index": 0
+    },
+    {
+      "type": "search",
+      "event": "search",
+      "control": {
+        "id": "sap.fe.cap.travel::TravelList--fe::FilterBar::Travel",
+        "localId": "fe::FilterBar::Travel",
+        "viewName": "sap.fe.templates.ListReport.ListReport",
+        "controllerName": "sap.fe.templates.ListReport.ListReportController",
+        "controlType": "sap.fe.macros.controls.FilterBar",
+        "stableId": true,
+        "selector": {
+          "id": "sap.fe.cap.travel::TravelList--fe::FilterBar::Travel"
+        }
+      },
+      "value": "",
+      "t": 1689,
+      "index": 1
+    },
+    {
+      "type": "search",
+      "event": "search",
+      "control": {
+        "id": "sap.fe.cap.travel::TravelList--fe::FilterBar::Travel::FilterBar",
+        "localId": "fe::FilterBar::Travel::FilterBar",
+        "viewName": "sap.fe.templates.ListReport.ListReport",
+        "controllerName": "sap.fe.templates.ListReport.ListReportController",
+        "controlType": "sap.fe.macros.filterBar.FilterBarAPI",
+        "stableId": true,
+        "selector": {
+          "id": "sap.fe.cap.travel::TravelList--fe::FilterBar::Travel"
+        }
+      },
+      "value": "",
+      "t": 1692,
+      "index": 2
+    },
+    {
+      "type": "press",
+      "event": "press",
+      "control": {
+        "id": "sap.fe.cap.travel::TravelList--fe::table::Travel::LineItem-innerTableRow-__clone11",
+        "localId": "fe::table::Travel::LineItem-innerTableRow-__clone11",
+        "viewName": "sap.fe.templates.ListReport.ListReport",
+        "controllerName": "sap.fe.templates.ListReport.ListReportController",
+        "controlType": "sap.m.ColumnListItem",
+        "stableId": false,
+        "inList": true,
+        "bindingPath": "/Travel(TravelUUID='75757221A8E4645C17002DF03754AB66',IsActiveEntity=true)",
+        "itemText": "Vacation",
+        "itemTextType": "sap.m.ObjectIdentifier",
+        "itemTextProperty": "title",
+        "selector": {
+          "controlType": "sap.m.ColumnListItem",
+          "viewName": "sap.fe.templates.ListReport.ListReport",
+          "viewId": "sap.fe.cap.travel::TravelList",
+          "bindingPath": {
+            "path": "/Travel(TravelUUID='75757221A8E4645C17002DF03754AB66',IsActiveEntity=true)",
+            "propertyPath": "TravelUUID"
+          }
+        }
+      },
+      "t": 5026,
+      "index": 3
+    },
+    {
+      "type": "press",
+      "event": "press",
+      "control": {
+        "id": "__item7",
+        "localId": null,
+        "viewName": "sap.fe.templates.ListReport.ListReport",
+        "controllerName": "sap.fe.templates.ListReport.ListReportController",
+        "controlType": "sap.ui.mdc.table.RowActionItem",
+        "stableId": false
+      },
+      "t": 5275,
+      "index": 4
+    },
+    {
+      "type": "navigate",
+      "hash": "/Travel(4132)",
+      "url": "http://localhost:4015/sap.fe.cap.travel/index.html#/Travel(4132)",
+      "t": 5428,
+      "causedBy": 4,
+      "index": 5
+    },
+    {
+      "type": "press",
+      "event": "press",
+      "control": {
+        "id": "sap.fe.cap.travel::TravelObjectPage--fe::StandardAction::Edit",
+        "localId": "fe::StandardAction::Edit",
+        "viewName": "sap.fe.templates.ObjectPage.ObjectPage",
+        "controllerName": "sap.fe.templates.ObjectPage.ObjectPageController",
+        "controlType": "sap.m.Button",
+        "stableId": true,
+        "text": "Edit",
+        "selector": {
+          "id": "sap.fe.cap.travel::TravelObjectPage--fe::StandardAction::Edit"
+        }
+      },
+      "t": 11140,
+      "index": 6
+    },
+    {
+      "type": "press",
+      "event": "press",
+      "control": {
+        "id": "__automatically0",
+        "localId": null,
+        "viewName": "sap.fe.templates.ObjectPage.ObjectPage",
+        "controllerName": "sap.fe.templates.ObjectPage.ObjectPageController",
+        "controlType": "sap.fe.core.controls.HideFormGroupAutomatically",
+        "stableId": false
+      },
+      "t": 14204,
+      "index": 7
+    },
+    {
+      "type": "input",
+      "event": "change",
+      "control": {
+        "id": "sap.fe.cap.travel::TravelObjectPage--fe::FormContainer::PriceData::FormElement::DataField::BookingFee::Field-edit-inner",
+        "localId": "fe::FormContainer::PriceData::FormElement::DataField::BookingFee::Field-edit-inner",
+        "viewName": "sap.fe.templates.ObjectPage.ObjectPage",
+        "controllerName": "sap.fe.templates.ObjectPage.ObjectPageController",
+        "controlType": "sap.ui.mdc.field.FieldInput",
+        "stableId": true,
+        "selector": {
+          "id": "sap.fe.cap.travel::TravelObjectPage--fe::FormContainer::PriceData::FormElement::DataField::BookingFee::Field-edit-inner"
+        }
+      },
+      "value": "12.00",
+      "t": 14376,
+      "index": 8
+    },
+    {
+      "type": "press",
+      "event": "press",
+      "control": {
+        "id": "sap.fe.cap.travel::TravelObjectPage--fe::FooterBar::StandardAction::Save",
+        "localId": "fe::FooterBar::StandardAction::Save",
+        "viewName": "sap.fe.templates.ObjectPage.ObjectPage",
+        "controllerName": "sap.fe.templates.ObjectPage.ObjectPageController",
+        "controlType": "sap.m.Button",
+        "stableId": true,
+        "text": "Save",
+        "selector": {
+          "id": "sap.fe.cap.travel::TravelObjectPage--fe::FooterBar::StandardAction::Save"
+        }
+      },
+      "t": 16691,
+      "index": 9
+    },
+    {
+      "type": "input",
+      "event": "change",
+      "control": {
+        "id": "sap.fe.cap.travel::TravelObjectPage--fe::FormContainer::PriceData::FormElement::DataField::BookingFee::Field-edit",
+        "localId": "fe::FormContainer::PriceData::FormElement::DataField::BookingFee::Field-edit",
+        "viewName": "sap.fe.templates.ObjectPage.ObjectPage",
+        "controllerName": "sap.fe.templates.ObjectPage.ObjectPageController",
+        "controlType": "sap.ui.mdc.Field",
+        "stableId": true,
+        "text": "Booking Fee",
+        "selector": {
+          "id": "sap.fe.cap.travel::TravelObjectPage--fe::FormContainer::PriceData::FormElement::DataField::BookingFee::Field-edit"
+        }
+      },
+      "value": "12,USD,",
+      "t": 16721,
+      "index": 10
+    },
+    {
+      "type": "input",
+      "event": "change",
+      "control": {
+        "id": "sap.fe.cap.travel::TravelObjectPage--fe::FormContainer::PriceData::FormElement::DataField::BookingFee::Field",
+        "localId": "fe::FormContainer::PriceData::FormElement::DataField::BookingFee::Field",
+        "viewName": "sap.fe.templates.ObjectPage.ObjectPage",
+        "controllerName": "sap.fe.templates.ObjectPage.ObjectPageController",
+        "controlType": "sap.fe.macros.Field",
+        "stableId": true,
+        "label": "Booking Fee",
+        "selector": {
+          "id": "sap.fe.cap.travel::TravelObjectPage--fe::FormContainer::PriceData::FormElement::DataField::BookingFee::Field-content"
+        }
+      },
+      "value": "12,USD,",
+      "t": 16724,
+      "index": 11
+    },
+    {
+      "type": "toggle",
+      "event": "select",
+      "control": {
+        "id": "myFragment--formElementMacroID2--FormElementField::Field-edit",
+        "localId": null,
+        "viewName": "sap.fe.templates.ObjectPage.ObjectPage",
+        "controllerName": "sap.fe.templates.ObjectPage.ObjectPageController",
+        "controlType": "sap.m.CheckBox",
+        "stableId": false,
+        "label": "Trees-4-Tickets",
+        "inDialog": true,
+        "selector": {
+          "id": "myFragment--formElementMacroID2--FormElementField::Field-edit",
+          "searchOpenDialogs": true
+        }
+      },
+      "value": true,
+      "t": 18664,
+      "index": 12
+    },
+    {
+      "type": "input",
+      "event": "change",
+      "control": {
+        "id": "myFragment--formElementMacroID2--FormElementField",
+        "localId": null,
+        "viewName": "sap.fe.templates.ObjectPage.ObjectPage",
+        "controllerName": "sap.fe.templates.ObjectPage.ObjectPageController",
+        "controlType": "sap.fe.macros.Field",
+        "stableId": false,
+        "label": "Trees-4-Tickets",
+        "inDialog": true,
+        "selector": {
+          "id": "myFragment--formElementMacroID2--FormElementField-content",
+          "searchOpenDialogs": true
+        }
+      },
+      "value": "true",
+      "t": 18666,
+      "index": 13
+    },
+    {
+      "type": "press",
+      "event": "press",
+      "control": {
+        "id": "myFragment--Save",
+        "localId": null,
+        "viewName": "sap.fe.templates.ObjectPage.ObjectPage",
+        "controllerName": "sap.fe.templates.ObjectPage.ObjectPageController",
+        "controlType": "sap.m.Button",
+        "stableId": false,
+        "text": "Save",
+        "inDialog": true
+      },
+      "t": 19601,
+      "index": 14
+    }
+  ]
+}

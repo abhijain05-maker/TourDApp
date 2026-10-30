@@ -37,7 +37,7 @@ export interface Wdi5Step {
   value?: string
   choice?: string
   submit?: boolean
-  assertion?: { type: 'url' | 'value' | 'selectedKey' | 'visible' | 'text'; expected?: string }
+  assertion?: { type: 'url' | 'value' | 'selectedKey' | 'visible' | 'text' | 'toast'; expected?: string }
   hash?: string
   from?: { index: number | null; via: string | null; confidence: number | null }
   heuristic?: boolean

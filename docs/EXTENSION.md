@@ -21,31 +21,51 @@ TourD has no login, so the extension proves itself with a token.
 
 UI5 itself is asked for a selector of every control (the one its Test Recorder would write); it is stored in the recording and used by the wdi5 tests for controls without an id.
 
-A token lets the extension do a few things only: list projects, tours, tests and help, send a recording, add or delete help topics (and ask for AI help on them), fetch a tour or the help to play, fetch the player. It cannot read your files, change or delete anything else. **Revoke** a token in the same dialog.
+A token lets the extension do a few things only: list projects, tours, tests and help, send a recording, ask what a recording would become (nothing is saved), add or delete help topics (and ask for AI help on them), fetch a tour or the help to play, fetch the player. It cannot read your files, change or delete anything else. **Revoke** a token in the same dialog.
 
-## Record
+## The panel: choose the project once
 
-1. Open your app in a tab and click the extension. Press **Start recording**.
-2. Use the app the way a new user should learn it. Every press, entry, choice, search, toggle and page change is added to the list (remove a step with the cross, add a note with the field below).
-3. **Stop**. Pick the TourD project, **Send to TourD**. The recording appears in the project's Recordings; generate a tour from it as usual. Or **Save file** / **Copy** and import it by hand.
+The top of the panel always shows the **project**. Choose it once; everything below is done for that project: recordings are sent to it, and its tours, tests and help are the ones you play, replay and write. When a project belongs to the app that is open (its app id is the same), the panel chooses it for you and says so; a project you pick yourself stays picked. A project made in TourD while the panel is open shows up when you come back to the panel.
 
-**Add a check** (while recording): press it, then click a control in the app. Nothing is clicked; the recording gets a *check* of what that control shows now (the text in an input, the text of a label or button, or only that it is there). TourD turns it into a check in the wdi5 tests; tours ignore it. Escape gives up. A password or secret-looking field is checked for being there only, never for its value.
+Below the project are three tabs, in the order of how often they are used: **Tests**, **Help** and **Tour**. Tests are what you come back to every time the app changes; help and tour are mostly written once. A small red dot on a tab means that its job is running (recording, a replay, a tour playing, help shown or being written), so you see it from any tab. The panel opens on the tab you used last (the first time: Tests).
+
+A button that stops something is there only while there is something to stop: **Stop** while recording, **Stop tour** while a tour plays, **Stop** of a replay while it runs, **Hide** while the saved help is shown, **Stop writing help** while you write help.
+
+## Recording: in the Tests tab or in the Tour tab
+
+Recording is the same recorder in both tabs, and both send to the same place, the project's Recordings. The tab only decides what the panel offers while you record, and what the recording is *for* (the label TourD shows: **Tour**, **Tests** or **Tour and tests**).
+
+1. Open your app in a tab and click the extension. Choose the tab: **Tests** to record a test, **Tour** to record a tour. Press **Start recording**.
+2. Use the app the way a new user should learn it. Every press, entry, choice, search, toggle and page change is added to the list (remove a step with the cross).
+3. **Stop**, then **Send to TourD** (it goes to the project at the top). The recording appears in the project's Recordings with its label. Or **Save file** / **Copy** and import it by hand (the file says what it is for).
+
+Only one recording runs per app tab. The other recording tab then says where it is ("A recording is running in the Tests tab") with a button to go there; a stopped recording that was not sent can be discarded to record the other kind.
+
+**In the Tests tab: Add a check** (while recording): press it, then click a control in the app. Nothing is clicked; the recording gets a *check* of what that control shows now (the text in an input, the text of a label or button, or only that it is there). TourD turns it into a check in the wdi5 tests; tours ignore it. Escape gives up. A password or secret-looking field is checked for being there only, never for its value.
+
+**In the Tests tab: Add a message check.** A message toast ("Order saved") is not a control: it has no id and is gone after about three seconds, so it cannot be pointed at. Press **Add a message check**, then do what shows the message in the app (for example press Save): the next message toast the app shows becomes a check with its text, placed right after the step that showed it. It is armed for one toast (or two minutes); **Stop** cancels it. The generated test waits for it (`await expect($('.sapMMessageToast')).toHaveText(...)`, which retries until WebdriverIO's `waitforTimeout`, 10 s); a try or replay in the extension notes the toasts the page shows while it runs, so it does not depend on catching the toast on screen. It works for `sap.m.MessageToast` (also the one Fiori elements uses); a message in a dialog (`MessageBox`) is a control and can be checked with **Add a check**.
+
+**In the Tour tab: say what each step is for.** Under every step there is a field. What you write there becomes the text of that tour step, as you wrote it (with AI, the model only fixes spelling and makes it short and clear; it keeps your meaning). Steps without words get the text TourD makes from the control. **Add step** adds an introduction step without a control (a welcome, a remark) at the place where you are; a tour that starts with one does not get a second, generated welcome. Tests ignore all of this.
+
+In TourD, generating a tour offers the recordings made for tours (and for both), and making tests offers those made for tests (and for both). "Show all recordings" is always there, so a recording made for the other purpose can still be used. The label can be changed in the Recordings list.
+
+**Try it before you send it.** After **Stop**, the card "Try it before you send it" lets you see what TourD would make of the recording, without saving anything. In the Tests tab, **Try it in the app** opens the app again where the recording started, runs the steps as the generated test will (the same plan builder as the real import), and lists every step as passed or failed. In the Tour tab, **Preview the tour** plays the tour TourD would make from the recording, with your words. If something is wrong, **Record again** (it also opens the app at the start again) or take out the step that fails; send it when you are happy. Careful: a try really does what you did, so an order is created again.
 
 What is not recorded: passwords and fields that look like secrets (their step says "value left out"), scrolling, hovering, mouse movements. A click on something that fires no UI5 event is not a step.
 
 Works with: apps in the Fiori launchpad (frames of other origins are recorded too, including frames that open while you record), page reloads while recording, pause/resume.
 
-## Play a tour in your app
+## Play a tour in your app (tab Tour)
 
-In the same panel: choose project and tour, **Play**. The tour runs in the open app with its real data, which is the best check of whether every step finds its control. **Stop tour** ends it.
+Choose the tour of the project, **Play**. The tour runs in the open app with its real data, which is the best check of whether every step finds its control. **Stop tour** ends it.
 
-## Replay wdi5 tests in your app
+## Replay wdi5 tests in your app (tab Tests)
 
-Also in the panel: choose the project and a test plan (made in TourD under **Tests**), **Replay**. The steps run in the open app, each control is outlined before it is used, and the panel lists every step as passed or failed (a failed step says why; the steps after it are not run). It uses UI5's own record/replay API, the one wdi5 is built on, so a selector means the same here as in the generated test. Replay is a quick way to see that a plan fits the running app; the generated tests are run by you or your pipeline.
+Choose a test plan of the project (made in TourD under **Tests**), **Replay**. The steps run in the open app, each control is outlined before it is used, and the panel lists every step as passed or failed (a failed step says why; the steps after it are not run). It uses UI5's own record/replay API, the one wdi5 is built on, so a selector means the same here as in the generated test. Replay is a quick way to see that a plan fits the running app; the generated tests are run by you or your pipeline.
 
-## Write help for your app
+## Help for your app (tab Help)
 
-Also in the panel: choose the project, **Start writing help**, **Point at a control**, click the control in the app, write the text. The app shows the help panel with a **?** badge on the control and the popover while you type, so you see what your users will see. **Write with AI** drafts or improves the text. **Save to TourD** keeps the topic in the project; from there TourD adds the help to your app's files. Pointing does not need a recording and presses nothing. Details: [HELP.md](HELP.md).
+**Show help in the app** shows the help that is saved in the project, as your users will see it; **Hide** takes it away again. To write help: **Start writing help**, **Point at a control**, click the control in the app, write the text. The app shows the help panel with a **?** badge on the control and the popover while you type, so you see what your users will see. **Write with AI** drafts or improves the text. **Save to TourD** keeps the topic in the project; from there TourD adds the help to your app's files. Pointing does not need a recording and presses nothing. Details: [HELP.md](HELP.md).
 
 In a Fiori launchpad the preview is shown in the frame in which you pointed at a control. A page reload while you write brings the picker and the preview back.
 

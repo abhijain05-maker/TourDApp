@@ -97,9 +97,16 @@ const OPTIONS = { bridge: true }
 
 // ---- commands from the panel ---------------------------------------------------------------------------------
 
-async function start(tabId) {
+async function start(tabId, purpose) {
+  const tab = await chrome.tabs.get(tabId).catch(() => null)
   const state = await withTab(tabId, (s) => {
-    Object.assign(s, T.idleState(), { status: 'recording', startedAt: Date.now(), t0: Date.now() })
+    Object.assign(s, T.idleState(), {
+      status: 'recording',
+      startUrl: tab ? tab.url : null,
+      purpose: T.PURPOSES.includes(purpose) ? purpose : 'both',
+      startedAt: Date.now(),
+      t0: Date.now(),
+    })
     return s
   })
   let results
@@ -186,6 +193,22 @@ function cancelPickInPage() {
   }
 }
 
+function pickToastInPage() {
+  try {
+    if (window.__tourdRecorder && window.__tourdRecorder.isRecording())
+      window.__tourdRecorder.pickToast()
+  } catch (e) {
+    /* this frame has no recorder or no UI5 */
+  }
+}
+
+async function pickToast(tabId) {
+  await chrome.scripting
+    .executeScript({ target: { tabId, allFrames: true }, world: 'MAIN', func: pickToastInPage })
+    .catch(() => {})
+  return { ok: true }
+}
+
 async function pickCheck(tabId) {
   await chrome.scripting
     .executeScript({ target: { tabId, allFrames: true }, world: 'MAIN', func: pickCheckInPage })
@@ -202,12 +225,101 @@ async function cancelPick(tabId) {
 
 // ---- tours -----------------------------------------------------------------------------------------------------
 
+/** In the page: the ids of the apps (sap.app/id of every component) that are running. */
+function appIdsInPage() {
+  try {
+    const C =
+      window.sap &&
+      window.sap.ui &&
+      window.sap.ui.require &&
+      window.sap.ui.require('sap/ui/core/Component')
+    if (!C || !C.registry) return []
+    return C.registry
+      .filter(() => true)
+      .map((c) => (c.getManifestEntry ? c.getManifestEntry('/sap.app/id') : null))
+      .filter(Boolean)
+  } catch (e) {
+    return []
+  }
+}
+
+/** In the page: is a tour playing, is help shown (by the extension or by the app itself)? */
+function liveStateInPage() {
+  try {
+    const r = window.sap && window.sap.ui && window.sap.ui.require
+    const tour = r && r('tourd/live/TourPlayer')
+    const help = r && r('tourd/live/HelpLayer')
+    return {
+      tour: !!(tour && tour.getActive && tour.getActive()),
+      help: !!(help && help.getActive && help.getActive()),
+    }
+  } catch (e) {
+    return { tour: false, help: false }
+  }
+}
+
+async function liveState(tabId) {
+  const results = await chrome.scripting
+    .executeScript({ target: { tabId, allFrames: true }, world: 'MAIN', func: liveStateInPage })
+    .catch(() => [])
+  return {
+    tour: results.some((r) => r.result && r.result.tour),
+    help: results.some((r) => r.result && r.result.help),
+  }
+}
+
+async function appIds(tabId) {
+  const results = await chrome.scripting
+    .executeScript({ target: { tabId, allFrames: true }, world: 'MAIN', func: appIdsInPage })
+    .catch(() => [])
+  return { ids: [...new Set(results.flatMap((r) => r.result || []))] }
+}
+
 function probeUi5() {
   try {
     return !!(window.sap && window.sap.ui && window.sap.ui.require)
   } catch (e) {
     return false
   }
+}
+
+/** In the page: UI5 has drawn controls and has nothing left to wait for (what wdi5 waits for before it looks for a control). */
+function appReadyInPage() {
+  return new Promise(function (resolve) {
+    var until = Date.now() + 8000
+    function drawn() {
+      return !!document.querySelector('[data-sap-ui]')
+    }
+    function stable() {
+      try {
+        window.sap.ui.require(
+          ['sap/ui/test/RecordReplay'],
+          function (RR) {
+            RR.waitForUI5({ timeout: 15000 }).then(
+              function () {
+                resolve(true)
+              },
+              function () {
+                resolve(false)
+              },
+            )
+          },
+          function () {
+            resolve(false)
+          },
+        )
+      } catch (e) {
+        resolve(false)
+      }
+    }
+    function check() {
+      if (!(window.sap && window.sap.ui && window.sap.ui.require)) return resolve(false)
+      if (drawn()) return stable()
+      if (Date.now() > until) return resolve(false)
+      setTimeout(check, 200)
+    }
+    check()
+  })
 }
 
 function startTourInPage(tour) {
@@ -282,6 +394,47 @@ function stopReplayInPage() {
   } catch (e) {
     /* nothing runs */
   }
+}
+
+/**
+ * Opens the app again where the recording started, as a fresh page load, and waits until UI5 is there. A recording
+ * is tried from the beginning: after recording the app is in its end state (an order created, a dialog open).
+ */
+async function reopenAtStart(tabId) {
+  const startUrl = await withTab(tabId, (s) => s.startUrl)
+  if (!startUrl)
+    return { ok: false, reason: 'The address where the recording started is not known.' }
+  // "loading" and then "complete" is a page load; a change of the hash alone loads nothing and must not count
+  let loading = false
+  const loaded = new Promise((resolve) => {
+    const done = (ok) => {
+      chrome.tabs.onUpdated.removeListener(listener)
+      clearTimeout(timer)
+      resolve(ok)
+    }
+    const listener = (id, info) => {
+      if (id !== tabId) return
+      if (info.status === 'loading') loading = true
+      if (info.status === 'complete' && loading) done(true)
+    }
+    const timer = setTimeout(() => done(false), 30000)
+    chrome.tabs.onUpdated.addListener(listener)
+  })
+  await chrome.tabs.update(tabId, { url: startUrl })
+  // the address alone may change only the hash (nothing loads): then the page is reloaded, once, and only then
+  await sleep(1200)
+  if (!loading) await chrome.tabs.reload(tabId)
+  if (!(await loaded)) return { ok: false, reason: 'The app did not finish loading.' }
+
+  const deadline = Date.now() + 30000
+  while (Date.now() < deadline) {
+    const ready = await chrome.scripting
+      .executeScript({ target: { tabId, allFrames: true }, world: 'MAIN', func: appReadyInPage })
+      .catch(() => [])
+    if (ready.some((p) => p.result)) return { ok: true }
+    await sleep(500)
+  }
+  return { ok: false, reason: 'The app did not start (UI5 is not there). Open it and try again.' }
 }
 
 /** Runs the steps of a wdi5 test plan in the app that is open (the frame that has UI5, like playTour). */
@@ -444,10 +597,14 @@ async function expectedHelpVersion() {
   return helpVersionCache
 }
 
-async function helpShow(tabId, help, open, topicId) {
-  // a preview that was asked for before "Done" must not bring the help back after it
-  const state = await getHelp(tabId)
-  if (!state || !state.active)
+/**
+ * Shows help in the page. While help is being written (`state.active`) every preview comes from the author's panel; a
+ * preview that was asked for before "Stop writing help" must not bring the help back after it. `view` is the other use:
+ * showing the saved help of the project as it is, which needs no writing session.
+ */
+async function helpShow(tabId, help, open, topicId, view) {
+  const state = (await getHelp(tabId)) ?? { active: false, frame: null }
+  if (!view && !state.active)
     return { ok: false, reason: 'Writing help is not running in this tab.' }
   let frames = []
   for (const deadline = Date.now() + 8000; ;) {
@@ -473,7 +630,7 @@ async function helpShow(tabId, help, open, topicId) {
     return {
       ok: false,
       reason:
-        'This tab still has the help layer of an older version of the extension. Reload the tab (F5), then press "Show in app".',
+        'This tab still has the help layer of an older version of the extension. Reload the tab (F5) and try again.',
     }
   const target = { tabId, frameIds: [frame.frameId] }
   if (!frame.result.player)
@@ -537,7 +694,7 @@ async function handle(msg, sender) {
     case 'status':
       return withTab(tabId, (s) => T.publicState(s))
     case 'start':
-      await start(tabId)
+      await start(tabId, msg.purpose)
       return withTab(tabId, (s) => T.publicState(s))
     case 'stop':
       await stop(tabId)
@@ -552,18 +709,24 @@ async function handle(msg, sender) {
       return withTab(tabId, (s) => (T.removeStep(s, s.steps.length - 1), T.publicState(s)))
     case 'addNote':
       return withTab(tabId, (s) => (T.addNote(s, msg.text, Date.now()), T.publicState(s)))
+    case 'setExplain':
+      return withTab(tabId, (s) => (T.setExplain(s, msg.index, msg.text), T.publicState(s)))
     case 'clear':
       return withTab(tabId, (s) => (Object.assign(s, T.idleState()), T.publicState(s)))
     case 'recording':
       return withTab(tabId, (s) => T.buildRecording(s))
     case 'pickCheck':
       return pickCheck(tabId)
+    case 'pickToast':
+      return pickToast(tabId)
     case 'cancelPick':
       return cancelPick(tabId)
     case 'playTour':
       return playTour(tabId, msg.tour)
     case 'stopTour':
       return stopTour(tabId)
+    case 'reopenStart':
+      return reopenAtStart(tabId)
     case 'replayPlan':
       return replayPlan(tabId, msg.plan)
     case 'stopReplay':
@@ -574,8 +737,12 @@ async function handle(msg, sender) {
       return helpPick(tabId)
     case 'helpCancel':
       return cancelPick(tabId)
+    case 'liveState':
+      return liveState(tabId)
+    case 'appIds':
+      return appIds(tabId)
     case 'helpShow':
-      return inOrder(tabId, () => helpShow(tabId, msg.help, msg.open, msg.topicId))
+      return inOrder(tabId, () => helpShow(tabId, msg.help, msg.open, msg.topicId, msg.view))
     case 'helpStop':
       return inOrder(tabId, () => helpStop(tabId))
     default:

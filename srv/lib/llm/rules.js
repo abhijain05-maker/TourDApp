@@ -134,6 +134,25 @@ function routeHashFor(inventory, viewName) {
 }
 
 /**
+ * A note typed while recording is a step of its own without a control (a welcome, a remark): the first line is the
+ * title when there are several lines, otherwise the whole note is the text.
+ */
+export function noteToStep(text, id, index) {
+  const lines = String(text ?? '')
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean)
+  const [first = '', ...rest] = lines
+  const short = first.length <= 60
+  return {
+    id,
+    title: rest.length && short ? first : 'Good to know',
+    text: rest.length && short ? rest.join(' ') : lines.join(' '),
+    meta: { source: `recording:${index}`, confidence: 1, unresolved: false },
+  }
+}
+
+/**
  * @param {{recording: object, inventory: object, title?: string, id?: string, intro?: boolean}} args
  *   `recording` must already be mapped (mapRecording).
  * @returns {{tour: object, report: {steps: number, unresolved: number, skipped: number}}}
@@ -161,6 +180,11 @@ export function generateTourFromRules({ recording, inventory, title, id, intro =
       continue
     }
     if (s.action === 'check') continue // for tests, not for tours
+    if (s.action === 'note' && s.authored) {
+      // typed by the author while recording (a line of a plain text recording that was not understood is not)
+      steps.push(noteToStep(s.text ?? s.note, `s${steps.length + 1}`, s.index))
+      continue
+    }
     if (s.action !== 'click' && s.action !== 'input') {
       skipped++
       continue
@@ -184,7 +208,7 @@ export function generateTourFromRules({ recording, inventory, title, id, intro =
       steps.push({
         id: `s${n}`,
         title: t,
-        text,
+        text: s.explain || text, // what the author wrote beats what is guessed from the control
         target: targetFor(s.ui5, control),
         placement: placementFor(control),
         before,
@@ -195,7 +219,7 @@ export function generateTourFromRules({ recording, inventory, title, id, intro =
       steps.push({
         id: `s${n}`,
         title: label ? `Press ${label}` : `Step ${n}`,
-        text: label ? `Press **${label}**.` : '',
+        text: s.explain || (label ? `Press **${label}**.` : ''),
         before,
         meta: {
           source: `recording:${s.index}`,
@@ -213,7 +237,9 @@ export function generateTourFromRules({ recording, inventory, title, id, intro =
     else if (inferred !== null) pendingHash = inferred
   }
 
-  if (intro) {
+  // the author's own first note already opens the tour: no second welcome
+  const opensWithNote = steps[0] && !steps[0].target && /^recording:/.test(steps[0].meta?.source ?? '')
+  if (intro && !opensWithNote) {
     steps.unshift({
       id: 'intro',
       title: tourTitle,

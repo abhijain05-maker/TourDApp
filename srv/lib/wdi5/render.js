@@ -342,6 +342,9 @@ function assertion(step, locators) {
       return (
         l && `expect(await browser.asControl(${l}).getSelectedKey()).toBe(${q(a.expected ?? '')})`
       )
+    case 'toast':
+      // a message toast is plain HTML, not a control; the matcher waits for it (waitforTimeout) and it shows for ~3 s
+      return `await expect($('.sapMMessageToast')).toHaveText(${q(a.expected ?? '')})`
     case 'visible':
       return l && `expect(await browser.asControl(${l}).getVisible()).toBe(true)`
     case 'text':

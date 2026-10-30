@@ -145,8 +145,10 @@ export const api = {
   changes: (projectID: string) => list<FileInfo>(`/getChanges(projectID=${projectID})`),
 
   recordings: (projectID: string) => list<RecordingRow>(`/Recordings?$filter=project_ID eq ${projectID}&$orderby=createdAt desc`),
-  importRecording: (projectID: string, name: string, raw: string, format: string) =>
-    call<RecordingResult>('POST', '/importRecording', { projectID, name, raw, format: format || null }),
+  importRecording: (projectID: string, name: string, raw: string, format: string, purpose: string) =>
+    call<RecordingResult>('POST', '/importRecording', { projectID, name, raw, format: format || null, purpose }),
+  setRecordingPurpose: (recordingID: string, purpose: string) =>
+    call<RecordingRow>('POST', '/setRecordingPurpose', { recordingID, purpose }),
   mappedRecording: async (id: string) => JSON.parse(await text(`/getRecording(recordingID=${id})`)),
   deleteRecording: (id: string) => call<void>('DELETE', `/Recordings(${id})`),
 

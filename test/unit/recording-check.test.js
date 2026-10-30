@@ -117,3 +117,60 @@ describe('a "check" step in a recording', () => {
     )
   })
 })
+
+describe('a check that the app showed a message toast', () => {
+  const toast = (text = 'Order saved') => ({
+    type: 'check',
+    event: 'toast',
+    t: 1,
+    check: { kind: 'toast', expected: text },
+  })
+  /** The demo recording with a toast check after the step with this index (no control: a toast has none). */
+  const withToast = (after, text) => {
+    const rec = structuredClone(base)
+    rec.steps.splice(after + 1, 0, toast(text))
+    rec.steps = rec.steps.map((s, i) => ({ ...s, index: i }))
+    return rec
+  }
+
+  it('is valid without a control, but needs the text of the message', () => {
+    expect(validateRecording(withToast(5)).ok).toBe(true)
+    const empty = withToast(5)
+    delete empty.steps.find((s) => s.type === 'check').check.expected
+    expect(validateRecording(empty).issues[0].message).toMatch(/text of the message/)
+  })
+
+  it('is no tour step and no click', () => {
+    const rec = parse(withToast(5))
+    expect(rec.steps.find((s) => s.action === 'check')).toMatchObject({
+      check: { kind: 'toast', expected: 'Order saved' },
+    })
+    const mapped = mapRecording(rec, inventory)
+    const tour = generateTourFromRules({ recording: mapped, inventory })
+    const plain = generateTourFromRules({
+      recording: mapRecording(parse(base), inventory),
+      inventory,
+    })
+    expect(tour.tour.steps.length).toBe(plain.tour.steps.length)
+  })
+
+  it('becomes a check without a control in the test plan, and waits for the toast in the test', () => {
+    const mapped = mapRecording(parse(withToast(5)), inventory)
+    const plan = buildPlan({ mapped, inventory, name: 'x' })
+    const step = plan.steps.find((s) => s.assertion?.type === 'toast')
+    expect(step).toMatchObject({
+      kind: 'assert',
+      title: 'A message shows "Order saved"',
+      locator: null,
+      assertion: { type: 'toast', expected: 'Order saved' },
+    })
+    expect(step.enabled).not.toBe(false)
+    const spec = renderSpec(plan, 'x.journey')
+    expect(spec).toContain(`await expect($('.sapMMessageToast')).toHaveText("Order saved")`)
+    // after the step that caused it
+    const before = plan.steps.slice(0, plan.steps.indexOf(step))
+    expect(before.some((p) => p.kind === 'press' && p.locator === 'saveBtn')).toBe(true)
+    // ... and before the checks TourD adds itself: those wait for the app to settle, the toast does not wait
+    expect(plan.steps[plan.steps.indexOf(step) + 1]?.heuristic).toBe(true)
+  })
+})

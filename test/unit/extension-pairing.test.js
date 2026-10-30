@@ -39,6 +39,7 @@ describe('extension rules (pure)', () => {
       ['GET', `${BASE}/Tours`],
       ['GET', `${BASE}/providers()`],
       ['POST', `${BASE}/importRecording`],
+      ['POST', `${BASE}/previewRecording`],
       ['GET', '/live/player.js'],
       ['GET', `/live/${id}/tour.json`],
     ])
@@ -131,6 +132,15 @@ describe('pairing an extension', () => {
     })
     expect(sent.status).toBe(200)
     expect(sent.data).toMatchObject({ format: 'tourd-recorder', actionable: 5, mapped: 5 })
+
+    // what a recording would become, without saving it
+    const preview = await as(EXT, token, 'post', `${BASE}/previewRecording`, {
+      projectID,
+      raw: recording,
+      kind: 'test',
+    })
+    expect(preview.status).toBe(200)
+    expect(JSON.parse(preview.data.definition).steps.length).toBeGreaterThan(3)
   })
 
   it('does not let it do anything else, even with a valid token', async () => {
