@@ -1,0 +1,31 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="aiDialog" title="{ai>/title}" contentWidth="34rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin tourdStack" renderType="Bare">
+				<MessageStrip type="Error" showIcon="true" text="{ai>/error}" visible="{= !!${ai>/error}}" />
+				<MessageStrip id="aiUnavailable" type="Information" showIcon="true" text="{i18n>tourAiUnavailable}" visible="{ai>/unavailable}" />
+				<VBox visible="{= !${ai>/unavailable}}" renderType="Bare">
+					<Label text="{i18n>tourAiProvider}" />
+					<Select selectedKey="{ai>/provider}" items="{ai>/providers}" width="100%">
+						<core:Item key="{ai>id}" text="{ai>label}" />
+					</Select>
+				</VBox>
+				<VBox renderType="Bare">
+					<Label text="{i18n>tourAiWhat}" labelFor="aiInstruction" required="true" />
+					<Input id="aiInstruction" value="{ai>/instruction}" valueLiveUpdate="true" placeholder="{i18n>tourAiExample}" />
+				</VBox>
+				<HBox wrap="Wrap" items="{ai>/presets}">
+					<Button text="{ai>text}" type="Transparent" press=".onAiPreset" />
+				</HBox>
+				<MessageStrip type="Information" showIcon="true" text="{i18n>tourAiNotice}" />
+				<BusyIndicator size="1rem" text="{i18n>tourAiWaiting}" visible="{ai>/busy}" />
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="aiRun" text="{i18n>tourAiApply}" type="Emphasized" enabled="{= !!${ai>/provider} &amp;&amp; !!${ai>/instruction} &amp;&amp; !${ai>/busy}}" press=".onAiRun" />
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>cancel}" press=".onAiClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

@@ -30,3 +30,10 @@ extension/live-player.js
 extension/live-help.js
 extension-dist/
 gen/
+
+# deployment
+.cdsrc-private.json
+deploy/prod.mtaext
+*.mtar
+mta_archives/
+gen-check/

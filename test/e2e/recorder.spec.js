@@ -274,7 +274,7 @@ test('the designer imports a TourD recording and shows view, controller and hand
   await expect(tid('rec-result')).toContainText(
     'Imported a TourD recorder recording: 6 step(s), 5 of 5 matched',
   )
-  await expect(tid('recording-row')).toContainText('TourD recorder')
+  await expect(tid('recording-row')).toContainText('QuickDev recorder')
 
   await tid('rec-details').click()
   const dialog = tid('rec-details-dialog')

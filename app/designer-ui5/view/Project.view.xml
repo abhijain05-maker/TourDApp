@@ -1,0 +1,82 @@
+<mvc:View
+	controllerName="tourd.designer.controller.Project"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	core:require="{Format: 'tourd/designer/util/Format'}">
+	<Page id="projectPage" showHeader="false" enableScrolling="true" class="tourdPageBg">
+		<content>
+			<VBox class="tourdPage" renderType="Bare" busy="{view>/loading}" busyIndicatorDelay="300">
+				<MessageStrip id="projectError" type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+				<VBox visible="{= !!${app>/project}}" renderType="Bare">
+					<Breadcrumbs currentLocationText="{app>/project/name}">
+						<Link text="{i18n>projects}" press=".onHome" />
+					</Breadcrumbs>
+					<HBox class="tourdBanner tourdCard" alignItems="Center">
+						<Text text="{path: 'app>/project/name', formatter: 'Format.initial'}" class="tourdAvatar" />
+						<VBox renderType="Bare" class="tourdBannerBody">
+							<HBox alignItems="Center" wrap="Wrap">
+								<Title id="projectTitle" text="{app>/project/name}" level="H2" class="sapUiSmallMarginEnd" />
+								<ObjectStatus text="{app>/project/appId}" state="Information" inverted="true" visible="{= !!${app>/project/appId}}" class="sapUiTinyMarginEnd" />
+								<ObjectStatus text="{= 'UI5 ' + ${app>/project/ui5Version}}" inverted="true" />
+							</HBox>
+							<Text text="{app>/project/description}" visible="{= !!${app>/project/description}}" class="tourdMuted" />
+						</VBox>
+						<!-- when it was made and last changed: on the right of the banner -->
+						<VBox id="projectDates" renderType="Bare" class="tourdDates">
+							<HBox class="tourdDateRow" tooltip="{view>/createdAgo}">
+								<Text text="{i18n>created}" class="tourdDateLabel" />
+								<Text id="createdValue" text="{view>/createdValue}" class="tourdDateValue" />
+							</HBox>
+							<HBox class="tourdDateRow" tooltip="{view>/updatedValue}">
+								<Text text="{i18n>updated}" class="tourdDateLabel" />
+								<Text id="updatedValue" text="{view>/updatedValue}" class="tourdDateValue" />
+								<Text id="updatedAgo" text="{= '· ' + ${view>/updatedAgo}}" class="tourdDateAgo" />
+							</HBox>
+						</VBox>
+					</HBox>
+
+					<HBox id="overview" wrap="Wrap" class="tourdOverview">
+						<GenericTile id="tileSources" header="{i18n>tileFiles}" subheader="{view>/extra/sources}" press=".onTile('sources')" class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+							<TileContent><NumericContent value="{= ${view>/counts/files} === undefined ? '…' : ${view>/counts/files}}" icon="sap-icon://document" withMargin="false" /></TileContent>
+						</GenericTile>
+						<GenericTile id="tileRecordings" header="{i18n>tileRecordings}" subheader="{i18n>tileRecordingsHint}" press=".onTile('recordings')" class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+							<TileContent><NumericContent value="{= ${view>/counts/recordings} === undefined ? '…' : ${view>/counts/recordings}}" icon="sap-icon://record" withMargin="false" /></TileContent>
+						</GenericTile>
+						<GenericTile id="tileTours" header="{i18n>tileTours}" subheader="{i18n>tileToursHint}" press=".onTile('tours')" class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+							<TileContent><NumericContent value="{= ${view>/counts/tours} === undefined ? '…' : ${view>/counts/tours}}" icon="sap-icon://learning-assistant" withMargin="false" /></TileContent>
+						</GenericTile>
+						<GenericTile id="tileTests" header="{i18n>tileTests}" subheader="{i18n>tileTestsHint}" press=".onTile('tests')" class="sapUiSmallMarginBottom">
+							<TileContent><NumericContent value="{= ${view>/counts/plans} === undefined ? '…' : ${view>/counts/plans}}" icon="sap-icon://lab" withMargin="false" /></TileContent>
+						</GenericTile>
+					</HBox>
+					<MessageStrip id="nextStep" type="Information" showIcon="true" visible="{= !!${view>/next/text}}" text="{view>/next/text}" class="sapUiSmallMarginBottom">
+						<link>
+							<Link text="{i18n>open}" press=".onNext" />
+						</link>
+					</MessageStrip>
+
+					<IconTabBar id="tabs" selectedKey="{view>/tab}" select=".onTabSelect" expandable="false" class="tourdCard tourdTabs" stretchContentHeight="false" applyContentPadding="false">
+						<items>
+							<IconTabFilter id="tabSources" key="sources" text="{i18n>tabWorkspace}">
+								<VBox id="paneSources" class="tourdPane" renderType="Bare" />
+							</IconTabFilter>
+							<IconTabFilter id="tabRecordings" key="recordings" text="{i18n>tabRecordings}">
+								<VBox id="paneRecordings" class="tourdPane" renderType="Bare" />
+							</IconTabFilter>
+							<IconTabFilter id="tabTours" key="tours" text="{i18n>tabTours}">
+								<VBox id="paneTours" class="tourdPane" renderType="Bare" />
+							</IconTabFilter>
+							<IconTabFilter id="tabTests" key="tests" text="{i18n>tabTests}">
+								<VBox id="paneTests" class="tourdPane" renderType="Bare" />
+							</IconTabFilter>
+							<IconTabFilter id="tabHelp" key="help" text="{i18n>tabHelp}">
+								<VBox id="paneHelp" class="tourdPane" renderType="Bare" />
+							</IconTabFilter>
+						</items>
+					</IconTabBar>
+				</VBox>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

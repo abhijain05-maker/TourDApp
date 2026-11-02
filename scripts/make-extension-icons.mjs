@@ -1,4 +1,4 @@
-// Draws the extension's icons (a rounded square with a gradient and a white "T") into extension/icons/*.png.
+// Draws the extension's icons (a rounded square with a gradient and a white "Q") into extension/icons/*.png.
 // Plain Node, no image library: the PNG is written by hand. Run: node scripts/make-extension-icons.mjs
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { deflateSync } from 'node:zlib'
@@ -30,10 +30,23 @@ function png(size) {
   const radius = size * 0.22
   const A = [10, 110, 209]
   const B = [106, 79, 216]
-  // the "T": a bar on top and a stem
-  const bar = { x0: size * 0.24, x1: size * 0.76, y0: size * 0.24, y1: size * 0.4 }
-  const stem = { x0: size * 0.43, x1: size * 0.57, y0: size * 0.24, y1: size * 0.78 }
-  const inside = (r, x, y) => x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1
+  // the "Q": a ring and a short tail towards the lower right
+  const c = size * 0.5
+  const outer = size * 0.29
+  const inner = size * 0.165
+  const inRing = (x, y) => {
+    const d = Math.hypot(x - c, y - c)
+    return d <= outer && d >= inner
+  }
+  const inTail = (x, y) => {
+    // along the diagonal (u) and across it (v), from the lower right of the ring outwards
+    const u = ((x - c) + (y - c)) / Math.SQRT2
+    const v = ((x - c) - (y - c)) / Math.SQRT2
+    return u >= size * 0.17 && u <= size * 0.4 && Math.abs(v) <= size * 0.065
+  }
+  const inside = (_, x, y) => inRing(x, y) || inTail(x, y)
+  const bar = null
+  const stem = null
   for (let y = 0; y < size; y++) {
     raw[y * (size * 4 + 1)] = 0
     for (let x = 0; x < size; x++) {
@@ -48,7 +61,7 @@ function png(size) {
           const cy = Math.min(Math.max(py, radius), size - radius)
           if ((px - cx) ** 2 + (py - cy) ** 2 <= radius ** 2) {
             cover++
-            if (inside(bar, px, py) || inside(stem, px, py)) white++
+            if (inside(bar, px, py)) white++
           }
         }
       const t = (x + y) / (2 * size)

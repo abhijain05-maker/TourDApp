@@ -1,0 +1,18 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="nameDialog" title="{nm>/title}" contentWidth="34rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin">
+				<MessageStrip type="Error" showIcon="true" text="{nm>/error}" visible="{= !!${nm>/error}}" class="sapUiSmallMarginBottom" />
+				<Label text="{nm>/label}" labelFor="nameInput" required="true" />
+				<Input id="nameInput" value="{nm>/value}" valueLiveUpdate="true" submit=".onNameConfirm" />
+				<Text text="{i18n>wsFoldersCreated}" class="tourdMuted" />
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="nameConfirm" text="{nm>/confirm}" type="Emphasized" enabled="{= !!${nm>/value} &amp;&amp; !${nm>/busy}}" press=".onNameConfirm" />
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>cancel}" press=".onNameClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

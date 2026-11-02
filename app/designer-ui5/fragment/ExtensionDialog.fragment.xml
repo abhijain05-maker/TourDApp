@@ -1,0 +1,122 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="extensionDialog" title="{i18n>extension}" icon="sap-icon://puzzle" contentWidth="48rem" stretchOnPhone="true" afterClose=".onExtensionAfterClose">
+		<content>
+			<VBox class="sapUiSmallMargin tourdStack" renderType="Bare">
+				<Text text="{i18n>extIntro}" class="tourdMuted" />
+				<MessageStrip id="extError" type="Error" showIcon="true" text="{ext>/error}" visible="{= !!${ext>/error}}" />
+
+				<!-- 1. install -->
+				<VBox class="tourdCard tourdPadded tourdExtSection" renderType="Bare">
+					<HBox alignItems="Center" class="tourdExtHead">
+						<core:Icon src="sap-icon://download" class="tourdExtIcon" />
+						<VBox renderType="Bare">
+							<Title text="{i18n>extInstallTitle}" level="H5" />
+							<Text text="{i18n>extInstallHint}" class="tourdMuted" />
+						</VBox>
+					</HBox>
+					<VBox items="{ext>/steps}" renderType="Bare" class="sapUiTinyMarginTop">
+						<HBox alignItems="Start" class="tourdExtStep">
+							<Text text="{ext>n}" class="tourdStepNo sapUiSmallMarginEnd" />
+							<FormattedText htmlText="{ext>html}" />
+						</HBox>
+					</VBox>
+				</VBox>
+
+				<!-- 2. pair -->
+				<VBox class="tourdCard tourdPadded tourdExtSection" renderType="Bare">
+					<HBox alignItems="Center" class="tourdExtHead">
+						<core:Icon src="sap-icon://key" class="tourdExtIcon" />
+						<VBox renderType="Bare">
+							<Title text="{i18n>extPairTitle}" level="H5" />
+							<Text text="{i18n>extPairHint}" class="tourdMuted" />
+						</VBox>
+					</HBox>
+
+					<Label text="{i18n>extAddress}" labelFor="extAddress" class="sapUiSmallMarginTop" />
+					<HBox>
+						<Input id="extAddress" value="{ext>/origin}" editable="false" class="tourdGrow tourdMono sapUiTinyMarginEnd" />
+						<Button id="addressCopy" icon="sap-icon://copy" text="{i18n>copy}" press=".onAddressCopy" />
+					</HBox>
+					<Text id="addressCopied" text="{ext>/addressCopied}" class="tourdMuted" visible="{= !!${ext>/addressCopied}}" />
+
+					<Label text="{i18n>extTokenName}" labelFor="tokenName" class="sapUiSmallMarginTop" />
+					<HBox>
+						<Input id="tokenName" value="{ext>/name}" valueLiveUpdate="true" placeholder="{i18n>extTokenPlaceholder}" submit=".onTokenCreate" class="tourdGrow sapUiTinyMarginEnd" />
+						<Button id="tokenCreate" text="{i18n>extCreate}" icon="sap-icon://add" type="Emphasized" enabled="{= !!${ext>/name}}" press=".onTokenCreate" />
+					</HBox>
+
+					<!-- the new token: shown once -->
+					<VBox id="tokenBox" visible="{= !!${ext>/created}}" class="tourdTokenBox sapUiSmallMarginTop" renderType="Bare">
+						<MessageStrip id="tokenCreated" type="Success" showIcon="true" text="{ext>/createdText}" />
+						<HBox alignItems="Center" class="sapUiTinyMarginTop">
+							<Text id="tokenValue" text="{ext>/created/token}" class="tourdMono tourdGrow" wrapping="true" />
+							<Button id="tokenCopy" icon="sap-icon://copy" text="{i18n>copy}" type="Emphasized" press=".onTokenCopy" class="sapUiTinyMarginBegin" />
+						</HBox>
+						<Text text="{ext>/copied}" class="tourdMuted" visible="{= !!${ext>/copied}}" />
+					</VBox>
+				</VBox>
+
+				<!-- paired browsers -->
+				<VBox class="tourdCard tourdExtSection" renderType="Bare">
+					<HBox alignItems="Center" class="tourdExtHead tourdPadded">
+						<core:Icon src="sap-icon://laptop" class="tourdExtIcon" />
+						<Title text="{i18n>extPaired}" level="H5" />
+						<ObjectStatus text="{= ${ext>/tokens}.length}" class="sapUiSmallMarginBegin" />
+					</HBox>
+					<HBox visible="{= ${ext>/tokens}.length === 0}" class="tourdPadded" alignItems="Center">
+						<core:Icon src="sap-icon://information" class="sapUiSmallMarginEnd tourdMuted" />
+						<Text text="{i18n>extNone}" class="tourdMuted" />
+					</HBox>
+					<Table id="tokenTable" items="{ext>/tokens}" visible="{= ${ext>/tokens}.length > 0}" width="100%" showSeparators="Inner">
+						<columns>
+							<Column><Text text="{i18n>colName}" /></Column>
+							<Column width="9rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colToken}" /></Column>
+							<Column width="10rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colCreated}" /></Column>
+							<Column width="10rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colLastUsed}" /></Column>
+							<Column width="4rem" hAlign="End" />
+						</columns>
+						<items>
+							<ColumnListItem class="{= ${ext>revoked} ? 'tourdOff' : ''}">
+								<cells>
+									<HBox alignItems="Center">
+										<core:Icon src="sap-icon://laptop" class="sapUiTinyMarginEnd tourdMuted" />
+										<Text text="{ext>name}" class="tourdBold sapUiTinyMarginEnd" />
+										<ObjectStatus text="{i18n>revoked}" state="Warning" inverted="true" visible="{ext>revoked}" />
+									</HBox>
+									<Text text="{= ${ext>prefix} + '…'}" class="tourdMono" />
+									<VBox renderType="Bare">
+										<Text text="{ext>createdText}" />
+										<Text text="{ext>createdAgo}" class="tourdMuted" />
+									</VBox>
+									<VBox renderType="Bare">
+										<Text text="{ext>lastUsedText}" />
+										<Text text="{ext>lastUsedAgo}" class="tourdMuted" />
+									</VBox>
+									<Button icon="sap-icon://delete" type="Transparent" tooltip="{i18n>revoke}" visible="{= !${ext>revoked}}" press=".onTokenRevoke" />
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+				</VBox>
+
+				<!-- without the extension -->
+				<VBox class="tourdCard tourdPadded tourdExtSection" renderType="Bare">
+					<HBox alignItems="Center" class="tourdExtHead">
+						<core:Icon src="sap-icon://source-code" class="tourdExtIcon" />
+						<VBox renderType="Bare">
+							<Title text="{i18n>extNoExtension}" level="H5" />
+							<Text text="{i18n>extSnippetHelp}" class="tourdMuted" />
+						</VBox>
+					</HBox>
+					<HBox alignItems="Center" class="sapUiSmallMarginTop">
+						<Button id="snippetCopy" icon="sap-icon://copy" text="{i18n>extSnippetCopy}" press=".onSnippetCopy" class="sapUiTinyMarginEnd" />
+						<Text id="snippetState" text="{ext>/snippet}" class="tourdMuted" />
+					</HBox>
+				</VBox>
+			</VBox>
+		</content>
+		<endButton>
+			<Button id="extensionClose" text="{i18n>close}" press=".onExtensionClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

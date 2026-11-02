@@ -7,7 +7,7 @@ import { api } from '../api'
 import { formatDate } from '../format'
 import { ErrorStrip, Tag } from './common'
 
-/** Pairs a browser extension with TourD: shows how to install it, creates its token, lists and revokes tokens. */
+/** Pairs a browser extension with QuickDev: shows how to install it, creates its token, lists and revokes tokens. */
 export default function ExtensionDialog(props: { open: boolean; onClose: () => void }) {
   const qc = useQueryClient()
   const tokens = useQuery({ queryKey: ['extension-tokens'], queryFn: api.extensionTokens, enabled: props.open })
@@ -45,11 +45,11 @@ export default function ExtensionDialog(props: { open: boolean; onClose: () => v
     >
       <div className="stack" style={{ width: 'min(46rem, 88vw)' }}>
         <Text>
-          The TourD Recorder extension records what you do in your UI5 app, exactly as UI5 sees it, and sends it here. It needs to be paired once:
+          The QuickDev Recorder extension records what you do in your UI5 app, exactly as UI5 sees it, and sends it here. It needs to be paired once:
         </Text>
         <ol className="steps-list">
           <li>
-            In Chrome or Edge open <b>chrome://extensions</b> (or <b>edge://extensions</b>), switch on <b>Developer mode</b>, choose <b>Load unpacked</b> and select the <b>extension</b> folder of TourD (run <code>npm run build:extension</code> first).
+            In Chrome or Edge open <b>chrome://extensions</b> (or <b>edge://extensions</b>), switch on <b>Developer mode</b>, choose <b>Load unpacked</b> and select the <b>extension</b> folder of QuickDev (run <code>npm run build:extension</code> first).
           </li>
           <li>Create a token for this browser below and copy it.</li>
           <li>Click the extension, open its settings (the gear), enter this address and paste the token.</li>

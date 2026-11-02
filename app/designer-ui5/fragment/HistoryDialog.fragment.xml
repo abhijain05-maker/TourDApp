@@ -1,0 +1,33 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="historyDialog" title="{i18n>tourHistoryTitle}" contentWidth="44rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin" renderType="Bare">
+				<MessageStrip type="Error" showIcon="true" text="{hist>/error}" visible="{= !!${hist>/error}}" class="sapUiSmallMarginBottom" />
+				<Table id="versionsTable" items="{hist>/versions}" busy="{hist>/loading}" width="100%">
+					<columns>
+						<Column width="7rem"><Text text="{i18n>colVersion}" /></Column>
+						<Column><Text text="{i18n>tourWhatHappened}" /></Column>
+						<Column width="11rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>tourWhen}" /></Column>
+						<Column width="8rem" hAlign="End" />
+					</columns>
+					<items>
+						<ColumnListItem>
+							<cells>
+								<HBox alignItems="Center">
+									<Text text="{= 'v' + ${hist>version}}" class="sapUiTinyMarginEnd" />
+									<ObjectStatus text="{i18n>tourCurrent}" inverted="true" visible="{hist>current}" />
+								</HBox>
+								<Text text="{hist>noteText}" />
+								<Text text="{hist>whenText}" />
+								<Button icon="sap-icon://undo" text="{i18n>tourRestore}" type="Transparent" visible="{= !${hist>current}}" enabled="{= !${hist>/busy}}" press=".onRestore" />
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+			</VBox>
+		</content>
+		<endButton>
+			<Button text="{i18n>close}" press=".onHistoryClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

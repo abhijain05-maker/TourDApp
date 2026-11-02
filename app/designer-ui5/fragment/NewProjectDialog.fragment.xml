@@ -1,0 +1,19 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="newProjectDialog" title="{i18n>newProject}" contentWidth="26rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin">
+				<MessageStrip type="Error" showIcon="true" text="{new>/error}" visible="{= !!${new>/error}}" class="sapUiSmallMarginBottom" />
+				<Label text="{i18n>colName}" labelFor="projectName" required="true" />
+				<Input id="projectName" value="{new>/name}" valueLiveUpdate="true" submit=".onNewCreate" />
+				<Label text="{i18n>description}" labelFor="projectDescription" class="sapUiSmallMarginTop" />
+				<Input id="projectDescription" value="{new>/description}" valueLiveUpdate="true" />
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="createProject" text="{i18n>create}" type="Emphasized" enabled="{= !!${new>/name} &amp;&amp; !${new>/busy}}" press=".onNewCreate" />
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>cancel}" press=".onNewClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

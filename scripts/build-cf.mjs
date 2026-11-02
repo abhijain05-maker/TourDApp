@@ -16,7 +16,7 @@ const build = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', ['cds'
 })
 if (build.status !== 0) process.exit(build.status ?? 1)
 
-for (const dir of ['player', 'sandbox', 'shared'])
+for (const dir of ['player', 'recorder', 'sandbox', 'shared'])
   cpSync(at(dir), at(`gen/srv/${dir}`), { recursive: true })
 if (!existsSync(at('app/designer/index.html'))) {
   console.error('app/designer is not built: run npm run build:designer first')
@@ -33,4 +33,13 @@ const pkg = JSON.parse(readFileSync(at('gen/srv/package.json'), 'utf8'))
 pkg.scripts = { start: 'cds-serve' } // no local database deployment, no test runners
 delete pkg.devDependencies
 writeFileSync(at('gen/srv/package.json'), JSON.stringify(pkg, null, 2) + '\n')
+
+// the copied lock file still describes the development packages that were just removed: make it match, because the
+// buildpack installs from it (`npm ci` refuses a lock file that disagrees with package.json); without a lock file it installs fresh
+const lock = spawnSync(
+  process.platform === 'win32' ? 'npm.cmd' : 'npm',
+  ['install', '--package-lock-only', '--omit=dev', '--ignore-scripts'],
+  { cwd: at('gen/srv'), stdio: 'inherit', shell: process.platform === 'win32' },
+)
+if (lock.status !== 0) rmSync(at('gen/srv/package-lock.json'), { force: true })
 console.log('built gen/srv (server + player + sandbox + designer) and gen/db (HDI deployer)')

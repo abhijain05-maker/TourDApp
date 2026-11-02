@@ -1,4 +1,4 @@
-/* TourD Recorder - side panel. Talks to the service worker (recording, playing) and to TourD (projects, tours). */
+/* QuickDev Recorder - side panel. Talks to the service worker (recording, playing) and to QuickDev (projects, tours). */
 ;(function () {
   'use strict'
 
@@ -35,7 +35,7 @@
         },
       })
     } catch {
-      throw new Error(`TourD does not answer at ${base}. Is it running?`)
+      throw new Error(`QuickDev does not answer at ${base}. Is it running?`)
     }
     if (!res.ok) {
       let message = `${res.status} ${res.statusText}`
@@ -154,7 +154,7 @@
     }
   }
 
-  // Projects are made in TourD while this panel stays open: read the list again when the person comes back to the panel
+  // Projects are made in QuickDev while this panel stays open: read the list again when the person comes back to the panel
   // or opens one of the lists, like tours and tests are, so nobody has to reload the extension to see a new project.
   let projectsSeen = 0
   const refreshProjects = () => {
@@ -229,7 +229,7 @@
     const tour = recTab === 'tour'
     $('rec-title').textContent = tour ? 'Record a tour' : 'Record a test'
     $('try-hint').textContent = tour
-      ? 'Plays the tour that TourD would make from this recording, with the words you wrote. Nothing is saved: if it is not right, record again.'
+      ? 'Plays the tour that QuickDev would make from this recording, with the words you wrote. Nothing is saved: if it is not right, record again.'
       : 'Runs the recording as a test in the app, the way the generated test will. It does what you did: an order is created again. Nothing is saved: if a step fails, record again.'
     $('btn-try').textContent = tour ? '▶ Preview the tour' : '▶ Try it in the app'
     $('rec-hint').textContent = tour
@@ -481,7 +481,7 @@
     if (!project)
       return show(
         out,
-        'Choose a project at the top first (connect to TourD in the settings).',
+        'Choose a project at the top first (connect to QuickDev in the settings).',
         'error',
       )
     try {
@@ -500,9 +500,9 @@
         out,
         `Sent. ${result.mapped} of ${result.actionable} steps matched to a control of the project. ` +
           (finished.purpose === 'tour'
-            ? 'Next: in TourD open the project, then Tours, and generate a tour from this recording. ' +
+            ? 'Next: in QuickDev open the project, then Tours, and generate a tour from this recording. ' +
               'It appears under "Play a tour" only after that.'
-            : 'Next: in TourD open the project, then Tests, and make tests from this recording.'),
+            : 'Next: in QuickDev open the project, then Tests, and make tests from this recording.'),
         'ok',
       )
     } catch (e) {
@@ -528,13 +528,13 @@
     const rec = await call('recording')
     try {
       await navigator.clipboard.writeText(JSON.stringify(rec, null, 2))
-      show($('send-message'), 'Copied. Paste it into TourD (Recordings).', 'ok')
+      show($('send-message'), 'Copied. Paste it into QuickDev (Recordings).', 'ok')
     } catch {
       show($('send-message'), 'The browser did not allow copying. Use "Save file".', 'error')
     }
   })
 
-  // tours and tests are made in TourD while this panel stays open: look again when the lists are opened
+  // tours and tests are made in QuickDev while this panel stays open: look again when the lists are opened
   const refreshLists = () => {
     if (!projectID()) return
     Promise.all([loadTours(), loadPlans()]).catch(() => {})
@@ -545,7 +545,7 @@
   $('btn-play').addEventListener('click', async () => {
     const out = $('play-message')
     const id = $('play-tour').value
-    if (!id) return show(out, 'There is no tour to play yet. Generate one in TourD first.', 'error')
+    if (!id) return show(out, 'There is no tour to play yet. Generate one in QuickDev first.', 'error')
     try {
       const tour = await tourd(`/live/${id}/tour.json`)
       const result = await call('playTour', { tour })
@@ -611,7 +611,7 @@
     const list = $('replay-results')
     const id = $('replay-plan').value
     list.textContent = ''
-    if (!id) return show(out, 'There are no tests yet. Make some in TourD (Tests) first.', 'error')
+    if (!id) return show(out, 'There are no tests yet. Make some in QuickDev (Tests) first.', 'error')
     try {
       const found = await tourd(`/odata/v4/tour/TestPlans?$filter=ID eq ${id}`)
       if (!found.value.length) return show(out, 'These tests are gone. Reload the list.', 'error')
@@ -646,14 +646,14 @@
     if (!project)
       return show(
         out,
-        'Choose a project at the top first (connect to TourD in the settings).',
+        'Choose a project at the top first (connect to QuickDev in the settings).',
         'error',
       )
     const kind = recMode()
     setTrying(true)
     try {
       await flushExplain()
-      show(out, 'Asking TourD what this recording would become...', '')
+      show(out, 'Asking QuickDev what this recording would become...', '')
       const made = await tourd('/odata/v4/tour/previewRecording', {
         method: 'POST',
         body: JSON.stringify({
@@ -674,7 +674,7 @@
         show(
           out,
           res.ok
-            ? `Playing the tour that TourD would make. Nothing is saved.${unmatched}`
+            ? `Playing the tour that QuickDev would make. Nothing is saved.${unmatched}`
             : res.reason,
           res.ok ? 'ok' : 'error',
         )
@@ -889,7 +889,7 @@
     if (!tabId) return
     if (!projectID())
       return helpMsg(
-        'Choose a project at the top first (connect to TourD in the settings).',
+        'Choose a project at the top first (connect to QuickDev in the settings).',
         'error',
       )
     try {
@@ -1001,7 +1001,7 @@
       }
       openForm(true)
       helpMsg(
-        `Saved (version ${row.version}). Check it in the app; add it to your code from TourD.`,
+        `Saved (version ${row.version}). Check it in the app; add it to your code from QuickDev.`,
         'ok',
       )
       await preview()

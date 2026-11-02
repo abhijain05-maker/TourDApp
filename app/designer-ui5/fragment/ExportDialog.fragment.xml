@@ -1,0 +1,28 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="exportDialog" title="{i18n>tourExportTitle}" contentWidth="40rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin tourdStack" renderType="Bare">
+				<BusyIndicator size="1.5rem" visible="{exp>/loading}" />
+				<MessageStrip type="Error" showIcon="true" text="{exp>/error}" visible="{= !!${exp>/error}}" />
+				<MessageStrip type="Warning" showIcon="true" text="{i18n>tourExportUnsaved}" visible="{exp>/unsaved}" />
+				<MessageStrip id="exportReady" type="Success" showIcon="true" text="{exp>/readyText}" visible="{= !!${exp>/readyText}}" />
+				<MessageStrip id="exportBlocked" type="Error" showIcon="true" text="{exp>/blockedText}" visible="{= !!${exp>/blockedText}}" />
+				<List id="exportBlocking" items="{exp>/blocking}" mode="None" visible="{= ${exp>/blocking}.length > 0}">
+					<StandardListItem title="{exp>message}" icon="sap-icon://error" iconInset="false" type="Active" press=".onExportJump" />
+				</List>
+				<VBox items="{exp>/warnings}" renderType="Bare">
+					<MessageStrip type="Warning" showIcon="true" text="{exp>message}" class="sapUiTinyMarginBottom" />
+				</VBox>
+				<Text text="{exp>/filesIntro}" visible="{= !!${exp>/filesIntro}}" />
+				<Text id="exportFiles" text="{exp>/filesText}" class="tourdMuted" />
+				<Text id="exportCopied" text="{exp>/copied}" />
+			</VBox>
+		</content>
+		<buttons>
+			<Button id="exportDownload" icon="sap-icon://download" text="{i18n>tourDownloadBundle}" type="Emphasized" enabled="{exp>/ok}" press=".onExportDownload" />
+			<Button id="exportForce" text="{i18n>tourDownloadAnyway}" type="Reject" visible="{exp>/blockedShown}" press=".onExportForce" />
+			<Button id="exportCopyJson" icon="sap-icon://copy" text="{i18n>tourCopyJson}" type="Transparent" press=".onExportCopy" />
+			<Button text="{i18n>close}" press=".onExportClose" />
+		</buttons>
+	</Dialog>
+</core:FragmentDefinition>

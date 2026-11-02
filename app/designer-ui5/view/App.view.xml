@@ -1,0 +1,57 @@
+<mvc:View
+	controllerName="tourd.designer.controller.App"
+	displayBlock="true"
+	height="100%"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:tnt="sap.tnt">
+	<tnt:ToolPage id="toolPage" sideExpanded="{app>/navExpanded}">
+		<tnt:header>
+			<tnt:ToolHeader>
+				<Button id="navToggle" icon="sap-icon://menu2" type="Transparent" tooltip="{i18n>toggleNavigation}" press=".onToggleNav" />
+				<Title text="{i18n>brand}" level="H1" class="tourdBrand" />
+				<Text text="{i18n>tagline}" class="tourdTagline" />
+				<ToolbarSpacer />
+				<Button
+					id="paletteButton"
+					icon="sap-icon://search"
+					text="{i18n>paletteHint}"
+					type="Transparent"
+					press=".onPalette" />
+				<ToolbarSpacer />
+				<Button
+					id="extensionButton"
+					icon="sap-icon://puzzle"
+					text="{i18n>extension}"
+					tooltip="{i18n>extension}"
+					type="Transparent"
+					press=".onExtension" />
+				<Button
+					id="themeButton"
+					icon="{= ${app>/theme} === 'dark' ? 'sap-icon://dark-mode' : 'sap-icon://light-mode'}"
+					tooltip="{app>/themeText}"
+					type="Transparent"
+					press=".onTheme" />
+			</tnt:ToolHeader>
+		</tnt:header>
+		<tnt:sideContent>
+			<tnt:SideNavigation id="sideNav" selectedKey="{app>/navKey}" itemSelect=".onNavSelect">
+				<tnt:NavigationList>
+					<tnt:NavigationListItem id="navProjects" text="{i18n>projects}" icon="sap-icon://home" key="projects" />
+					<tnt:NavigationListItem
+						id="navRecent"
+						text="{i18n>recent}"
+						icon="sap-icon://folder-blank"
+						expanded="true"
+						visible="{= ${app>/recent}.length > 0}"
+						items="{app>/recent}">
+						<tnt:NavigationListItem text="{app>name}" key="{app>ID}" tooltip="{app>name}" />
+					</tnt:NavigationListItem>
+				</tnt:NavigationList>
+			</tnt:SideNavigation>
+		</tnt:sideContent>
+		<tnt:mainContents>
+			<NavContainer id="pages" defaultTransitionName="show" />
+		</tnt:mainContents>
+	</tnt:ToolPage>
+</mvc:View>

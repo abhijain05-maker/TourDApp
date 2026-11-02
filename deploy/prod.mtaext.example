@@ -1,0 +1,15 @@
+_schema-version: '3.3.0'
+ID: quickdev-prod
+extends: quickdev
+
+# Copy to deploy/prod.mtaext (not committed if it holds anything private) and deploy with:
+#   cf deploy gen/quickdev.mtar -e deploy/prod.mtaext
+modules:
+  - name: quickdev-srv
+    properties:
+      # a model that is available in your Generative AI Hub (SAP AI Launchpad: Generative AI Hub > Model Library)
+      AICORE_MODEL: gpt-4o
+      # the resource group that has the running "orchestration" deployment
+      AICORE_RESOURCE_GROUP: default
+      # source code goes to the model: comments and secret-looking values are removed first (1 = on)
+      TOURD_REDACT: '1'

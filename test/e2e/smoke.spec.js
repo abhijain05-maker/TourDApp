@@ -11,7 +11,7 @@ test('the server answers and the designer shell loads and reaches it', async ({
   )
 
   await page.goto('/designer/')
-  await expect(page.getByText('TourD', { exact: true }).first()).toBeVisible()
+  await expect(page.getByText('QuickDev', { exact: true }).first()).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Projects', exact: true })).toBeVisible()
   await expect(page.locator('[data-testid="error"]')).toHaveCount(0) // the project list was loaded without an error
 })

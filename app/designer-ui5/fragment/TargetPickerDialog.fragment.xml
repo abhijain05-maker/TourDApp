@@ -1,0 +1,18 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="targetPicker" title="{i18n>tourPickerTitle}" contentWidth="40rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin" renderType="Bare">
+				<SearchField id="targetSearch" value="{tp>/query}" placeholder="{i18n>tourPickerSearch}" liveChange=".onPickerSearch" />
+				<Text text="{i18n>tourPickerNoFiles}" class="tourdMuted" visible="{tp>/noInventory}" />
+				<Text text="{tp>/truncated}" class="tourdMuted" visible="{= !!${tp>/truncated}}" />
+				<List id="targetOptions" items="{path: 'tp>/items', sorter: {path: 'group', group: true}}" mode="None" growing="false" noDataText="{i18n>tourPickerNone}">
+					<StandardListItem title="{tp>title}" description="{tp>description}" info="{tp>info}" infoState="{tp>infoState}" type="Active" press=".onPickerPick" />
+				</List>
+				<ObjectStatus text="{i18n>tourPickerHint}" class="sapUiSmallMarginTop" />
+			</VBox>
+		</content>
+		<endButton>
+			<Button text="{i18n>cancel}" press=".onPickerClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

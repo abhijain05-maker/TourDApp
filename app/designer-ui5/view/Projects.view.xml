@@ -1,0 +1,51 @@
+<mvc:View
+	controllerName="tourd.designer.controller.Projects"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	core:require="{Format: 'tourd/designer/util/Format'}">
+	<Page id="projectsPage" showHeader="false" enableScrolling="true" class="tourdPageBg">
+		<content>
+			<VBox class="tourdPage" renderType="Bare">
+				<Toolbar class="tourdToolbar">
+					<Title text="{i18n>projects}" level="H2" />
+					<ToolbarSpacer />
+					<Button id="newProject" text="{i18n>newProject}" icon="sap-icon://add" type="Emphasized" press=".onNew" />
+				</Toolbar>
+				<MessageStrip id="projectsError" type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+				<Table
+					id="projectsTable"
+					items="{view>/projects}"
+					busy="{view>/busy}"
+					noDataText="{i18n>noProjects}"
+					class="tourdCard"
+					width="100%">
+					<columns>
+						<Column><Text text="{i18n>colName}" /></Column>
+						<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colApp}" /></Column>
+						<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colStatus}" /></Column>
+						<Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colCreated}" /></Column>
+						<Column width="4rem" hAlign="End" />
+					</columns>
+					<items>
+						<ColumnListItem type="Navigation" press=".onOpen">
+							<cells>
+								<VBox renderType="Bare">
+									<Text text="{view>name}" class="tourdBold" />
+									<Text text="{view>description}" class="tourdMuted" visible="{= !!${view>description}}" />
+								</VBox>
+								<Text text="{= ${view>appId} || '–'}" />
+								<ObjectStatus
+									text="{path: 'view>parseStatus', formatter: 'Format.statusText'}"
+									state="{path: 'view>parseStatus', formatter: 'Format.statusState'}"
+									inverted="true" />
+								<Text text="{path: 'view>createdAt', formatter: 'Format.date'}" />
+								<Button icon="sap-icon://delete" type="Transparent" tooltip="{i18n>deleteProject}" press=".onDelete" />
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

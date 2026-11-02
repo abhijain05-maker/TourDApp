@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build:ui5-editor": "vite build --config vite.ui5-editor.config.ts && vite build --config vite.ui5-logic.config.ts"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",

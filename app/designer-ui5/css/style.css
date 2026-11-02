@@ -1,0 +1,292 @@
+/* QuickDev designer (SAPUI5): only what the standard controls do not give. Colours come from the theme variables, so light and dark follow. */
+
+html,
+body {
+	height: 100%;
+}
+
+.tourdBrand {
+	margin-left: 0.5rem;
+}
+
+.tourdTagline {
+	color: var(--sapContent_LabelColor);
+	margin-left: 0.5rem;
+}
+
+.tourdPageBg {
+	background: var(--sapBackgroundColor);
+}
+
+.tourdPage {
+	max-width: 1280px;
+	margin: 0 auto;
+	padding: 1rem 1.5rem 3rem;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.tourdToolbar.sapMTB {
+	background: transparent;
+	padding-left: 0;
+	padding-right: 0;
+	border: none;
+}
+
+.tourdCard {
+	background: var(--sapTile_Background, var(--sapBaseColor));
+	border-radius: var(--sapElement_BorderCornerRadius, 0.75rem);
+	box-shadow: var(--sapContent_Shadow0);
+	overflow: hidden;
+}
+
+.tourdPadded {
+	padding: 1rem;
+}
+
+.tourdStack > * + * {
+	margin-top: 0.75rem;
+}
+
+.tourdGrow {
+	flex: 1 1 14rem;
+}
+
+.tourdMuted {
+	color: var(--sapContent_LabelColor);
+}
+
+.tourdBold {
+	font-weight: bold;
+}
+
+.tourdMono {
+	font-family: var(--sapFontMonospaceFamily, monospace);
+	font-size: 0.8125rem;
+	word-break: break-all;
+}
+
+.tourdBanner {
+	padding: 1rem 1.25rem;
+	margin-bottom: 1rem;
+	gap: 1rem;
+}
+
+.tourdAvatar {
+	flex: none;
+	width: 3rem;
+	height: 3rem;
+	border-radius: 0.75rem;
+	background: var(--sapButton_Emphasized_Background, var(--sapBrandColor));
+	color: var(--sapButton_Emphasized_TextColor, #fff);
+	font-size: 1.5rem;
+	font-weight: bold;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+}
+
+.tourdBannerBody {
+	min-width: 0;
+	flex: 1 1 auto;
+}
+
+/* the dates on the right of the banner: a small label, the date, and for the last change how long ago */
+.tourdDates {
+	flex: none;
+	margin-left: 1.5rem;
+	padding-left: 1.5rem;
+	border-left: 1px solid var(--sapList_BorderColor);
+	white-space: nowrap;
+}
+
+.tourdDateRow {
+	align-items: baseline;
+}
+
+.tourdDateRow + .tourdDateRow {
+	margin-top: 0.25rem;
+}
+
+.tourdDateLabel {
+	min-width: 4.5rem;
+	color: var(--sapContent_LabelColor);
+	font-size: var(--sapFontSmallSize);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.tourdDateValue {
+	font-weight: 600;
+}
+
+.tourdDateAgo {
+	margin-left: 0.5rem;
+	color: var(--sapContent_LabelColor);
+}
+
+@media (max-width: 700px) {
+	.tourdBanner {
+		flex-wrap: wrap;
+	}
+
+	.tourdDates {
+		margin-left: 0;
+		padding-left: 0;
+		border-left: none;
+	}
+}
+
+.tourdMeta {
+	color: var(--sapContent_LabelColor);
+	font-size: var(--sapFontSmallSize);
+}
+
+.tourdOverview {
+	margin-bottom: 0.25rem;
+}
+
+.tourdTabs {
+	margin-top: 0.5rem;
+}
+
+.tourdPane {
+	min-height: 6rem;
+}
+
+/* ---- workspace ---- */
+
+.tourdWs {
+	overflow: hidden;
+}
+
+.tourdWsSide {
+	height: 100%;
+	overflow: auto;
+	border-right: 1px solid var(--sapList_BorderColor);
+}
+
+.tourdWsMain {
+	height: 100%;
+	overflow: auto;
+}
+
+.tourdWsEmpty {
+	min-height: 20rem;
+}
+
+.tourdTreeRow {
+	min-width: 0;
+}
+
+.tourdChanges.sapMPanel {
+	background: transparent;
+}
+
+/* the workspace covers the whole window; Esc leaves it */
+.tourdWs.tourdWsFull {
+	position: fixed;
+	inset: 0;
+	z-index: 20;
+	border-radius: 0;
+	background: var(--sapBackgroundColor);
+}
+
+.tourdWsFull .sapUiLoSplitter {
+	height: 100vh !important;
+}
+
+.tourdWsFull .tourdTreeScroll {
+	height: calc(100vh - 28rem) !important;
+}
+
+.tourdWsFull .tourdCode,
+.tourdWsFull .tourdDiffHost {
+	height: calc(100vh - 11rem) !important;
+}
+
+/* code editor / diff */
+.tourdCode,
+.tourdDiffHost {
+	min-height: 8rem;
+	border-top: 1px solid var(--sapList_BorderColor);
+}
+
+.tourdDiffHeads {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	padding: 0.25rem 0.75rem;
+	color: var(--sapContent_LabelColor);
+	font-size: var(--sapFontSmallSize);
+}
+
+/* the open files share one editor below the tab strip: the tabs have no content of their own */
+.tourdFileTabs .sapMTabContainerContent,
+.tourdFileTabs .sapMTabContainerContentList {
+	display: none !important;
+	height: 0 !important;
+	min-height: 0 !important;
+}
+
+.tourdFileTabs.sapMTabContainer {
+	height: auto !important;
+	min-height: 0 !important;
+}
+
+/* ---- command palette, help ---- */
+.tourdPaletteList {
+	max-height: 22rem;
+	overflow: auto;
+}
+
+.tourdPaletteSel {
+	background: var(--sapList_SelectionBackgroundColor);
+}
+
+.tourdNote {
+	border-left: 0.375rem solid var(--sapHighlightColor);
+	background: var(--sapShell_Background);
+	padding: 0.5rem 0.75rem;
+	margin-top: 0.5rem;
+}
+
+.tourdFilesPreview {
+	align-items: flex-start;
+}
+
+.tourdOff {
+	opacity: 0.55;
+}
+
+.tourdLocatorId {
+	min-width: 12rem;
+	margin-right: 1rem;
+}
+
+/* ---- browser extension dialog ---- */
+.tourdExtHead {
+	gap: 0.75rem;
+}
+
+.tourdExtIcon {
+	flex: none;
+	width: 2.25rem;
+	height: 2.25rem;
+	border-radius: 0.5rem;
+	background: var(--sapShell_Background);
+	color: var(--sapHighlightColor);
+	display: inline-flex !important;
+	align-items: center;
+	justify-content: center;
+	margin-right: 0.75rem;
+}
+
+.tourdExtStep {
+	margin-top: 0.5rem;
+}
+
+.tourdTokenBox {
+	border: 1px dashed var(--sapPositiveBorderColor, var(--sapList_BorderColor));
+	border-radius: 0.5rem;
+	padding: 0.5rem;
+}

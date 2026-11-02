@@ -1,5 +1,5 @@
 // Bundle the UI5 web components' own assets (texts, locale data) instead of fetching them from a CDN:
-// TourD is a local tool and must work offline.
+// QuickDev is a local tool and must work offline.
 import '@ui5/webcomponents/dist/Assets.js'
 import '@ui5/webcomponents-fiori/dist/Assets.js'
 import '@ui5/webcomponents-icons/dist/Assets.js'

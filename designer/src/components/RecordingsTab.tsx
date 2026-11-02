@@ -29,13 +29,13 @@ import { formatDate } from '../format'
 
 const FORMATS = [
   { value: '', label: 'Detect automatically' },
-  { value: 'tourd-recorder', label: 'TourD recorder (JSON)' },
+  { value: 'tourd-recorder', label: 'QuickDev recorder (JSON)' },
   { value: 'devtools-recorder', label: 'Chrome DevTools Recorder (JSON)' },
   { value: 'ui5-test-recorder', label: 'UI5 Test Recorder (OPA5 / wdi5 snippets)' },
   { value: 'plain-text', label: 'Plain text (one step per line)' },
 ]
 const FORMAT_LABEL: Record<string, string> = {
-  'tourd-recorder': 'TourD recorder',
+  'tourd-recorder': 'QuickDev recorder',
   'devtools-recorder': 'DevTools Recorder',
   'ui5-test-recorder': 'UI5 Test Recorder',
   'plain-text': 'Plain text',
@@ -43,7 +43,7 @@ const FORMAT_LABEL: Record<string, string> = {
 
 const PURPOSES: Purpose[] = ['both', 'tour', 'test']
 
-/** A recording written by the TourD extension says what it is for; other files do not. */
+/** A recording written by the QuickDev extension says what it is for; other files do not. */
 const purposeInFile = (raw: string): Purpose | null => {
   try {
     const p = (JSON.parse(raw) as { purpose?: string }).purpose

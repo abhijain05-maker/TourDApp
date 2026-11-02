@@ -1,0 +1,116 @@
+{
+	"_version": "1.60.0",
+	"sap.app": {
+		"id": "tourd.designer",
+		"type": "application",
+		"i18n": "i18n/i18n.properties",
+		"title": "{{appTitle}}",
+		"description": "{{appDescription}}",
+		"applicationVersion": {
+			"version": "1.0.0"
+		}
+	},
+	"sap.ui": {
+		"technology": "UI5",
+		"deviceTypes": {
+			"desktop": true,
+			"tablet": true,
+			"phone": true
+		}
+	},
+	"sap.ui5": {
+		"rootView": {
+			"viewName": "tourd.designer.view.App",
+			"type": "XML",
+			"async": true,
+			"id": "app"
+		},
+		"dependencies": {
+			"minUI5Version": "1.120.0",
+			"libs": {
+				"sap.m": {},
+				"sap.ui.core": {},
+				"sap.ui.layout": {},
+				"sap.tnt": {},
+				"sap.f": {}
+			}
+		},
+		"contentDensities": {
+			"compact": true,
+			"cozy": true
+		},
+		"models": {
+			"i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"settings": {
+					"bundleName": "tourd.designer.i18n.i18n",
+					"supportedLocales": [
+						""
+					],
+					"fallbackLocale": ""
+				}
+			}
+		},
+		"resources": {
+			"css": [
+				{
+					"uri": "css/style.css"
+				},
+				{
+					"uri": "css/tour.css"
+				}
+			]
+		},
+		"routing": {
+			"config": {
+				"routerClass": "sap.m.routing.Router",
+				"viewType": "XML",
+				"viewPath": "tourd.designer.view",
+				"controlId": "pages",
+				"controlAggregation": "pages",
+				"transition": "show",
+				"async": true
+			},
+			"routes": [
+				{
+					"name": "projects",
+					"pattern": ":?query:",
+					"target": "projects"
+				},
+				{
+					"name": "project",
+					"pattern": "projects/{id}:?query:",
+					"target": "project"
+				},
+				{
+					"name": "tour",
+					"pattern": "tours/{id}",
+					"target": "tour"
+				},
+				{
+					"name": "testplan",
+					"pattern": "tests/{id}",
+					"target": "testplan"
+				}
+			],
+			"targets": {
+				"projects": {
+					"viewName": "Projects",
+					"viewId": "projects"
+				},
+				"project": {
+					"viewName": "Project",
+					"viewId": "project"
+				},
+				"tour": {
+					"viewName": "Tour",
+					"viewId": "tour"
+				},
+				"testplan": {
+					"viewName": "TestPlan",
+					"viewId": "testplan"
+				}
+			}
+		}
+	}
+}

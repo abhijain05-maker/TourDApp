@@ -1,0 +1,64 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="generateDialog" title="{i18n>genTitle}" contentWidth="34rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin tourdStack" renderType="Bare">
+				<MessageStrip type="Error" showIcon="true" text="{gen>/error}" visible="{= !!${gen>/error}}" />
+
+				<!-- the choices -->
+				<VBox visible="{= !${gen>/jobID}}" renderType="Bare" class="tourdStack">
+					<VBox renderType="Bare">
+						<Label text="{i18n>genRecording}" labelFor="genRecording" required="true" />
+						<Select id="genRecording" selectedKey="{gen>/recordingID}" items="{gen>/recordings}" width="100%">
+							<core:Item key="{gen>ID}" text="{gen>text}" />
+						</Select>
+						<Text text="{i18n>genNoneFit}" class="tourdMuted" visible="{gen>/noneFit}" />
+						<Link id="genShowAll" text="{gen>/hiddenText}" visible="{= ${gen>/hidden} > 0}" press=".onGenShowAll" />
+					</VBox>
+					<VBox renderType="Bare">
+						<Label text="{i18n>genCreatedBy}" labelFor="genProvider" required="true" />
+						<Select id="genProvider" selectedKey="{gen>/provider}" items="{gen>/providers}" width="100%" change=".onGenProvider">
+							<core:Item key="{gen>id}" text="{gen>text}" />
+						</Select>
+					</VBox>
+					<VBox visible="{gen>/isAi}" renderType="Bare" class="tourdStack">
+						<VBox renderType="Bare">
+							<Label text="{i18n>genModel}" labelFor="genModel" />
+							<Input id="genModel" value="{gen>/model}" placeholder="{gen>/modelHint}" valueLiveUpdate="true" />
+						</VBox>
+						<MessageStrip id="privacyNotice" type="Information" showIcon="true" text="{gen>/privacy}" />
+					</VBox>
+					<VBox renderType="Bare">
+						<Label text="{i18n>genTourTitle}" labelFor="genTitle" />
+						<Input id="genTitle" value="{gen>/title}" placeholder="{i18n>optional}" valueLiveUpdate="true" />
+					</VBox>
+				</VBox>
+
+				<!-- the progress -->
+				<VBox id="jobProgress" visible="{= !!${gen>/jobID}}" renderType="Bare" class="tourdStack">
+					<List items="{gen>/stages}" showSeparators="None" mode="None">
+						<CustomListItem>
+							<HBox alignItems="Center" class="sapUiTinyMargin">
+								<core:Icon src="{gen>icon}" class="sapUiSmallMarginEnd" color="{= ${gen>state} === 'Error' ? 'Negative' : ${gen>state} === 'Success' ? 'Positive' : 'Default'}" />
+								<Text text="{gen>label}" />
+							</HBox>
+						</CustomListItem>
+					</List>
+					<MessageStrip id="jobError" type="Error" showIcon="true" text="{gen>/jobError}" visible="{= !!${gen>/jobError}}" />
+					<MessageStrip id="jobDone" type="Success" showIcon="true" text="{gen>/jobDone}" visible="{= !!${gen>/jobDone}}" />
+				</VBox>
+			</VBox>
+		</content>
+		<beginButton>
+			<Button
+				id="genStart"
+				text="{i18n>genGenerate}"
+				type="Emphasized"
+				visible="{= !${gen>/jobID}}"
+				enabled="{= ${gen>/usable} &amp;&amp; !!${gen>/recordingID} &amp;&amp; !${gen>/starting}}"
+				press=".onGenStart" />
+		</beginButton>
+		<endButton>
+			<Button id="genClose" text="{= ${gen>/jobID} ? ${i18n>close} : ${i18n>cancel}}" press=".onGenClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

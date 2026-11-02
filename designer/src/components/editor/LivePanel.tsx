@@ -74,7 +74,7 @@ export default function LivePanel(props: { tourID: string; doc: TourDocument; va
         </div>
         <TextArea value={inline} readonly rows={5} style={{ width: '100%' }} accessibleName="Snippet" data-testid="live-snippet" />
         <Text className="muted">
-          About {kb} kB. It contains the player and this tour (including unsaved changes) and needs no connection to TourD.
+          About {kb} kB. It contains the player and this tour (including unsaved changes) and needs no connection to QuickDev.
         </Text>
       </section>
 
@@ -83,14 +83,14 @@ export default function LivePanel(props: { tourID: string; doc: TourDocument; va
         <Text>
           Drag this link to your bookmarks bar, open your app and click the bookmark.{' '}
           <a ref={link} href="#" onClick={(e) => e.preventDefault()} data-testid="live-bookmarklet">
-            TourD: {doc.title}
+            QuickDev: {doc.title}
           </a>
         </Text>
         <Text className="muted">The bookmark holds this version of the tour; make a new one after you change it.</Text>
       </section>
 
       <section className="live-step">
-        <Title level="H5">3. Or load the saved tour from TourD</Title>
+        <Title level="H5">3. Or load the saved tour from QuickDev</Title>
         <div className="row">
           <CopyButton text={loader} label="Copy loader snippet" testid="live-copy-loader" />
         </div>

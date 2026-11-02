@@ -1,0 +1,318 @@
+<mvc:View
+	controllerName="tourd.designer.controller.Tour"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:dnd="sap.ui.core.dnd"
+	xmlns:ctl="tourd.designer.control">
+	<Page id="tourPage" showHeader="false" enableScrolling="true" class="tourdPageBg">
+		<content>
+			<VBox class="tourdPage tourdPageWide" renderType="Bare" busy="{view>/loading}" busyIndicatorDelay="300">
+				<MessageStrip id="tourLoadError" type="Error" showIcon="true" text="{view>/loadError}" visible="{= !!${view>/loadError}}" class="sapUiSmallMarginBottom">
+					<link><Link text="{i18n>backToProjects}" press=".onHome" /></link>
+				</MessageStrip>
+				<VBox visible="{view>/ready}" renderType="Bare">
+					<Breadcrumbs currentLocationText="{view>/doc/title}">
+						<Link text="{i18n>projects}" press=".onHome" />
+						<Link text="{i18n>tabTours}" press=".onToTours" />
+					</Breadcrumbs>
+
+					<!-- title, state, actions: one bar; on a narrow window the lesser actions move into the "..." menu -->
+					<OverflowToolbar id="tourHeader" class="tourdHeaderBar sapUiSmallMarginBottom">
+						<Input id="tourTitle" value="{view>/doc/title}" valueLiveUpdate="true" liveChange=".onTourTitle" width="18rem" class="tourdTitleInput" tooltip="{i18n>tourTitleTip}">
+							<layoutData><OverflowToolbarLayoutData priority="NeverOverflow" /></layoutData>
+						</Input>
+						<ObjectStatus id="tourVersion" text="{= 'v' + ${view>/version}}" inverted="true">
+							<layoutData><OverflowToolbarLayoutData priority="NeverOverflow" /></layoutData>
+						</ObjectStatus>
+						<ObjectStatus text="{view>/generator}" state="{view>/generatorState}" visible="{= !!${view>/generator}}">
+							<layoutData><OverflowToolbarLayoutData priority="Low" /></layoutData>
+						</ObjectStatus>
+						<ObjectStatus id="saveState" text="{view>/stateText}" state="{view>/stateType}" inverted="true">
+							<layoutData><OverflowToolbarLayoutData priority="NeverOverflow" /></layoutData>
+						</ObjectStatus>
+						<ToolbarSpacer />
+						<Button id="undo" icon="sap-icon://undo" type="Transparent" tooltip="{i18n>tourUndo}" enabled="{view>/canUndo}" press=".onUndo">
+							<layoutData><OverflowToolbarLayoutData priority="High" /></layoutData>
+						</Button>
+						<Button id="redo" icon="sap-icon://redo" type="Transparent" tooltip="{i18n>tourRedo}" enabled="{view>/canRedo}" press=".onRedo">
+							<layoutData><OverflowToolbarLayoutData priority="High" /></layoutData>
+						</Button>
+						<ToolbarSeparator />
+						<Button id="openHistory" icon="sap-icon://history" text="{i18n>tourHistory}" type="Transparent" press=".onHistory">
+							<layoutData><OverflowToolbarLayoutData priority="Low" /></layoutData>
+						</Button>
+						<Button id="saveVersion" icon="sap-icon://save" text="{i18n>tourSaveVersion}" type="Transparent" enabled="{view>/valid}" press=".onSaveVersion">
+							<layoutData><OverflowToolbarLayoutData priority="Low" /></layoutData>
+						</Button>
+						<Button id="openApply" icon="sap-icon://add-folder" text="{i18n>tourAddToProject}" press=".onApply">
+							<layoutData><OverflowToolbarLayoutData priority="Low" /></layoutData>
+						</Button>
+						<Button id="openExport" icon="sap-icon://download" text="{i18n>tourExport}" type="Emphasized" press=".onExport">
+							<layoutData><OverflowToolbarLayoutData priority="NeverOverflow" /></layoutData>
+						</Button>
+					</OverflowToolbar>
+
+					<MessageStrip id="conflict" type="Error" showIcon="true" text="{view>/error}" visible="{= ${view>/state} === 'conflict'}" class="sapUiSmallMarginBottom">
+						<link><Link text="{i18n>reload}" press=".onReload" /></link>
+					</MessageStrip>
+					<MessageStrip id="saveError" type="Error" showIcon="true" text="{view>/error}" visible="{= ${view>/state} === 'error'}" class="sapUiSmallMarginBottom" />
+					<MessageStrip type="Information" showIcon="true" text="{i18n>tourNoInventory}" visible="{view>/noInventory}" class="sapUiSmallMarginBottom" />
+
+					<HBox id="editorGrid" class="tourdEditorGrid" renderType="Div">
+						<!-- the steps -->
+						<VBox class="tourdCard tourdPadded" renderType="Bare">
+							<List id="stepList" items="{view>/steps}" mode="SingleSelectMaster" selectionChange=".onSelectStep" showSeparators="Inner" rememberSelections="false">
+								<dragDropConfig>
+									<dnd:DragDropInfo sourceAggregation="items" targetAggregation="items" dropPosition="Between" drop=".onDropStep" />
+								</dragDropConfig>
+								<CustomListItem selected="{view>selected}" class="tourdStepItem">
+									<HBox alignItems="Start" class="sapUiTinyMargin">
+										<Text text="{view>number}" class="tourdStepNo sapUiTinyMarginEnd" />
+										<VBox renderType="Bare" class="tourdGrow">
+											<Text text="{view>title}" class="tourdBold" wrapping="false" />
+											<Text text="{view>targetLabel}" class="tourdMuted" wrapping="false" />
+											<HBox wrap="Wrap" visible="{view>hasTags}">
+												<ObjectStatus text="{i18n>tourNeedsReview}" state="Error" inverted="true" visible="{view>unresolved}" class="sapUiTinyMarginEnd" />
+												<ObjectStatus text="{i18n>tourCheckTarget}" state="Warning" inverted="true" visible="{view>lowConfidence}" class="sapUiTinyMarginEnd" />
+												<ObjectStatus text="{view>errorsText}" state="Error" visible="{= !!${view>errors}}" class="sapUiTinyMarginEnd" />
+												<ObjectStatus text="{view>warningsText}" state="Warning" visible="{= !!${view>warnings}}" />
+											</HBox>
+										</VBox>
+										<HBox>
+											<Button icon="sap-icon://navigation-up-arrow" type="Transparent" tooltip="{i18n>tourMoveUp}" enabled="{= ${view>index} > 0}" press=".onMoveUp" />
+											<Button icon="sap-icon://navigation-down-arrow" type="Transparent" tooltip="{i18n>tourMoveDown}" enabled="{view>canDown}" press=".onMoveDown" />
+											<Button icon="sap-icon://duplicate" type="Transparent" tooltip="{i18n>tourDuplicate}" press=".onDuplicateStep" />
+											<Button icon="sap-icon://delete" type="Transparent" tooltip="{i18n>tourDeleteStep}" enabled="{view>canDelete}" press=".onDeleteStep" />
+										</HBox>
+									</HBox>
+								</CustomListItem>
+							</List>
+							<Button id="stepAdd" icon="sap-icon://add" text="{i18n>tourAddStep}" type="Transparent" press=".onAddStep" />
+						</VBox>
+
+						<!-- the selected step -->
+						<VBox id="stepForm" class="tourdCard tourdPadded tourdStack" renderType="Bare" visible="{= !!${view>/sel/id}}">
+							<HBox alignItems="Center" justifyContent="SpaceBetween">
+								<HBox alignItems="Center">
+									<Text text="{view>/sel/number}" class="tourdStepNo sapUiSmallMarginEnd" />
+									<VBox renderType="Bare">
+										<Title text="{= ${i18n>tourStep} + ' ' + ${view>/sel/number}}" level="H4" />
+										<Text text="{i18n>tourStepHint}" class="tourdMuted" />
+									</VBox>
+								</HBox>
+								<Button id="askAi" icon="sap-icon://ai" text="{i18n>tourAskAi}" press=".onAskAi" />
+							</HBox>
+
+							<VBox items="{view>/sel/issues}" renderType="Bare">
+								<MessageStrip type="{view>type}" showIcon="true" text="{view>text}" class="sapUiTinyMarginBottom" />
+							</VBox>
+							<MessageStrip id="stepUnresolved" type="Error" showIcon="true" text="{view>/sel/unresolvedText}" visible="{view>/sel/unresolved}" />
+
+							<!-- message -->
+							<VBox renderType="Bare" class="tourdSection">
+								<Title text="{i18n>tourMessage}" level="H5" />
+								<Label text="{view>/sel/titleLabel}" labelFor="stepTitle" required="true" />
+								<Input id="stepTitle" value="{view>/sel/title}" valueLiveUpdate="true" liveChange=".onStepTitle" valueState="{view>/sel/titleState}" />
+								<Label text="{i18n>tourText}" labelFor="stepText" class="sapUiTinyMarginTop" />
+								<TextArea id="stepText" value="{view>/sel/text}" valueLiveUpdate="true" liveChange=".onStepText" rows="4" width="100%" />
+							</VBox>
+
+							<!-- control -->
+							<VBox id="targetSection" renderType="Bare" class="tourdSection">
+								<Title text="{i18n>tourControl}" level="H5" />
+								<Text text="{i18n>tourNoControl}" class="tourdMuted" visible="{= !${view>/sel/hasTarget}}" />
+								<VBox visible="{view>/sel/hasTarget}" renderType="Bare" class="tourdTargetSummary">
+									<HBox alignItems="Center">
+										<Text id="targetName" text="{view>/sel/targetName}" class="tourdBold sapUiTinyMarginEnd" />
+										<ObjectStatus text="{view>/sel/targetType}" inverted="true" visible="{= !!${view>/sel/targetType}}" />
+									</HBox>
+									<Text text="{view>/sel/targetPath}" class="tourdMuted tourdMono" />
+									<HBox wrap="Wrap">
+										<ObjectStatus text="{i18n>tourFound}" state="Success" visible="{= ${view>/sel/found} === true}" class="sapUiTinyMarginEnd" />
+										<ObjectStatus id="targetMissing" text="{i18n>tourNotFound}" state="Error" visible="{= ${view>/sel/found} === false}" class="sapUiTinyMarginEnd" />
+										<ObjectStatus text="{i18n>tourNoStableId}" state="Warning" visible="{view>/sel/unstable}" />
+									</HBox>
+								</VBox>
+								<HBox wrap="Wrap" class="sapUiTinyMarginTop">
+									<Button id="chooseControl" icon="sap-icon://target-group" text="{= ${view>/sel/hasTarget} ? ${i18n>tourChooseAnother} : ${i18n>tourChoose}}" press=".onChooseControl" class="sapUiTinyMarginEnd" />
+									<Button id="removeTarget" icon="sap-icon://delete" text="{i18n>tourNoControlButton}" type="Transparent" visible="{view>/sel/hasTarget}" press=".onRemoveTarget" />
+								</HBox>
+								<Panel id="targetAdvanced" expandable="true" expanded="false" headerText="{i18n>tourAdvanced}" visible="{view>/sel/hasTarget}">
+									<Label text="{i18n>tourViewFull}" labelFor="targetView" />
+									<Input id="targetView" value="{view>/sel/viewName}" valueLiveUpdate="true" liveChange=".onTargetView" />
+									<Label text="{i18n>tourControlId}" labelFor="targetId" class="sapUiTinyMarginTop" />
+									<Input id="targetId" value="{view>/sel/controlId}" valueLiveUpdate="true" liveChange=".onTargetId" valueState="{view>/sel/idState}" />
+									<Label text="{i18n>tourFallbacks}" class="sapUiTinyMarginTop" />
+									<VBox id="fallbackRows" items="{view>/sel/fallbacks}" renderType="Bare">
+										<HBox class="sapUiTinyMarginBottom">
+											<Select selectedKey="{view>by}" change=".onFallbackBy" width="7rem" class="sapUiTinyMarginEnd">
+												<core:Item key="text" text="text" />
+												<core:Item key="id" text="id" />
+												<core:Item key="css" text="css" />
+											</Select>
+											<Input value="{view>value}" valueLiveUpdate="true" liveChange=".onFallbackValue" class="tourdGrow" />
+											<Button icon="sap-icon://delete" type="Transparent" tooltip="{i18n>tourRemoveFallback}" press=".onFallbackRemove" />
+										</HBox>
+									</VBox>
+									<Button id="fallbackAdd" icon="sap-icon://add" text="{i18n>tourAddFallback}" type="Transparent" press=".onFallbackAdd" />
+								</Panel>
+							</VBox>
+
+							<!-- bubble position -->
+							<VBox id="placementPicker" renderType="Bare" class="tourdSection" visible="{view>/sel/hasTarget}">
+								<Title text="{i18n>tourBubblePosition}" level="H5" />
+								<HBox alignItems="Center" wrap="Wrap">
+									<VBox class="tourdCompass sapUiSmallMarginEnd" renderType="Bare" alignItems="Center">
+										<Button id="placementTop" icon="sap-icon://navigation-up-arrow" tooltip="{i18n>tourAbove}" type="{= ${view>/sel/side} === 'Top' ? 'Emphasized' : 'Default'}" press=".onPlacement('Top')" />
+										<HBox alignItems="Center">
+											<Button id="placementLeft" icon="sap-icon://navigation-left-arrow" tooltip="{i18n>tourLeft}" type="{= ${view>/sel/side} === 'Left' ? 'Emphasized' : 'Default'}" press=".onPlacement('Left')" />
+											<Text text="{i18n>tourControlWord}" class="tourdMuted sapUiTinyMargin" />
+											<Button id="placementRight" icon="sap-icon://navigation-right-arrow" tooltip="{i18n>tourRight}" type="{= ${view>/sel/side} === 'Right' ? 'Emphasized' : 'Default'}" press=".onPlacement('Right')" />
+										</HBox>
+										<Button id="placementBottom" icon="sap-icon://navigation-down-arrow" tooltip="{i18n>tourBelow}" type="{= ${view>/sel/side} === 'Bottom' ? 'Emphasized' : 'Default'}" press=".onPlacement('Bottom')" />
+									</VBox>
+									<VBox renderType="Bare">
+										<CheckBox id="placementFlip" text="{i18n>tourFlip}" selected="{view>/sel/flip}" enabled="{= !!${view>/sel/side}}" select=".onFlip" />
+										<Text id="placementValue" text="{view>/sel/placementText}" class="tourdMuted" />
+									</VBox>
+								</HBox>
+							</VBox>
+
+							<!-- page -->
+							<VBox id="navigationSection" renderType="Bare" class="tourdSection">
+								<Title text="{i18n>tourPage}" level="H5" />
+								<CheckBox id="navigateToggle" text="{i18n>tourOpenPage}" selected="{view>/sel/opensPage}" select=".onOpensPage" />
+								<VBox visible="{view>/sel/opensPage}" renderType="Bare">
+									<Label text="{i18n>tourPageHash}" labelFor="stepHash" />
+									<Input
+										id="stepHash"
+										value="{view>/sel/hash}"
+										valueLiveUpdate="true"
+										liveChange=".onHash"
+										showSuggestion="true"
+										suggestionItems="{view>/routes}"
+										valueState="{view>/sel/hashState}"
+										valueStateText="{i18n>tourNoRoute}">
+										<suggestionItems>
+											<core:ListItem text="{view>pattern}" additionalText="{view>views}" />
+										</suggestionItems>
+									</Input>
+									<Text text="{view>/sel/routeText}" class="tourdMuted" visible="{= !!${view>/sel/routeText}}" />
+								</VBox>
+							</VBox>
+
+							<Text id="stepMeta" text="{view>/sel/metaText}" class="tourdMuted" visible="{= !!${view>/sel/metaText}}" />
+						</VBox>
+
+						<!-- preview, sandbox, live, JSON, checks -->
+						<VBox id="rightPanel" class="tourdCard" renderType="Bare">
+							<IconTabHeader id="rightTabs" selectedKey="{view>/rightTab}" select=".onRightTab" mode="Inline">
+								<items>
+									<IconTabFilter key="preview" text="{i18n>tourPreview}" />
+									<IconTabFilter key="sandbox" text="{i18n>tourSandbox}" />
+									<IconTabFilter key="live" text="{i18n>tourLive}" />
+									<IconTabFilter key="json" text="JSON" />
+									<IconTabFilter key="checks" text="{view>/checksTitle}" />
+								</items>
+							</IconTabHeader>
+
+							<!-- preview -->
+							<VBox id="paneRightPreview" class="tourdPaneInner" renderType="Bare">
+								<VBox class="tourdPreviewStage" renderType="Bare" id="bubblePreview">
+									<VBox class="tourdBubble" renderType="Bare">
+										<HBox justifyContent="SpaceBetween" alignItems="Center">
+											<Title id="previewTitle" text="{view>/preview/title}" level="H5" />
+											<Text text="×" visible="{view>/preview/allowSkip}" />
+										</HBox>
+										<FormattedText id="previewText" htmlText="{view>/preview/html}" />
+										<HBox justifyContent="SpaceBetween" alignItems="Center" class="sapUiSmallMarginTop">
+											<Text text="{view>/preview/progress}" class="tourdMuted" />
+											<HBox>
+												<Button text="{i18n>tourBack}" enabled="{= !${view>/preview/first}}" class="sapUiTinyMarginEnd" />
+												<Button text="{view>/preview/nextText}" type="Emphasized" />
+											</HBox>
+										</HBox>
+									</VBox>
+								</VBox>
+								<Text id="previewWhere" text="{view>/preview/where}" class="tourdMuted sapUiSmallMarginTop" />
+							</VBox>
+
+							<!-- sandbox -->
+							<VBox id="paneRightSandbox" class="tourdPaneInner tourdHidden" renderType="Bare">
+								<MessageStrip id="sandboxUnavailable" type="Warning" showIcon="true" text="{view>/sandbox/unavailable}" visible="{= !!${view>/sandbox/unavailable}}" />
+								<VBox visible="{= !${view>/sandbox/unavailable}}" renderType="Bare" class="tourdStack">
+									<HBox wrap="Wrap" alignItems="Center">
+										<Select id="sandboxUi5" selectedKey="{view>/sandbox/ui5}" change=".onSandboxUi5" width="9rem" class="sapUiTinyMarginEnd">
+											<core:Item key="1.120" text="UI5 1.120" />
+											<core:Item key="1.148" text="UI5 1.148" />
+											<core:Item key="latest" text="UI5 latest" />
+										</Select>
+										<Select id="sandboxPage" selectedKey="{view>/sandbox/page}" items="{view>/sandbox/routes}" change=".onSandboxPage" width="11rem" class="sapUiTinyMarginEnd" visible="{= ${view>/sandbox/routes}.length > 0}">
+											<core:Item key="{view>name}" text="{view>name}" />
+										</Select>
+										<Button id="sandboxPick" icon="sap-icon://cursor-arrow" text="{= ${view>/sandbox/picking} ? ${i18n>tourCancelPicking} : ${i18n>tourPickControl}}" type="{= ${view>/sandbox/picking} ? 'Emphasized' : 'Default'}" enabled="{= ${view>/sandbox/status} === 'ready'}" tooltip="{i18n>tourPickTip}" press=".onSandboxPick" class="sapUiTinyMarginEnd" />
+										<Button id="sandboxRestart" icon="sap-icon://restart" text="{i18n>tourReplay}" type="Transparent" enabled="{= ${view>/sandbox/status} === 'ready' &amp;&amp; ${view>/valid}}" press=".onSandboxReplay" />
+										<Button id="sandboxReload" icon="sap-icon://refresh" type="Transparent" tooltip="{i18n>tourReload}" press=".onSandboxReload" />
+									</HBox>
+									<MessageStrip type="Warning" showIcon="true" text="{i18n>tourSandboxInvalid}" visible="{= !${view>/valid}}" />
+									<MessageStrip id="sandboxPicking" type="Information" showIcon="true" text="{i18n>tourPicking}" visible="{view>/sandbox/picking}" />
+									<MessageStrip id="sandboxPicked" type="Success" showIcon="true" text="{view>/sandbox/pickNote}" visible="{= !!${view>/sandbox/pickNote} &amp;&amp; !${view>/sandbox/picking}}" />
+									<MessageStrip id="sandboxEnded" type="Information" showIcon="true" text="{i18n>tourEnded}" visible="{= ${view>/sandbox/ended} &amp;&amp; ${view>/valid}}" />
+									<VBox items="{view>/sandbox/messages}" renderType="Bare">
+										<MessageStrip type="Warning" showIcon="true" text="{view>text}" class="sapUiTinyMarginBottom" />
+									</VBox>
+									<core:HTML id="sandboxHost" content="&lt;div class='tourdSandboxFrame'&gt;&lt;/div&gt;" preferDOM="true" />
+									<HBox justifyContent="SpaceBetween" alignItems="Center" wrap="Wrap">
+										<Text text="{view>/sandbox/footer}" class="tourdMuted" />
+										<CheckBox id="sandboxReal" text="{i18n>tourRealControllers}" selected="{view>/sandbox/real}" select=".onSandboxReal" />
+									</HBox>
+									<MessageStrip type="Warning" showIcon="true" text="{i18n>tourRealWarning}" visible="{view>/sandbox/real}" />
+									<Text text="{view>/sandbox/notes}" class="tourdMuted" visible="{= !!${view>/sandbox/notes}}" />
+								</VBox>
+							</VBox>
+
+							<!-- live -->
+							<VBox id="paneRightLive" class="tourdPaneInner tourdHidden tourdStack" renderType="Bare">
+								<Text text="{i18n>tourLiveIntro}" />
+								<MessageStrip type="Warning" showIcon="true" text="{i18n>tourLiveInvalid}" visible="{= !${view>/valid}}" />
+								<Title text="{i18n>tourLive1}" level="H5" />
+								<Text text="{i18n>tourLive1Steps}" />
+								<HBox alignItems="Center">
+									<Button id="liveCopy" icon="sap-icon://copy" text="{i18n>tourCopySnippet}" type="Emphasized" enabled="{view>/valid}" press=".onCopySnippet" class="sapUiTinyMarginEnd" />
+									<Text id="liveCopied" text="{view>/live/copied}" />
+								</HBox>
+								<TextArea id="liveSnippet" value="{view>/live/inline}" editable="false" rows="5" width="100%" />
+								<Text text="{view>/live/size}" class="tourdMuted" />
+								<Title text="{i18n>tourLive2}" level="H5" />
+								<Text text="{i18n>tourLive2Text}" />
+								<Link id="liveBookmarklet" text="{view>/live/bookmarkTitle}" press=".onBookmarkClick" />
+								<Title text="{i18n>tourLive3}" level="H5" />
+								<HBox alignItems="Center">
+									<Button id="liveCopyLoader" icon="sap-icon://copy" text="{i18n>tourCopyLoader}" press=".onCopyLoader" class="sapUiTinyMarginEnd" />
+									<Text text="{view>/live/copiedLoader}" />
+								</HBox>
+								<TextArea id="liveLoader" value="{view>/live/loader}" editable="false" rows="4" width="100%" />
+								<Text text="{view>/live/loaderHelp}" class="tourdMuted" />
+							</VBox>
+
+							<!-- JSON -->
+							<VBox id="paneRightJson" class="tourdPaneInner tourdHidden" renderType="Bare">
+								<ctl:CodeEditor id="jsonEditor" path="tour.json" tour="true" height="30rem" change=".onJson" />
+							</VBox>
+
+							<!-- checks -->
+							<VBox id="paneRightChecks" class="tourdPaneInner tourdHidden tourdStack" renderType="Bare">
+								<MessageStrip id="checksOk" type="Success" showIcon="true" text="{i18n>tourAllPassed}" visible="{= ${view>/issues}.length === 0}" />
+								<List id="checksList" items="{view>/issues}" mode="None" showSeparators="Inner" visible="{= ${view>/issues}.length > 0}">
+									<StandardListItem title="{view>message}" icon="{= ${view>severity} === 'error' ? 'sap-icon://error' : 'sap-icon://alert'}" iconInset="false" type="Active" press=".onIssue" />
+								</List>
+								<Text text="{i18n>tourClickProblem}" class="tourdMuted" />
+							</VBox>
+						</VBox>
+					</HBox>
+				</VBox>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

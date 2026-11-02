@@ -288,7 +288,7 @@ export default function SandboxPreview(props: {
       </div>
       {real && (
         <MessageStrip design="Critical" hideCloseButton data-testid="sandbox-real-warning">
-          The uploaded controller code runs inside the sandbox (it cannot reach TourD or your data here, but it may fail without its backend).
+          The uploaded controller code runs inside the sandbox (it cannot reach QuickDev or your data here, but it may fail without its backend).
         </MessageStrip>
       )}
       {info.data && info.data.notes.length > 0 && (

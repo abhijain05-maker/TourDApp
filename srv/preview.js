@@ -4,12 +4,13 @@
 //   /preview/<projectId>/rt/{TourPlayer,sandbox}.js   runtime files
 //   /preview/<projectId>/info.json           what the copy contains (pages, routes, notes)
 //   /live/player.js, /live/<tourId>/tour.json   for the "load from TourD" console snippet
+//   /live/recorder.js                           the recorder as a console snippet, ready to paste (designer: "Copy console snippet")
 // The sandbox page is meant for an <iframe sandbox="allow-scripts"> (no same-origin): it runs with an
 // opaque origin, so its requests are cross-origin and these routes answer with CORS "*".
 import cds from '@sap/cds'
 import { readFile } from 'node:fs/promises'
 import { buildPreviewApp, PreviewError } from './lib/preview/model.js'
-import { helpAsPredefine, playerAsPredefine } from '../shared/live-snippet.mjs'
+import { buildRecorderSnippet, helpAsPredefine, playerAsPredefine } from '../shared/live-snippet.mjs'
 import { check, mint } from './lib/capability.js'
 import { protect, through } from './lib/protect.js'
 import { enforcing } from './lib/service/authz.js'
@@ -158,6 +159,10 @@ async function handleLive(req, res) {
     if (parts.length === 1 && parts[0] === 'player.js') {
       const source = await readFile(here('../player/TourPlayer.js'), 'utf8')
       return send(res, 200, 'application/javascript; charset=utf-8', playerAsPredefine(source))
+    }
+    if (parts.length === 1 && parts[0] === 'recorder.js') {
+      const recorderSource = await readFile(here('../recorder/recorder.js'), 'utf8')
+      return send(res, 200, 'application/javascript; charset=utf-8', buildRecorderSnippet({ recorderSource }))
     }
     if (parts.length === 1 && parts[0] === 'help.js') {
       const source = await readFile(here('../player/HelpLayer.js'), 'utf8')

@@ -152,6 +152,14 @@ describe('live routes', () => {
     expect(r.data).not.toMatch(/sap\.ui\.define\(/)
   })
 
+  it('serves the recorder as a console snippet that starts without the bridge', async () => {
+    const r = await raw('/live/recorder.js')
+    expect(r.status).toBe(200)
+    expect(r.headers['content-type']).toContain('javascript')
+    expect(r.data).toContain('window.__tourdRecorder')
+    expect(r.data).toContain('recorder.start({ bridge: false })')
+  })
+
   it('serves the saved tour of a known id only', async () => {
     const projectID = (await POST(`${BASE}/Projects`, { name: 'Live' })).data.ID
     const definition = {

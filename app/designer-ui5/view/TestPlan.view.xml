@@ -1,0 +1,230 @@
+<mvc:View
+	controllerName="tourd.designer.controller.TestPlan"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:ctl="tourd.designer.control">
+	<Page id="planPage" showHeader="false" enableScrolling="true" class="tourdPageBg">
+		<content>
+			<VBox class="tourdPage" renderType="Bare" busy="{view>/loading}" busyIndicatorDelay="300">
+				<MessageStrip id="planLoadError" type="Error" showIcon="true" text="{view>/loadError}" visible="{= !!${view>/loadError}}" class="sapUiSmallMarginBottom">
+					<link><Link text="{i18n>backToProjects}" press=".onHome" /></link>
+				</MessageStrip>
+				<VBox visible="{view>/ready}" renderType="Bare" class="tourdStack">
+					<Breadcrumbs currentLocationText="{plan>/name}">
+						<Link text="{i18n>projects}" press=".onHome" />
+						<Link text="{i18n>tabTests}" press=".onToTests" />
+					</Breadcrumbs>
+
+					<OverflowToolbar id="planHeader" class="tourdHeaderBar">
+						<Input id="planName" value="{plan>/name}" valueLiveUpdate="true" width="18rem" class="tourdTitleInput">
+							<layoutData><OverflowToolbarLayoutData priority="NeverOverflow" /></layoutData>
+						</Input>
+						<ObjectStatus id="planVersion" text="{= 'v' + ${view>/version}}" inverted="true">
+							<layoutData><OverflowToolbarLayoutData priority="NeverOverflow" /></layoutData>
+						</ObjectStatus>
+						<ObjectStatus id="planState" text="{view>/stateText}" state="{= ${view>/dirty} ? 'Warning' : 'Success'}" inverted="true">
+							<layoutData><OverflowToolbarLayoutData priority="NeverOverflow" /></layoutData>
+						</ObjectStatus>
+						<ToolbarSpacer />
+						<Button id="planRebuild" icon="sap-icon://refresh" text="{i18n>planRebuild}" type="Transparent" press=".onRebuild">
+							<layoutData><OverflowToolbarLayoutData priority="Low" /></layoutData>
+						</Button>
+						<Button id="planSave" icon="sap-icon://save" text="{i18n>wsSave}" enabled="{= ${view>/dirty} &amp;&amp; !${view>/saving}}" press=".onSave">
+							<layoutData><OverflowToolbarLayoutData priority="High" /></layoutData>
+						</Button>
+						<Button id="planApply" icon="sap-icon://add-folder" text="{i18n>tourAddToProject}" type="Emphasized" enabled="{= !${view>/dirty} &amp;&amp; ${view>/enabledSteps} > 0}" tooltip="{= ${view>/dirty} ? ${i18n>planSaveFirst} : ''}" press=".onApply">
+							<layoutData><OverflowToolbarLayoutData priority="NeverOverflow" /></layoutData>
+						</Button>
+					</OverflowToolbar>
+
+					<MessageStrip type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" />
+					<MessageStrip id="planConflict" type="Error" showIcon="true" text="{i18n>planConflict}" visible="{view>/conflict}">
+						<link><Link text="{i18n>wsDiscard}" press=".onDiscard" /></link>
+					</MessageStrip>
+					<MessageStrip id="planExisting" type="Information" showIcon="true" text="{view>/existingText}" visible="{= !!${view>/existingText}}" />
+
+					<!-- settings -->
+					<Panel id="planSettings" expandable="true" expanded="false" class="tourdCard">
+						<headerToolbar>
+							<OverflowToolbar>
+								<core:Icon src="sap-icon://settings" />
+								<Title text="{i18n>planSettings}" level="H5" />
+								<Text text="{view>/settingsSummary}" class="tourdMuted" />
+							</OverflowToolbar>
+						</headerToolbar>
+						<VBox class="tourdStack" renderType="Bare">
+							<Text text="{i18n>planSettingsHint}" class="tourdMuted" />
+							<HBox wrap="Wrap" class="tourdFormRow">
+								<VBox class="tourdGrow sapUiSmallMarginEnd" renderType="Bare">
+									<Label text="{i18n>planBaseUrl}" labelFor="planBaseUrl" />
+									<Input id="planBaseUrl" value="{plan>/settings/baseUrl}" valueLiveUpdate="true" />
+								</VBox>
+								<VBox class="tourdGrow sapUiSmallMarginEnd" renderType="Bare">
+									<Label text="{i18n>testsFrameworkLabel}" labelFor="planFramework" />
+									<Select id="planFramework" selectedKey="{plan>/settings/framework}" width="100%">
+										<core:Item key="mocha" text="Mocha" />
+										<core:Item key="jasmine" text="Jasmine" />
+									</Select>
+								</VBox>
+								<VBox class="tourdGrow sapUiSmallMarginEnd" renderType="Bare">
+									<Label text="{i18n>testsLoginLabel}" labelFor="planAuth" />
+									<Select id="planAuth" selectedKey="{plan>/settings/auth}" items="{view>/auths}" width="100%">
+										<core:Item key="{view>key}" text="{view>text}" />
+									</Select>
+								</VBox>
+								<VBox class="tourdGrow" renderType="Bare">
+									<Label text="{i18n>planTestDir}" labelFor="planTestDir" />
+									<Input id="planTestDir" value="{plan>/settings/testDir}" valueLiveUpdate="true" />
+								</VBox>
+							</HBox>
+							<Text text="{i18n>planCredentials}" class="tourdMuted" visible="{view>/needsCredentials}" />
+							<HBox wrap="Wrap" visible="{view>/customAuth}">
+								<VBox class="tourdGrow sapUiSmallMarginEnd" renderType="Bare">
+									<Label text="{i18n>planSelUser}" />
+									<Input value="{view>/authSel/username}" valueLiveUpdate="true" liveChange=".onAuthSelector('username', $event)" />
+								</VBox>
+								<VBox class="tourdGrow sapUiSmallMarginEnd" renderType="Bare">
+									<Label text="{i18n>planSelPassword}" />
+									<Input value="{view>/authSel/password}" valueLiveUpdate="true" liveChange=".onAuthSelector('password', $event)" />
+								</VBox>
+								<VBox class="tourdGrow" renderType="Bare">
+									<Label text="{i18n>planSelSubmit}" />
+									<Input value="{view>/authSel/submit}" valueLiveUpdate="true" liveChange=".onAuthSelector('submit', $event)" />
+								</VBox>
+							</HBox>
+						</VBox>
+					</Panel>
+
+					<MessageStrip id="dryNote" type="{view>/dryType}" showIcon="true" text="{view>/dryText}" visible="{= !!${view>/dryText}}" />
+
+					<!-- steps -->
+					<Panel id="planSteps" expandable="true" expanded="true" class="tourdCard">
+						<headerToolbar>
+							<OverflowToolbar>
+								<core:Icon src="sap-icon://list" />
+								<Title text="{i18n>planSteps}" level="H5" />
+								<Text text="{view>/stepsSummary}" class="tourdMuted" />
+							</OverflowToolbar>
+						</headerToolbar>
+						<Table id="planStepsTable" items="{view>/rows}" width="100%" class="tourdPlanTable">
+							<columns>
+								<Column width="4rem"><Text text="{i18n>planOn}" /></Column>
+								<Column width="6rem"><Text text="{i18n>planWhat}" /></Column>
+								<Column><Text text="{i18n>planStep}" /></Column>
+								<Column minScreenWidth="Tablet" demandPopin="true" width="14rem"><Text text="{i18n>tourControl}" /></Column>
+								<Column minScreenWidth="Tablet" demandPopin="true" width="16rem"><Text text="{i18n>planValue}" /></Column>
+								<Column width="10rem" hAlign="End" />
+							</columns>
+							<items>
+								<ColumnListItem class="{= ${view>enabled} ? '' : 'tourdOff'}">
+									<cells>
+										<CheckBox selected="{view>enabled}" enabled="{view>canToggle}" select=".onToggle" />
+										<ObjectStatus text="{view>kindLabel}" state="{= ${view>isAssert} ? 'None' : 'Success'}" inverted="true" />
+										<VBox renderType="Bare">
+											<Input value="{view>title}" valueLiveUpdate="true" liveChange=".onStepTitle" />
+											<HBox wrap="Wrap" alignItems="Center" visible="{view>hasMeta}">
+												<ObjectStatus text="{i18n>planAddedByTourd}" state="Warning" inverted="true" visible="{view>showHeuristic}" class="sapUiTinyMarginEnd" />
+												<ObjectStatus text="{i18n>planChanged}" state="Information" inverted="true" visible="{view>edited}" class="sapUiTinyMarginEnd" />
+												<Text text="{view>note}" class="tourdMuted sapUiTinyMarginEnd" visible="{= !!${view>note}}" />
+												<ObjectStatus text="{view>reuseText}" tooltip="{view>reuseFile}" visible="{view>showReuse}" class="sapUiTinyMarginEnd" />
+												<Link text="{i18n>planNoReuse}" visible="{view>showReuse}" press=".onNoReuse" />
+												<Text text="{i18n>planOwnCode}" class="tourdMuted sapUiTinyMarginEnd" visible="{view>noReuse}" />
+												<Link text="{i18n>planUseHelper}" visible="{view>noReuse}" press=".onUseReuse" />
+											</HBox>
+										</VBox>
+										<VBox renderType="Bare">
+											<Select selectedKey="{view>locator}" items="{path: 'view>/locatorItems', templateShareable: true}" change=".onLocator" width="100%" visible="{view>showControl}">
+												<core:Item key="{view>key}" text="{view>text}" />
+											</Select>
+											<ObjectStatus text="{view>dryText}" state="{view>dryState}" tooltip="{view>dryNote}" visible="{= !!${view>dryText}}" />
+										</VBox>
+										<VBox renderType="Bare">
+											<Input value="{view>value}" valueLiveUpdate="true" liveChange=".onStepValue" visible="{= ${view>valueKind} === 'text'}" />
+											<Input value="{view>choice}" valueLiveUpdate="true" liveChange=".onStepChoice" visible="{= ${view>valueKind} === 'choice'}" />
+											<VBox visible="{= ${view>valueKind} === 'assert'}" renderType="Bare">
+												<Select selectedKey="{view>assertType}" items="{path: 'view>/assertTypes', templateShareable: true}" change=".onAssertType" width="100%">
+													<core:Item key="{view>key}" text="{view>text}" />
+												</Select>
+												<Input value="{view>expected}" valueLiveUpdate="true" liveChange=".onExpected" visible="{view>showExpected}" />
+											</VBox>
+											<Text text="{view>openText}" class="tourdMuted" visible="{= ${view>valueKind} === 'open'}" />
+										</VBox>
+										<HBox justifyContent="End">
+											<Button icon="sap-icon://navigation-up-arrow" type="Transparent" tooltip="{i18n>tourMoveUp}" enabled="{view>canUp}" press=".onMove(-1, $event)" />
+											<Button icon="sap-icon://navigation-down-arrow" type="Transparent" tooltip="{i18n>tourMoveDown}" enabled="{view>canDown}" press=".onMove(1, $event)" />
+											<Button icon="sap-icon://add" type="Transparent" tooltip="{i18n>planAddCheck}" visible="{view>canAddCheck}" press=".onAddCheck" />
+											<Button icon="sap-icon://delete" type="Transparent" tooltip="{i18n>planRemoveStep}" visible="{view>canRemove}" press=".onRemoveStep" />
+										</HBox>
+									</cells>
+								</ColumnListItem>
+							</items>
+						</Table>
+					</Panel>
+
+					<!-- locators -->
+					<Panel id="planLocators" expandable="true" expanded="false" class="tourdCard">
+						<headerToolbar>
+							<OverflowToolbar>
+								<core:Icon src="sap-icon://locate-me" />
+								<Title text="{i18n>planLocators}" level="H5" />
+								<Text text="{view>/locatorsSummary}" class="tourdMuted" />
+							</OverflowToolbar>
+						</headerToolbar>
+						<Text text="{i18n>planLocatorsHint}" class="tourdMuted" />
+						<List id="locatorList" items="{view>/locators}" showSeparators="Inner" mode="None">
+							<CustomListItem>
+								<HBox wrap="Wrap" alignItems="Center" class="sapUiTinyMargin">
+									<VBox renderType="Bare" class="tourdLocatorId">
+										<Text text="{view>name}" class="tourdBold tourdMono" />
+										<Text text="{view>display}" class="tourdMuted" />
+									</VBox>
+									<Select selectedKey="{view>strategy}" items="{path: 'view>options', templateShareable: false}" change=".onStrategy" class="sapUiSmallMarginEnd">
+										<core:Item key="{view>key}" text="{view>text}" />
+									</Select>
+									<Text text="{view>code}" class="tourdMono tourdGrow" />
+									<ObjectStatus text="{view>dryText}" state="{view>dryState}" visible="{= !!${view>dryText}}" class="sapUiSmallMarginEnd" />
+									<Text text="{view>note}" class="tourdMuted" visible="{= !!${view>note}}" />
+								</HBox>
+							</CustomListItem>
+						</List>
+						<Text text="{i18n>planNoLocator}" class="tourdMuted" visible="{= ${view>/locators}.length === 0}" />
+					</Panel>
+
+					<!-- the files that will be written -->
+					<Panel id="planFiles" expandable="true" expanded="true" class="tourdCard" visible="{view>/files/show}">
+						<headerToolbar>
+							<OverflowToolbar>
+								<core:Icon src="sap-icon://source-code" />
+								<Title text="{i18n>planGenerated}" level="H5" />
+								<Text text="{i18n>planGeneratedHint}" class="tourdMuted" />
+							</OverflowToolbar>
+						</headerToolbar>
+						<MessageStrip type="Warning" showIcon="true" text="{view>/files/blocked}" visible="{= !!${view>/files/blocked}}" class="sapUiTinyMarginBottom" />
+						<HBox renderType="Div" class="tourdFilesPreview" visible="{= ${view>/files/list}.length > 0}">
+							<List id="filesList" items="{view>/files/list}" mode="SingleSelectMaster" selectionChange=".onShowFile" width="18rem" class="sapUiSmallMarginEnd">
+								<StandardListItem title="{view>name}" description="{view>what}" info="{view>state}" infoState="{view>stateType}" selected="{view>shown}" />
+							</List>
+							<VBox renderType="Bare" class="tourdGrow">
+								<Text text="{view>/files/path}" class="tourdMono" />
+								<ctl:CodeEditor id="filesEditor" readOnly="true" height="22rem" />
+							</VBox>
+						</HBox>
+						<HBox alignItems="Center" visible="{= ${view>/files/list}.length === 0 &amp;&amp; !${view>/files/blocked}}">
+							<core:Icon src="sap-icon://accept" color="Positive" class="sapUiSmallMarginEnd" />
+							<VBox renderType="Bare">
+								<Text text="{i18n>planAllThere}" class="tourdBold" />
+								<Text text="{i18n>planNothingToAdd}" class="tourdMuted" />
+							</VBox>
+						</HBox>
+						<VBox id="runBox" class="sapUiSmallMarginTop" renderType="Bare">
+							<Title text="{i18n>planHowToRun}" level="H6" />
+							<FormattedText htmlText="{view>/files/runHtml}" />
+							<Text text="{i18n>planNotRun}" class="tourdMuted" />
+						</VBox>
+					</Panel>
+				</VBox>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

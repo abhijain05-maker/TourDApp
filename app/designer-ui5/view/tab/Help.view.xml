@@ -1,0 +1,44 @@
+<mvc:View
+	controllerName="tourd.designer.controller.tab.Help"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc">
+	<VBox class="tourdStack sapUiSmallMargin" renderType="Bare">
+		<HBox justifyContent="SpaceBetween" wrap="Wrap" alignItems="Center">
+			<VBox renderType="Bare" class="tourdGrow">
+				<Title text="{i18n>tabHelp}" level="H4" />
+				<Text text="{i18n>helpIntro}" class="tourdMuted" />
+			</VBox>
+			<Button id="addHelpToProject" text="{i18n>helpAdd}" type="Emphasized" enabled="{view>/canAdd}" press=".onAddToProject" />
+		</HBox>
+		<MessageStrip id="helpEmpty" type="Information" showIcon="true" text="{i18n>helpEmpty}" visible="{view>/empty}" />
+		<MessageStrip type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" />
+		<Text id="helpVersion" text="{view>/versionText}" class="tourdMuted" visible="{= !!${view>/versionText}}" />
+		<Table id="helpTable" items="{view>/topics}" busy="{view>/loading}" noDataText="{i18n>helpNone}" class="tourdCard" width="100%">
+			<columns>
+				<Column><Text text="{i18n>helpTopic}" /></Column>
+				<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>tourControl}" /></Column>
+				<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>helpScreen}" /></Column>
+				<Column width="8rem" hAlign="End" />
+			</columns>
+			<items>
+				<ColumnListItem type="Active" press=".onEdit">
+					<cells>
+						<VBox renderType="Bare">
+							<Text text="{view>title}" class="tourdBold" />
+							<Text text="{view>summary}" class="tourdMuted" visible="{= !!${view>summary}}" />
+						</VBox>
+						<VBox renderType="Bare">
+							<Text text="{view>where}" class="tourdMono" />
+							<Text text="{view>controlType}" class="tourdMuted" visible="{= !!${view>controlType}}" />
+						</VBox>
+						<ObjectStatus text="{view>screen}" state="Success" visible="{= !!${view>screen}}" />
+						<HBox justifyContent="End">
+							<Button icon="sap-icon://edit" type="Transparent" tooltip="{i18n>helpEditTip}" press=".onEdit" />
+							<Button icon="sap-icon://delete" type="Transparent" tooltip="{i18n>helpDeleteTip}" press=".onDelete" />
+						</HBox>
+					</cells>
+				</ColumnListItem>
+			</items>
+		</Table>
+	</VBox>
+</mvc:View>

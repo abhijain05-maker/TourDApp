@@ -66,8 +66,13 @@ only for the provider you choose; `TOURD_DISABLE_AI=1` switches all AI off.
 
 Real-service check (costs money): `npm run test:live` runs against every provider that has credentials.
 
+**Setting it up on another machine, using SAP AI Core, deploying to BTP with SAP HANA: see [docs/SETUP-AND-DEPLOY.md](docs/SETUP-AND-DEPLOY.md).**
+
 ## Designer
-Open http://localhost:4044/designer/ (after `npm run build:designer`). Create a project, add your app (folder, zip, files or pasted file), import a recording, generate a tour. For hot reload while developing the UI run `npm run dev:designer` (http://localhost:5173/designer/, proxied to the server).
+There are two designers with the same features, on the same server and data: the React designer at `/designer/` and the SAPUI5 designer at `/designer-ui5/` (see below). Open http://localhost:4044/designer/ (after `npm run build:designer`). Create a project, add your app (folder, zip, files or pasted file), import a recording, generate a tour. For hot reload while developing the UI run `npm run dev:designer` (http://localhost:5173/designer/, proxied to the server).
+
+### The SAPUI5 designer
+http://localhost:4044/designer-ui5/ is the same designer written as a SAPUI5 app (Component, routing, XML views, i18n) in `app/designer-ui5/`. It has no build step: the folder is served as it is, and it needs no `npm run build:designer`. SAPUI5 comes from `ui5.sap.com` (1.148, the newest long-term-support release; `?ui5=1.120` or `?ui5=latest` to try others), so this designer needs an internet connection. The code editor and diff are CodeMirror, as in the React designer, from `app/designer-ui5/lib/codemirror.js`; the tour logic (validation, checks, snippets) is `lib/tourd-logic.js`. Both are built from the repository's own modules and committed: after changing `designer/ui5-editor/` or the modules they re-export, run `npm run build:ui5-editor`. The browser extension, the player and the React designer do not depend on it. Tracker: `PLAN-UI5.md`; tests: `test/e2e/designer-ui5.spec.js`.
 
 ### Recording with the browser extension
 The **TourD Recorder** extension (Chrome/Edge) records in your running app as UI5 sees it - exact controls, views and controllers - and sends it to a project. Build it with `npm run build:extension`, load the `extension/` folder, pair it with a token from **Browser extension** in the top bar. It can also play a tour in the open app, and **write help for the app**: point at a control, write the text (with AI if you like), see the help panel with `?` badges in the running app, then add the help to your project's files - see [docs/HELP.md](docs/HELP.md) and [docs/EXTENSION.md](docs/EXTENSION.md).

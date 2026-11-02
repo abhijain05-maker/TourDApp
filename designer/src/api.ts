@@ -42,7 +42,7 @@ async function call<T>(method: string, path: string, body?: unknown): Promise<T>
       body: body !== undefined ? JSON.stringify(body) : undefined,
     })
   } catch {
-    throw new ApiError('The TourD server is not reachable. Is it running?', 0)
+    throw new ApiError('The QuickDev server is not reachable. Is it running?', 0)
   }
   if (!res.ok) {
     let message = `${res.status} ${res.statusText}`
@@ -62,7 +62,7 @@ async function getJson<T>(path: string): Promise<T> {
   try {
     res = await fetch(path)
   } catch {
-    throw new ApiError('The TourD server is not reachable. Is it running?', 0)
+    throw new ApiError('The QuickDev server is not reachable. Is it running?', 0)
   }
   if (!res.ok) {
     let message = `${res.status} ${res.statusText}`

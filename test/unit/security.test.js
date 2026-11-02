@@ -65,6 +65,16 @@ describe('host and origin guard (pure)', () => {
     expect(refusal(req(host, 'PATCH', 'null'), {})).toMatch(/designer itself/) // the sandbox frame
     expect(refusal(req(host, 'POST', 'not a url'), {})).toMatch(/designer itself/)
   })
+
+  it('behind an application router the page is on another host name of the deployment, and only those are accepted', () => {
+    const env = { TOURD_ALLOWED_HOSTS: 'quickdev-srv.cfapps.eu10.hana.ondemand.com,quickdev.cfapps.eu10.hana.ondemand.com' }
+    const srv = 'quickdev-srv.cfapps.eu10.hana.ondemand.com'
+    expect(refusal(req(srv, 'POST', 'https://quickdev.cfapps.eu10.hana.ondemand.com'), env)).toBeNull()
+    expect(refusal(req(srv, 'POST', 'https://evil.example'), env)).toMatch(/designer itself/)
+    // the loopback names are not "own" names of a deployment, and a wildcard does not open the origin check
+    expect(refusal(req(srv, 'POST', 'http://localhost:5173'), env)).toMatch(/designer itself/)
+    expect(refusal(req(srv, 'POST', 'https://evil.example'), { TOURD_ALLOWED_HOSTS: '*' })).toMatch(/designer itself/)
+  })
 })
 
 describe('host and origin guard (over HTTP)', () => {

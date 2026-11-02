@@ -1,0 +1,41 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="newTestDialog" title="{i18n>testsNew}" contentWidth="30rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin tourdStack" renderType="Bare">
+				<MessageStrip type="Error" showIcon="true" text="{nt>/error}" visible="{= !!${nt>/error}}" />
+				<VBox renderType="Bare">
+					<Label text="{i18n>genRecording}" labelFor="testRecording" />
+					<Select id="testRecording" selectedKey="{nt>/recordingID}" items="{nt>/recordings}" width="100%">
+						<core:Item key="{nt>ID}" text="{nt>text}" />
+					</Select>
+					<Text text="{i18n>testsNoneFit}" class="tourdMuted" visible="{nt>/noneFit}" />
+					<Link id="testShowAll" text="{nt>/hiddenText}" visible="{= ${nt>/hidden} > 0}" press=".onNewShowAll" />
+				</VBox>
+				<VBox renderType="Bare">
+					<Label text="{i18n>colName}" labelFor="testName" />
+					<Input id="testName" value="{nt>/name}" valueLiveUpdate="true" placeholder="{i18n>testsNameHint}" />
+				</VBox>
+				<VBox renderType="Bare">
+					<Label text="{i18n>testsFrameworkLabel}" labelFor="testFramework" />
+					<Select id="testFramework" selectedKey="{nt>/framework}" width="100%">
+						<core:Item key="mocha" text="Mocha (default of wdi5)" />
+						<core:Item key="jasmine" text="Jasmine" />
+					</Select>
+				</VBox>
+				<VBox renderType="Bare">
+					<Label text="{i18n>testsLoginLabel}" labelFor="testAuth" />
+					<Select id="testAuth" selectedKey="{nt>/auth}" items="{nt>/auths}" width="100%">
+						<core:Item key="{nt>key}" text="{nt>text}" />
+					</Select>
+				</VBox>
+				<Text text="{i18n>testsChangeLater}" class="tourdMuted" />
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="createTestPlan" text="{i18n>create}" type="Emphasized" enabled="{= !!${nt>/recordingID} &amp;&amp; !${nt>/busy}}" press=".onNewCreate" />
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>cancel}" press=".onNewClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

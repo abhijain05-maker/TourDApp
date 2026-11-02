@@ -1,4 +1,4 @@
-/* TourD Recorder - service worker.
+/* QuickDev Recorder - service worker.
  * Keeps one recording per browser tab, injects the recorder into the tab's frames, collects what the recorder
  * reports, and plays tours in the page. State lives in chrome.storage.session because the worker can be stopped by the
  * browser at any time. */

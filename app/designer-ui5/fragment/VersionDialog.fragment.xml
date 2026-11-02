@@ -1,0 +1,16 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="versionDialog" title="{i18n>tourVersionTitle}" contentWidth="28rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin" renderType="Bare">
+				<Label text="{i18n>tourVersionWhat}" labelFor="versionNote" required="true" />
+				<Input id="versionNote" value="{ver>/note}" valueLiveUpdate="true" placeholder="{i18n>tourVersionExample}" submit=".onVersionSave" />
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="versionSave" text="{i18n>wsSave}" type="Emphasized" enabled="{= !!${ver>/note}}" press=".onVersionSave" />
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>cancel}" press=".onVersionClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

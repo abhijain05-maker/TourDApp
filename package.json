@@ -24,7 +24,8 @@
     "test:live": "vitest run --config vitest.live.config.js",
     "test:wdi5": "vitest run --config vitest.wdi5.config.js",
     "format": "prettier --write \"{srv,shared,player,sandbox,recorder,extension,test}/**/*.{js,mjs,json}\"",
-    "build:cf": "npm run build:designer && npm run build:player && npm run build:extension && node scripts/build-cf.mjs"
+    "build:cf": "npm run build:designer && npm run build:player && npm run build:extension && node scripts/build-cf.mjs",
+    "build:ui5-editor": "npm --prefix designer run build:ui5-editor"
   },
   "cds": {
     "requires": {
@@ -78,6 +79,7 @@
     "@google/genai": "^2.31.0",
     "@sap-ai-sdk/orchestration": "^2.17.0",
     "@sap/cds": "^10.2.1",
+    "@sap/xssec": "^4.15.0",
     "acorn": "^8.19.0",
     "acorn-walk": "^8.3.5",
     "diff": "^8.0.4",

@@ -1,0 +1,37 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="recDetailsDialog" title="{det>/title}" contentWidth="56rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin" renderType="Bare">
+				<MessageStrip type="Error" showIcon="true" text="{det>/error}" visible="{= !!${det>/error}}" />
+				<Table id="recStepsTable" items="{det>/steps}" busy="{det>/loading}" width="100%">
+					<columns>
+						<Column width="3.5rem"><Text text="#" /></Column>
+						<Column width="7rem"><Text text="{i18n>recAction}" /></Column>
+						<Column><Text text="{i18n>recControl}" /></Column>
+						<Column width="12rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>recMatchedBy}" /></Column>
+						<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>recNotes}" /></Column>
+					</columns>
+					<items>
+						<ColumnListItem>
+							<cells>
+								<Text text="{det>index}" />
+								<Text text="{det>action}" />
+								<VBox renderType="Bare">
+									<Text text="{det>control}" class="tourdBold" visible="{det>matched}" />
+									<Text text="{det>where}" class="tourdMuted tourdMono" visible="{= !!${det>where}}" />
+									<Text text="{det>plain}" class="tourdMuted" visible="{det>isPlain}" />
+									<ObjectStatus text="{i18n>recNotFound}" state="Warning" inverted="true" visible="{det>notFound}" />
+								</VBox>
+								<Text text="{det>via}" />
+								<Text text="{det>notes}" class="tourdMuted" />
+							</cells>
+						</ColumnListItem>
+					</items>
+				</Table>
+			</VBox>
+		</content>
+		<endButton>
+			<Button text="{i18n>close}" press=".onDetailsClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

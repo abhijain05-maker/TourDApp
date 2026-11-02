@@ -1,0 +1,53 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="helpEditDialog" title="{i18n>helpEditTitle}" contentWidth="44rem" stretchOnPhone="true" resizable="true" draggable="true">
+		<content>
+			<VBox class="sapUiSmallMargin tourdStack" renderType="Bare">
+				<MessageStrip type="Error" showIcon="true" text="{he>/error}" visible="{= !!${he>/error}}" />
+				<Text text="{he>/belongs}" class="tourdMuted" />
+				<HBox wrap="Wrap" alignItems="Center">
+					<Input id="helpInstruction" value="{he>/instruction}" valueLiveUpdate="true" placeholder="{i18n>helpInstructionHint}" class="tourdGrow sapUiTinyMarginEnd" />
+					<Select id="helpProvider" selectedKey="{he>/provider}" items="{he>/providers}" visible="{= ${he>/providers}.length > 0}" class="sapUiTinyMarginEnd">
+						<core:Item key="{he>id}" text="{he>label}" />
+					</Select>
+					<Button id="helpImprove" icon="sap-icon://ai" text="{= ${he>/improving} ? ${i18n>helpWriting} : ${i18n>helpImprove}}" enabled="{= !!${he>/provider} &amp;&amp; !${he>/improving}}" press=".onImprove" class="sapUiTinyMarginEnd" />
+					<Button id="helpUndo" text="{i18n>helpUndo}" type="Transparent" visible="{he>/canUndo}" press=".onHelpUndo" />
+				</HBox>
+				<Text text="{i18n>helpNoAi}" class="tourdMuted" visible="{he>/noAi}" />
+				<VBox renderType="Bare">
+					<Label text="{i18n>helpTitle}" labelFor="helpEditTitle" />
+					<Input id="helpEditTitle" value="{he>/title}" valueLiveUpdate="true" liveChange=".onPreview" />
+				</VBox>
+				<VBox renderType="Bare">
+					<Label text="{i18n>helpShort}" labelFor="helpEditSummary" />
+					<Input id="helpEditSummary" value="{he>/summary}" valueLiveUpdate="true" />
+				</VBox>
+				<VBox renderType="Bare">
+					<Label text="{i18n>tourText}" labelFor="helpEditText" />
+					<TextArea id="helpEditText" value="{he>/text}" valueLiveUpdate="true" rows="5" width="100%" liveChange=".onPreview" />
+				</VBox>
+				<VBox renderType="Bare">
+					<Label text="{i18n>helpNote}" labelFor="helpEditNote" />
+					<TextArea id="helpEditNote" value="{he>/note}" valueLiveUpdate="true" rows="2" width="100%" liveChange=".onPreview" />
+				</VBox>
+				<VBox renderType="Bare">
+					<Label text="{i18n>helpLinks}" labelFor="helpEditLinks" />
+					<TextArea id="helpEditLinks" value="{he>/links}" valueLiveUpdate="true" rows="2" width="100%" />
+				</VBox>
+				<VBox id="helpEditPreview" class="tourdCard tourdPadded" renderType="Bare">
+					<Title text="{he>/previewTitle}" level="H6" />
+					<FormattedText htmlText="{he>/previewText}" />
+					<VBox class="tourdNote" renderType="Bare" visible="{= !!${he>/previewNote}}">
+						<Title text="{i18n>helpNote}" level="H6" />
+						<FormattedText htmlText="{he>/previewNote}" />
+					</VBox>
+				</VBox>
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="helpEditSave" text="{i18n>wsSave}" type="Emphasized" enabled="{= !!${he>/title} &amp;&amp; !${he>/saving}}" press=".onSaveTopic" />
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>cancel}" press=".onEditClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

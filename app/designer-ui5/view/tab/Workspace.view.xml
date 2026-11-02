@@ -1,0 +1,137 @@
+<mvc:View
+	controllerName="tourd.designer.controller.tab.Workspace"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:layout="sap.ui.layout"
+	xmlns:ctl="tourd.designer.control">
+	<VBox class="tourdStack sapUiSmallMargin" renderType="Bare">
+		<HBox justifyContent="SpaceBetween" wrap="Wrap" alignItems="Center">
+			<VBox renderType="Bare">
+				<Title text="{i18n>wsTitle}" level="H4" />
+				<Text text="{i18n>wsIntro}" class="tourdMuted" visible="{= !${view>/inventory/show}}" />
+			</VBox>
+			<HBox wrap="Wrap">
+				<Button id="pickFolder" icon="sap-icon://open-folder" text="{i18n>wsFolder}" type="Emphasized" enabled="{= !${view>/importing}}" press=".onPickFolder" class="sapUiTinyMarginEnd" />
+				<Button id="pickZip" icon="sap-icon://folder" text="{i18n>wsZip}" enabled="{= !${view>/importing}}" press=".onPickZip" class="sapUiTinyMarginEnd" />
+				<Button id="pickFiles" icon="sap-icon://document" text="{i18n>wsFiles}" enabled="{= !${view>/importing}}" press=".onPickFiles" class="sapUiTinyMarginEnd" />
+				<Button id="pasteFile" icon="sap-icon://paste" text="{i18n>wsPaste}" enabled="{= !${view>/importing}}" press=".onPaste" />
+			</HBox>
+		</HBox>
+
+		<BusyIndicator size="1rem" text="{i18n>wsImporting}" visible="{view>/importing}" />
+		<MessageStrip id="wsError" type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" />
+		<MessageStrip id="importResult" type="Success" showIcon="true" text="{view>/outcome}" visible="{= !!${view>/outcome}}" />
+		<VBox items="{view>/skipped}" renderType="Bare">
+			<MessageStrip type="Warning" showIcon="true" text="{view>text}" class="sapUiTinyMarginBottom" />
+		</VBox>
+
+		<VBox id="inventory" class="tourdCard tourdPadded" visible="{view>/inventory/show}" renderType="Bare">
+			<HBox wrap="Wrap" alignItems="Center">
+				<ObjectStatus text="{view>/inventory/viewsText}" state="Success" class="sapUiSmallMarginEnd" />
+				<ObjectStatus text="{view>/inventory/controlsText}" state="Success" class="sapUiSmallMarginEnd" />
+				<ObjectStatus id="unstableTag" text="{view>/inventory/unstableText}" tooltip="{view>/inventory/unstableTip}" state="Warning" visible="{= ${view>/inventory/unstable} > 0}" />
+			</HBox>
+			<Text text="{i18n>wsUnstableHint}" class="tourdMuted sapUiTinyMarginTop" visible="{= ${view>/inventory/unstable} > 0}" />
+			<VBox items="{view>/inventory/warnings}" renderType="Bare">
+				<MessageStrip type="Warning" showIcon="true" text="{view>message}" class="sapUiTinyMarginTop" />
+			</VBox>
+		</VBox>
+
+		<VBox id="workspace" class="tourdCard tourdWs" renderType="Bare">
+			<layout:Splitter id="wsSplitter" height="46rem">
+				<!-- the files and the changes -->
+				<VBox renderType="Bare" class="tourdWsSide">
+					<layoutData><layout:SplitterLayoutData size="320px" minSize="200" /></layoutData>
+					<Toolbar>
+						<Title text="{i18n>wsFiles2}" level="H6" />
+						<ObjectStatus text="{view>/count}" />
+						<ToolbarSpacer />
+						<Button id="newFile" icon="sap-icon://add" tooltip="{i18n>wsNewFile}" type="Transparent" press=".onNewFile" />
+						<Button id="renameFile" icon="sap-icon://edit" tooltip="{i18n>wsRename}" type="Transparent" enabled="{view>/sel/isFile}" press=".onRename" />
+						<Button id="revertFile" icon="sap-icon://undo" tooltip="{i18n>wsPutBack}" type="Transparent" enabled="{view>/sel/changed}" press=".onRevertSelected" />
+						<Button id="removeFile" icon="sap-icon://delete" tooltip="{i18n>wsRemove}" type="Transparent" enabled="{view>/sel/isFile}" press=".onRemove" />
+						<Button id="fullScreen" icon="{= ${view>/full} ? 'sap-icon://exit-full-screen' : 'sap-icon://full-screen'}" tooltip="{i18n>wsFullScreen}" type="Transparent" press=".onFull" />
+					</Toolbar>
+					<SearchField id="treeFilter" placeholder="{i18n>wsFilter}" liveChange=".onFilter" value="{view>/filter}" class="sapUiTinyMargin" width="auto" />
+					<ScrollContainer id="treeScroll" height="20rem" vertical="true" class="tourdTreeScroll">
+						<Text text="{view>/treeEmpty}" class="tourdMuted sapUiSmallMargin" visible="{= !!${view>/treeEmpty}}" />
+						<Tree id="fileTree" items="{path: 'view>/tree', parameters: {arrayNames: ['children']}}" mode="SingleSelectMaster" selectionChange=".onTreeSelect" includeItemInSelection="true">
+							<CustomTreeItem>
+								<HBox alignItems="Center" class="tourdTreeRow">
+									<core:Icon src="{view>icon}" class="sapUiTinyMarginEnd" />
+									<Text text="{view>name}" tooltip="{view>path}" wrapping="false" />
+									<ObjectStatus text="{view>badge}" tooltip="{view>badgeText}" state="{= ${view>type} === 'dir' ? 'None' : ${view>status} === 'deleted' ? 'Error' : 'Warning'}" visible="{= !!${view>badge}}" class="sapUiTinyMarginBegin" />
+								</HBox>
+							</CustomTreeItem>
+						</Tree>
+					</ScrollContainer>
+					<Panel id="changesPanel" expandable="true" expanded="true" headerText="{i18n>wsChanges}" class="tourdChanges">
+						<headerToolbar>
+							<OverflowToolbar>
+								<Title text="{i18n>wsChanges}" level="H6" />
+								<ObjectStatus id="changesCount" text="{view>/changeCount}" state="{= ${view>/changeCount} > 0 ? 'Warning' : 'None'}" />
+							</OverflowToolbar>
+						</headerToolbar>
+						<VBox visible="{= ${view>/changeCount} === 0}" renderType="Bare">
+							<ObjectStatus text="{i18n>wsUpToDate}" state="Success" icon="sap-icon://accept" />
+							<Text text="{i18n>wsNothingChanged}" class="tourdMuted" />
+						</VBox>
+						<List id="changesList" items="{view>/changes}" visible="{= ${view>/changeCount} > 0}" showSeparators="None" mode="None">
+							<CustomListItem type="Active" press=".onOpenChange">
+								<HBox alignItems="Center" class="sapUiTinyMargin">
+									<ObjectStatus text="{view>badge}" state="{= ${view>status} === 'deleted' ? 'Error' : 'Warning'}" class="sapUiTinyMarginEnd" />
+									<Text text="{view>path}" wrapping="false" class="tourdGrow" />
+									<Button icon="sap-icon://accept" tooltip="{i18n>wsAcceptFileTip}" type="Transparent" press=".onAcceptFile" />
+									<Button icon="sap-icon://undo" tooltip="{i18n>wsPutBack}" type="Transparent" press=".onRevertChange" />
+								</HBox>
+							</CustomListItem>
+						</List>
+						<HBox wrap="Wrap" alignItems="Center" class="sapUiTinyMarginTop">
+							<Link id="dlChanges" text="{i18n>wsDlChanges}" href="{view>/dl/changes}" enabled="{= ${view>/changeCount} > 0}" class="sapUiSmallMarginEnd" />
+							<Link id="dlPatch" text="{i18n>wsDlPatch}" href="{view>/dl/patch}" enabled="{= ${view>/changeCount} > 0}" class="sapUiSmallMarginEnd" />
+							<Link id="dlFull" text="{i18n>wsDlFull}" href="{view>/dl/full}" />
+						</HBox>
+						<Button id="acceptAll" text="{i18n>wsAcceptAll}" icon="sap-icon://accept" type="Emphasized" enabled="{= ${view>/changeCount} > 0}" press=".onAcceptAll" class="sapUiTinyMarginTop" />
+					</Panel>
+				</VBox>
+
+				<!-- the open files -->
+				<VBox renderType="Bare" class="tourdWsMain">
+					<layoutData><layout:SplitterLayoutData size="auto" /></layoutData>
+					<VBox visible="{= ${view>/tabs}.length === 0}" alignItems="Center" justifyContent="Center" height="100%" id="wsEmpty" class="tourdWsEmpty">
+						<core:Icon src="sap-icon://document" size="2.5rem" class="tourdMuted" />
+						<Text text="{view>/emptyText}" class="tourdMuted" />
+					</VBox>
+					<TabContainer id="fileTabs" items="{view>/tabs}" visible="{= ${view>/tabs}.length > 0}" itemSelect=".onTabSelect" itemClose=".onTabClose" showAddNewButton="false" class="tourdFileTabs">
+						<items>
+							<TabContainerItem name="{view>name}" modified="{view>dirty}" icon="{view>icon}" />
+						</items>
+					</TabContainer>
+					<VBox visible="{= ${view>/tabs}.length > 0}" renderType="Bare">
+						<Toolbar>
+							<Text id="filePath" text="{view>/file/path}" class="tourdMono" />
+							<ObjectStatus id="fileStatus" text="{view>/file/statusText}" state="{= ${view>/file/status} === 'deleted' ? 'Error' : ${view>/file/status} === 'unchanged' ? 'None' : 'Warning'}" />
+							<ToolbarSpacer />
+							<Text text="{view>/file/language}" class="tourdMuted" />
+							<Button id="showDiff" icon="sap-icon://compare" text="{i18n>wsCompare}" type="Transparent" visible="{view>/file/canCompare}" press=".onShowDiff" />
+							<Button id="saveFile" icon="sap-icon://save" text="{i18n>wsSave}" type="Emphasized" visible="{view>/file/isEditable}" enabled="{= ${view>/file/dirty} &amp;&amp; !${view>/saving}}" press=".onSave" />
+						</Toolbar>
+						<MessageStrip id="fileConflict" type="Error" showIcon="true" text="{view>/conflict}" visible="{= !!${view>/conflict}}">
+							<link><Link text="{i18n>wsDiscard}" press=".onDiscard" /></link>
+						</MessageStrip>
+						<Button text="{i18n>wsSaveMine}" visible="{= !!${view>/conflict}}" press=".onSaveForce" class="sapUiTinyMargin" />
+						<BusyIndicator size="1.5rem" visible="{view>/file/loading}" class="sapUiSmallMargin" />
+						<ctl:CodeEditor id="editor" height="34rem" visible="{view>/file/isEditable}" change=".onEdit" save=".onSave" />
+						<ctl:DiffEditor id="diff" height="34rem" visible="{view>/file/isDiff}" />
+						<VBox visible="{view>/file/isBinary}" class="sapUiSmallMargin" renderType="Bare">
+							<Image id="binaryImage" src="{view>/file/imageSrc}" visible="{= !!${view>/file/imageSrc}}" width="auto" />
+							<Text text="{i18n>wsBinary}" class="tourdMuted" visible="{= !${view>/file/imageSrc}}" />
+						</VBox>
+						<Text text="{i18n>wsRemoved}" class="tourdMuted sapUiSmallMargin" visible="{view>/file/isDeleted}" />
+					</VBox>
+				</VBox>
+			</layout:Splitter>
+		</VBox>
+	</VBox>
+</mvc:View>

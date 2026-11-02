@@ -1,0 +1,20 @@
+{
+  "xsappname": "quickdev",
+  "tenant-mode": "dedicated",
+  "description": "QuickDev: tours and wdi5 tests for UI5 apps",
+  "scopes": [
+    { "name": "$XSAPPNAME.Viewer", "description": "Read projects, files, tours, tests, help and exports" },
+    { "name": "$XSAPPNAME.Editor", "description": "Everything a Viewer can, and change things (upload, edit, generate, export, pair browser extensions)" }
+  ],
+  "role-templates": [
+    { "name": "Viewer", "description": "Read only", "scope-references": ["$XSAPPNAME.Viewer"] },
+    { "name": "Editor", "description": "Read and change", "scope-references": ["$XSAPPNAME.Viewer", "$XSAPPNAME.Editor"] }
+  ],
+  "role-collections": [
+    { "name": "QuickDev Viewer", "description": "Read only access to QuickDev", "role-template-references": ["$XSAPPNAME.Viewer"] },
+    { "name": "QuickDev Editor", "description": "Full access to QuickDev", "role-template-references": ["$XSAPPNAME.Editor"] }
+  ],
+  "oauth2-configuration": {
+    "redirect-uris": ["https://*.hana.ondemand.com/**"]
+  }
+}

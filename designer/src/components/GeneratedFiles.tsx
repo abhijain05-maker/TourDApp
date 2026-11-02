@@ -90,7 +90,7 @@ export default function GeneratedFiles(props: { edits: ApplyEdit[]; settings: Wd
           )}
         </ol>
         <Text className="muted">
-          TourD does not run the tests: your machine or your pipeline does. To see them run in the app you have open, use <b>Replay</b> in the browser extension.
+          QuickDev does not run the tests: your machine or your pipeline does. To see them run in the app you have open, use <b>Replay</b> in the browser extension.
         </Text>
       </div>
     </CollapsibleCard>

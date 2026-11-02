@@ -1,0 +1,88 @@
+<mvc:View
+	controllerName="tourd.designer.controller.tab.Recordings"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core">
+	<VBox class="tourdStack sapUiSmallMargin" renderType="Bare">
+		<VBox renderType="Bare">
+			<Title text="{i18n>recTitle}" level="H4" />
+			<FormattedText htmlText="{i18n>recIntro}" class="tourdMuted" />
+		</VBox>
+
+		<MessageStrip id="needSources" type="Information" showIcon="true" text="{i18n>recNeedSources}" visible="{view>/empty}" />
+
+		<VBox class="tourdCard tourdStack tourdPadded" renderType="Bare">
+			<HBox wrap="Wrap" alignItems="End">
+				<VBox class="tourdGrow sapUiSmallMarginEnd" renderType="Bare">
+					<Label text="{i18n>colName}" labelFor="recName" />
+					<Input id="recName" value="{view>/name}" valueLiveUpdate="true" placeholder="{i18n>optional}" />
+				</VBox>
+				<VBox class="tourdGrow sapUiSmallMarginEnd" renderType="Bare">
+					<Label text="{i18n>recFormat}" labelFor="recFormat" />
+					<Select id="recFormat" selectedKey="{view>/format}" items="{view>/formats}" width="100%">
+						<core:Item key="{view>value}" text="{view>label}" />
+					</Select>
+				</VBox>
+				<Button id="recLoad" icon="sap-icon://upload" text="{i18n>recLoad}" press=".onLoadFile" />
+			</HBox>
+			<VBox renderType="Bare">
+				<Label text="{i18n>recRecording}" labelFor="recRaw" />
+				<TextArea id="recRaw" value="{view>/raw}" valueLiveUpdate="true" rows="10" width="100%" placeholder="{i18n>recPaste}" liveChange=".onRawChange" />
+			</VBox>
+			<VBox renderType="Bare">
+				<Label text="{i18n>recPurposeQuestion}" labelFor="recPurpose" />
+				<Select id="recPurpose" selectedKey="{view>/purpose}" items="{view>/purposes}" width="16rem">
+					<core:Item key="{view>key}" text="{view>label}" />
+				</Select>
+				<Text text="{i18n>recPurposeHint}" class="tourdMuted" />
+			</VBox>
+			<HBox alignItems="Center">
+				<Button
+					id="recImport"
+					text="{i18n>recImport}"
+					type="Emphasized"
+					enabled="{= !${view>/empty} &amp;&amp; !!${view>/raw} &amp;&amp; !${view>/importing}}"
+					press=".onImport" />
+				<BusyIndicator size="1rem" visible="{view>/importing}" class="sapUiTinyMarginBegin" />
+			</HBox>
+			<MessageStrip id="recError" type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" />
+			<MessageStrip id="recResult" type="{view>/resultType}" showIcon="true" text="{view>/resultText}" visible="{= !!${view>/resultText}}" />
+		</VBox>
+
+		<SegmentedButton id="recFilters" selectedKey="{view>/filter}" selectionChange=".onFilter">
+			<items>
+				<SegmentedButtonItem key="all" text="{i18n>recFilterAll}" />
+				<SegmentedButtonItem key="tour" text="{i18n>recFilterTour}" />
+				<SegmentedButtonItem key="test" text="{i18n>recFilterTest}" />
+			</items>
+		</SegmentedButton>
+
+		<Table id="recordingsTable" items="{view>/shown}" busy="{view>/loading}" noDataText="{i18n>recNone}" class="tourdCard" width="100%">
+			<columns>
+				<Column><Text text="{i18n>colName}" /></Column>
+				<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>recFormat}" /></Column>
+				<Column width="11rem"><Text text="{i18n>recUsedFor}" /></Column>
+				<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>recMatched}" /></Column>
+				<Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>recImported}" /></Column>
+				<Column width="7rem" hAlign="End" />
+			</columns>
+			<items>
+				<ColumnListItem>
+					<cells>
+						<Text text="{view>name}" />
+						<ObjectStatus text="{view>formatText}" />
+						<Select selectedKey="{view>purposeKey}" items="{path: 'view>/purposes', templateShareable: true}" change=".onRelabel" width="9rem">
+							<core:Item key="{view>key}" text="{view>label}" />
+						</Select>
+						<ObjectStatus text="{view>matchedText}" state="{view>matchedState}" />
+						<Text text="{view>createdText}" />
+						<HBox justifyContent="End">
+							<Button icon="sap-icon://detail-view" type="Transparent" tooltip="{i18n>recShowSteps}" press=".onDetails" />
+							<Button icon="sap-icon://delete" type="Transparent" tooltip="{i18n>recDelete}" press=".onDelete" />
+						</HBox>
+					</cells>
+				</ColumnListItem>
+			</items>
+		</Table>
+	</VBox>
+</mvc:View>

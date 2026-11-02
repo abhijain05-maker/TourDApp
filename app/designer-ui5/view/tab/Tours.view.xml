@@ -1,0 +1,43 @@
+<mvc:View
+	controllerName="tourd.designer.controller.tab.Tours"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc">
+	<VBox class="tourdStack sapUiSmallMargin" renderType="Bare">
+		<HBox justifyContent="SpaceBetween" wrap="Wrap" alignItems="Center">
+			<VBox renderType="Bare">
+				<Title text="{i18n>tabTours}" level="H4" />
+				<Text text="{i18n>toursIntro}" class="tourdMuted" />
+			</VBox>
+			<Button id="generateTour" text="{i18n>toursGenerate}" icon="sap-icon://ai" type="Emphasized" enabled="{= !${view>/noRecording}}" press=".onGenerate" />
+		</HBox>
+		<MessageStrip id="needRecording" type="Information" showIcon="true" text="{i18n>toursNeedRecording}" visible="{view>/noRecording}">
+			<link><Link text="{i18n>toursImportOne}" press=".onNeedRecording" /></link>
+		</MessageStrip>
+		<MessageStrip type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" />
+		<Table id="toursTable" items="{view>/tours}" busy="{view>/loading}" noDataText="{i18n>toursNone}" class="tourdCard" width="100%">
+			<columns>
+				<Column><Text text="{i18n>colName}" /></Column>
+				<Column width="6rem"><Text text="{i18n>colVersion}" /></Column>
+				<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colCreatedBy}" /></Column>
+				<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colChecks}" /></Column>
+				<Column minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colChanged}" /></Column>
+				<Column width="4rem" hAlign="End" />
+			</columns>
+			<items>
+				<ColumnListItem type="Navigation" press=".onOpen">
+					<cells>
+						<Text text="{view>name}" class="tourdBold" />
+						<Text text="{= 'v' + ${view>version}}" />
+						<HBox alignItems="Center">
+							<ObjectStatus text="{view>generator}" state="{view>generatorState}" visible="{= !!${view>generator}}" class="sapUiTinyMarginEnd" />
+							<Text text="{view>model}" class="tourdMuted" />
+						</HBox>
+						<ObjectStatus text="{view>checksText}" state="{view>checksState}" />
+						<Text text="{view>changedText}" />
+						<Button icon="sap-icon://delete" type="Transparent" tooltip="{i18n>toursDelete}" press=".onDelete" />
+					</cells>
+				</ColumnListItem>
+			</items>
+		</Table>
+	</VBox>
+</mvc:View>

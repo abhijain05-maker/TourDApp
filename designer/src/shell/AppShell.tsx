@@ -86,10 +86,10 @@ function Shell({ children }: { children: ReactNode }) {
     <div className={`shell${collapsed ? ' collapsed' : ''}`} data-testid="shell">
       <aside className="side" aria-label="Navigation">
         <button className="side-brand" onClick={() => navigate('/')} title="All projects">
-          <span className="logo" aria-hidden="true">T</span>
+          <span className="logo" aria-hidden="true">Q</span>
           <span className="side-label">
-            <b>TourD</b>
-            <small>Tours and tests for UI5</small>
+            <b>QuickDev</b>
+            <small>Help and Tests for UI5</small>
           </span>
         </button>
 

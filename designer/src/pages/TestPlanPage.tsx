@@ -278,7 +278,7 @@ function PlanEditor({ id, row: first }: { id: string; row: TestPlanRow }) {
       <CollapsibleCard
         icon="list"
         title="Steps"
-        subtitle={`${enabled} step(s) on. Checks marked "added by TourD" are guesses from the recording: keep what is useful.`}
+        subtitle={`${enabled} step(s) on. Checks marked "added by QuickDev" are guesses from the recording: keep what is useful.`}
         summary={`${enabled} of ${steps.length} step(s) will run. Open to change, reorder or switch them off.`}
         style={{ marginTop: '1rem' }}
         testid="plan-steps"
@@ -317,7 +317,7 @@ function PlanEditor({ id, row: first }: { id: string; row: TestPlanRow }) {
                   <td>
                     <Input style={{ width: '100%' }} value={s.title} accessibleName={`Title of step ${i + 1}`} onInput={(e) => setStep(i, { title: e.target.value })} data-testid="step-title" />
                     <div className="step-meta">
-                      {s.heuristic && !s.edited && <Tag colorScheme="2">added by TourD</Tag>}
+                      {s.heuristic && !s.edited && <Tag colorScheme="2">added by QuickDev</Tag>}
                       {s.edited && <Tag colorScheme="7">changed</Tag>}
                       {s.note && <span className="muted">{s.note}</span>}
                       {reuseOf(s.id) && !s.noReuse && !dirty && (

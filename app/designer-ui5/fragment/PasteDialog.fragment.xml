@@ -1,0 +1,18 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="pasteDialog" title="{i18n>wsPasteTitle}" contentWidth="44rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin">
+				<Label text="{i18n>wsPastePath}" labelFor="pastePath" required="true" />
+				<Input id="pastePath" value="{paste>/path}" valueLiveUpdate="true" />
+				<Label text="{i18n>wsPasteContent}" labelFor="pasteContent" required="true" class="sapUiSmallMarginTop" />
+				<TextArea id="pasteContent" value="{paste>/content}" valueLiveUpdate="true" rows="14" width="100%" />
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="pasteAdd" text="{i18n>add}" type="Emphasized" enabled="{= !!${paste>/path} &amp;&amp; !!${paste>/content}}" press=".onPasteAdd" />
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>cancel}" press=".onPasteClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

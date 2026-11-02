@@ -39,6 +39,7 @@ deterministic inventory of the uploaded files, and are checked again before a to
 | Lint | `srv/lib/validate/lint.js` | also runs in the designer on the working copy (same file) |
 | Service | `srv/tour-service.cds/js` | OData V4 at `/odata/v4/tour`; generation is an asynchronous job; no database transaction is held while a model is called |
 | Designer | `designer/` (Vite, React 19, UI5 Web Components) → `app/designer/` | autosave with version coalescing, conflict detection, undo/redo, history |
+| Designer (SAPUI5) | `app/designer-ui5/` (no build), `designer/ui5-editor/` → `lib/*.js` | the same designer as an SAPUI5 app; CodeMirror and the tour logic are bundles of the repository's own modules, so a tour is validated and checked the same way in both designers |
 | Player | `player/TourPlayer.js` | one UI5 AMD module (≥ 1.108): bubble, spotlight, resolver chain, router navigation, a11y |
 | Sandbox | `sandbox/`, `srv/preview.js`, `srv/lib/preview/` | built copy of the app: generated component, stub controllers, sample data; iframe without same-origin |
 | Live | `shared/live-snippet.mjs`, `srv/preview.js` (`/live`) | console snippet / bookmarklet / loader |

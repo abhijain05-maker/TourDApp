@@ -55,7 +55,7 @@ test('recording -> test plan -> edit the table -> add to the project -> download
     await expect(tid(page, 'plan-step')).toHaveCount(11)
     await expect(tid(page, 'plan-locator')).toHaveCount(5)
     await expect(
-      tid(page, 'plan-step').locator('ui5-tag', { hasText: 'added by TourD' }),
+      tid(page, 'plan-step').locator('ui5-tag', { hasText: 'added by QuickDev' }),
     ).toHaveCount(5)
   })
 

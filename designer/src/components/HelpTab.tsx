@@ -89,7 +89,7 @@ export default function HelpTab({ project }: { project: Project }) {
 
       {!sets.isLoading && topics.length === 0 && (
         <MessageStrip design="Information" hideCloseButton data-testid="help-empty">
-          There is no help yet. Open your running app, open the TourD extension, choose this project under “Write help for this app”, point at a control and write what it is for.
+          There is no help yet. Open your running app, open the QuickDev extension, choose this project under “Write help for this app”, point at a control and write what it is for.
         </MessageStrip>
       )}
       <ErrorStrip error={sets.error ?? remove.error} />

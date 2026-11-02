@@ -79,6 +79,16 @@ export function allowedHosts(env = process.env) {
   return { all: extra.includes('*'), names: new Set([...LOOPBACK, ...extra]) }
 }
 
+/** The host names a deployment lists in TOURD_ALLOWED_HOSTS as its own (not "*", and not the loopback names). */
+function ownNames(env) {
+  return new Set(
+    (env.TOURD_ALLOWED_HOSTS ?? '')
+      .split(',')
+      .map((x) => x.trim().toLowerCase())
+      .filter((x) => x && x !== '*'),
+  )
+}
+
 /** null when the request may proceed, otherwise the reason it is refused. (Extensions are checked separately.) */
 export function refusal(req, env = process.env) {
   const allowed = allowedHosts(env)
@@ -88,15 +98,18 @@ export function refusal(req, env = process.env) {
   if (!SAFE_METHODS.has(req.method)) {
     const origin = req.headers.origin
     if (origin !== undefined && !isExtensionOrigin(origin)) {
-      let originHost = null
+      let originUrl = null
       try {
-        originHost = new URL(origin).host
+        originUrl = new URL(origin)
       } catch {
         /* "null" and garbage are not a page of ours */
       }
+      // The page is on the same host as the server, or on one of the names the deployment lists as its own: behind
+      // an application router the page is served from the router's host while this server sees its own host name.
+      const own = originUrl !== null && ownNames(env).has(originUrl.hostname.toLowerCase())
       if (
-        originHost === null ||
-        originHost.toLowerCase() !== String(req.headers.host).toLowerCase()
+        originUrl === null ||
+        (originUrl.host.toLowerCase() !== String(req.headers.host).toLowerCase() && !own)
       )
         return 'Requests that change data are only accepted from the TourD designer itself.'
     }

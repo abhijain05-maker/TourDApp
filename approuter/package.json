@@ -1,0 +1,15 @@
+{
+  "name": "quickdev-approuter",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Login (XSUAA) in front of QuickDev: forwards every request, with the user's token, to the server",
+  "dependencies": {
+    "@sap/approuter": "^23.4.0"
+  },
+  "engines": {
+    "node": "^22.0.0 || ^24.0.0"
+  },
+  "scripts": {
+    "start": "node node_modules/@sap/approuter/approuter.js"
+  }
+}

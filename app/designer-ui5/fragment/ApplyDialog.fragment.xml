@@ -1,0 +1,52 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" xmlns:layout="sap.ui.layout" xmlns:ctl="tourd.designer.control">
+	<Dialog id="applyDialog" title="{apply>/title}" contentWidth="64rem" contentHeight="40rem" stretchOnPhone="true" resizable="true" draggable="true">
+		<content>
+			<VBox class="sapUiSmallMargin tourdStack" renderType="Bare">
+				<BusyIndicator size="1.5rem" visible="{apply>/loading}" />
+				<MessageStrip type="Error" showIcon="true" text="{apply>/error}" visible="{= !!${apply>/error}}" />
+				<MessageStrip id="applyDone" type="Success" showIcon="true" text="{apply>/doneText}" visible="{= !!${apply>/doneText}}">
+					<link><Link id="applyOpenWorkspace" text="{i18n>applyOpenWorkspace}" press=".onApplyWorkspace" /></link>
+				</MessageStrip>
+				<MessageStrip id="applyBlocked" type="Error" showIcon="true" text="{apply>/blockedText}" visible="{= !!${apply>/blockedText}}" />
+				<VBox items="{apply>/blocking}" renderType="Bare">
+					<MessageStrip type="Error" showIcon="true" text="{apply>message}" class="sapUiTinyMarginBottom" />
+				</VBox>
+				<VBox items="{apply>/notes}" renderType="Bare">
+					<MessageStrip type="Warning" showIcon="true" text="{apply>message}" class="sapUiTinyMarginBottom" />
+				</VBox>
+				<MessageStrip id="applyNothing" type="Information" showIcon="true" text="{apply>/nothingText}" visible="{= !!${apply>/nothingText}}" />
+
+				<layout:Splitter id="applySplitter" height="24rem" visible="{apply>/hasEdits}">
+					<List id="applyFiles" items="{apply>/edits}" mode="None" showSeparators="Inner">
+						<layoutData><layout:SplitterLayoutData size="22rem" minSize="200" /></layoutData>
+						<CustomListItem type="Active" press=".onApplyShow" selected="{apply>shown}">
+							<HBox alignItems="Center" class="sapUiTinyMargin">
+								<CheckBox selected="{apply>include}" enabled="{= !${apply>/done}}" select=".onApplyToggle" />
+								<ObjectStatus text="{apply>badge}" state="{= ${apply>action} === 'add' ? 'Success' : 'Warning'}" class="sapUiTinyMarginEnd" />
+								<VBox renderType="Bare">
+									<Text text="{apply>path}" class="tourdMono" />
+									<Text text="{apply>what}" class="tourdMuted" />
+								</VBox>
+							</HBox>
+						</CustomListItem>
+					</List>
+					<VBox renderType="Bare">
+						<layoutData><layout:SplitterLayoutData size="auto" /></layoutData>
+						<ctl:DiffEditor id="applyDiff" height="22rem" />
+					</VBox>
+				</layout:Splitter>
+
+				<VBox visible="{= ${apply>/hasEdits} &amp;&amp; !${apply>/done}}" renderType="Bare">
+					<Text text="{i18n>applyHint}" class="tourdMuted" />
+					<CheckBox id="applyAccept" text="{i18n>applyAccept}" selected="{apply>/accept}" />
+				</VBox>
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="applyConfirm" text="{apply>/confirmText}" type="Emphasized" visible="{= !${apply>/done}}" enabled="{= ${apply>/ok} &amp;&amp; ${apply>/chosen} > 0 &amp;&amp; !${apply>/busy}}" press=".onApplyConfirm" />
+		</beginButton>
+		<endButton>
+			<Button id="applyClose" text="{= ${apply>/done} ? ${i18n>close} : ${i18n>cancel}}" press=".onApplyClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>
