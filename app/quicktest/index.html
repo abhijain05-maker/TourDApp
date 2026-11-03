@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickTest</title>
+  <script>
+    // Same UI5 release as the designer (the newest long-term-support one). Other versions: index.html?ui5=1.120 | latest
+    (function () {
+      var v = new URLSearchParams(location.search).get("ui5") || "1.148";
+      var theme = "sap_horizon";
+      try {
+        var saved = localStorage.getItem("tourd.theme");
+        var dark = saved === "dark" || (saved !== "light" && window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+        if (dark) theme = "sap_horizon_dark";
+      } catch (e) { /* default theme */ }
+      var s = document.createElement("script");
+      s.id = "sap-ui-bootstrap";
+      s.src = "https://ui5.sap.com/" + (v === "latest" ? "" : v + "/") + "resources/sap-ui-core.js";
+      s.setAttribute("data-sap-ui-async", "true");
+      s.setAttribute("data-sap-ui-theme", theme);
+      s.setAttribute("data-sap-ui-compat-version", "edge");
+      s.setAttribute("data-sap-ui-resource-roots", JSON.stringify({ "quicktest": "./" }));
+      s.setAttribute("data-sap-ui-on-init", "module:sap/ui/core/ComponentSupport");
+      s.setAttribute("data-sap-ui-oninit", "module:sap/ui/core/ComponentSupport");
+      document.head.appendChild(s);
+    })();
+  </script>
+</head>
+<body class="sapUiBody" id="content" style="height:100%">
+  <div data-sap-ui-component data-name="quicktest" data-id="container" data-settings='{"id": "quicktest"}' data-handle-validation="true" style="height:100%"></div>
+</body>
+</html>

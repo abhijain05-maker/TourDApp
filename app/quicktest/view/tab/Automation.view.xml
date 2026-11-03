@@ -1,0 +1,89 @@
+<mvc:View
+	controllerName="quicktest.controller.tab.Automation"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	core:require="{Format: 'quicktest/util/Format'}">
+	<VBox renderType="Bare">
+		<MessageStrip type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+
+		<!-- how it works -->
+		<HBox class="qtTwoCols" renderType="Bare">
+			<VBox class="qtCard qtPadded" renderType="Bare">
+				<Text text="{i18n>autoHow}" class="qtSectionTitle" />
+				<VBox items="{view>/steps}" renderType="Bare">
+					<HBox class="qtExtStep">
+						<Text text="{view>n}" class="qtStepNoBadge sapUiSmallMarginEnd" />
+						<FormattedText htmlText="{view>html}" />
+					</HBox>
+				</VBox>
+			</VBox>
+			<VBox class="qtCard qtPadded" renderType="Bare">
+				<Text text="{i18n>autoStatus}" class="qtSectionTitle" />
+				<MessageStrip type="{= ${view>/hasApp} ? 'Success' : 'Warning'}" showIcon="true" text="{= ${view>/hasApp} ? ${i18n>autoAppOk} : ${i18n>autoAppMissing}}" />
+				<HBox wrap="Wrap" class="sapUiSmallMarginTop">
+					<Button id="autoRecorder" icon="sap-icon://puzzle" text="{i18n>recorderPair}" press=".onRecorder" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+					<Button id="autoSetup" icon="sap-icon://upload-to-cloud" text="{i18n>autoUploadApp}" press=".onSetup" visible="{= !${view>/hasApp}}" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+					<Button id="autoDownload" icon="sap-icon://download" text="{i18n>downloadWdi5}" enabled="{= ${view>/automatedCount} > 0}" press=".onDownload" class="sapUiTinyMarginBottom" />
+				</HBox>
+				<Text text="{= ${view>/automatedCount} + ' ' + ${i18n>autoAutomated}}" class="qtMuted" />
+			</VBox>
+		</HBox>
+
+		<!-- recordings -->
+		<VBox class="qtCard" renderType="Bare">
+			<HBox class="qtFilters">
+				<Title text="{i18n>recordings}" level="H4" />
+				<Text text="{i18n>recordingsHint}" class="qtMuted" />
+				<ToolbarSpacer />
+				<Button id="autoUploadRecording" icon="sap-icon://upload" text="{i18n>recUpload}" press=".onUploadRecording" />
+				<Button id="autoReload" icon="sap-icon://refresh" tooltip="{i18n>reload}" type="Transparent" press=".onReload" />
+			</HBox>
+			<Table id="recTable" items="{view>/recordings}" noDataText="{i18n>recNoneShort}" busy="{view>/busy}">
+				<columns>
+					<Column><Text text="{i18n>colName}" /></Column>
+					<Column width="11rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colFormat}" /></Column>
+					<Column width="12rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colCreated}" /></Column>
+					<Column width="12rem" hAlign="End" />
+				</columns>
+				<items>
+					<ColumnListItem>
+						<cells>
+							<Text text="{= ${view>name} || ${i18n>recUnnamed}}" class="qtRowTitle" />
+							<Text text="{view>format}" />
+							<Text text="{path: 'view>createdAt', formatter: 'Format.date'}" />
+							<Button icon="sap-icon://task" text="{i18n>recToCase}" press=".onFromRecording" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</VBox>
+
+		<!-- the automated cases -->
+		<VBox class="qtCard sapUiSmallMarginTop" renderType="Bare">
+			<HBox class="qtFilters">
+				<Title text="{i18n>autoCases}" level="H4" />
+			</HBox>
+			<Table id="autoTable" items="{view>/cases}" noDataText="{i18n>autoNoCases}" growing="true" growingThreshold="30">
+				<columns>
+					<Column width="6.5rem"><Text text="{i18n>colId}" /></Column>
+					<Column><Text text="{i18n>colTitle}" /></Column>
+					<Column width="9rem"><Text text="{i18n>colAutomation}" /></Column>
+					<Column width="8rem" minScreenWidth="Tablet" demandPopin="true" hAlign="End"><Text text="{i18n>colMapped}" /></Column>
+					<Column width="9rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colLastResult}" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Navigation" press=".onOpenCase">
+						<cells>
+							<Text text="{view>code}" class="qtCode" />
+							<Text text="{view>title}" class="qtRowTitle" />
+							<ObjectStatus text="{path: 'view>automation', formatter: 'Format.automationText'}" state="{path: 'view>automation', formatter: 'Format.automationState'}" />
+							<Text text="{view>mappedText}" />
+							<ObjectStatus text="{path: 'view>lastResult', formatter: 'Format.resultText'}" state="{path: 'view>lastResult', formatter: 'Format.resultState'}" icon="{path: 'view>lastResult', formatter: 'Format.resultIcon'}" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</VBox>
+	</VBox>
+</mvc:View>

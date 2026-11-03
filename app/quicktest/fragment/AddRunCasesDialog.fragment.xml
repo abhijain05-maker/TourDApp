@@ -1,0 +1,19 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="addRunCasesDialog" title="{i18n>runAddCases}" icon="sap-icon://add" contentWidth="38rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin qtStack" renderType="Bare">
+				<Text text="{i18n>runAddHint}" class="qtMuted" />
+				<MultiComboBox id="addRunCases" selectedKeys="{add>/picked}" items="{add>/cases}" width="100%" placeholder="{i18n>runAddPlaceholder}">
+					<core:Item key="{add>ID}" text="{add>text}" />
+				</MultiComboBox>
+				<Text text="{add>/none}" class="qtMuted" visible="{= !!${add>/none}}" />
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="addRunCasesDo" text="{i18n>add}" type="Emphasized" enabled="{= ${add>/picked}.length > 0}" press=".onAddCasesDo" />
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>cancel}" press=".onAddCasesClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

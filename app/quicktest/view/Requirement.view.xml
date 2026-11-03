@@ -1,0 +1,101 @@
+<mvc:View
+	controllerName="quicktest.controller.Requirement"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	core:require="{Format: 'quicktest/util/Format'}">
+	<Page id="requirementPage" showHeader="false" enableScrolling="true" class="qtPageBg">
+		<content>
+			<VBox class="qtPage" renderType="Bare">
+				<MessageStrip id="reqError" type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+
+				<HBox class="qtCard qtBanner" alignItems="Center" wrap="Wrap" busy="{view>/busy}">
+					<Button icon="sap-icon://nav-back" type="Transparent" tooltip="{i18n>back}" press=".onBack" />
+					<core:Icon src="sap-icon://request" class="qtAvatar" />
+					<VBox class="qtBannerBody" renderType="Bare">
+						<HBox alignItems="Center">
+							<Text text="{= ${view>/item/code} || ${i18n>newRequirement}}" class="qtCode sapUiTinyMarginEnd" />
+							<ObjectStatus text="{path: 'view>/item/verification', formatter: 'Format.verifyText'}" state="{path: 'view>/item/verification', formatter: 'Format.verifyState'}" icon="{path: 'view>/item/verification', formatter: 'Format.verifyIcon'}" visible="{= !!${view>/item/ID}}" />
+						</HBox>
+						<Input id="reqTitle" value="{view>/item/title}" valueLiveUpdate="true" placeholder="{i18n>reqTitlePlaceholder}" class="qtTitleInput" />
+					</VBox>
+					<HBox wrap="Wrap" alignItems="Center">
+						<Button id="reqImprove" icon="sap-icon://ai" text="{i18n>aiImprove}" press=".onImprove" class="sapUiTinyMarginEnd" />
+						<Button id="reqGenerate" icon="sap-icon://ai" text="{i18n>aiCasesForThis}" enabled="{= !!${view>/item/ID}}" press=".onGenerate" class="sapUiTinyMarginEnd" />
+						<Button id="reqDelete" icon="sap-icon://delete" tooltip="{i18n>delete}" type="Transparent" enabled="{= !!${view>/item/ID}}" press=".onDelete" class="sapUiTinyMarginEnd" />
+						<Button id="reqSave" icon="sap-icon://save" text="{i18n>save}" type="Emphasized" enabled="{= ${view>/dirty} &amp;&amp; !!${view>/item/title}}" press=".onSave" />
+					</HBox>
+				</HBox>
+
+				<HBox class="qtTwoCols qtEditCols" renderType="Bare">
+					<VBox class="qtCard qtPadded qtStack" renderType="Bare">
+						<Label text="{i18n>description}" labelFor="reqDescription" />
+						<TextArea id="reqDescription" value="{view>/item/description}" valueLiveUpdate="true" rows="5" growing="true" growingMaxLines="14" width="100%" placeholder="{i18n>reqDescriptionPlaceholder}" />
+						<Label text="{i18n>acceptance}" labelFor="reqAcceptance" />
+						<TextArea id="reqAcceptance" value="{view>/item/acceptance}" valueLiveUpdate="true" rows="6" growing="true" growingMaxLines="16" width="100%" placeholder="{i18n>acceptancePlaceholder}" />
+						<Text text="{i18n>acceptanceHint}" class="qtMuted" />
+					</VBox>
+					<VBox class="qtCard qtPadded qtStack" renderType="Bare">
+						<HBox wrap="Wrap">
+							<VBox class="sapUiSmallMarginEnd qtGrow" renderType="Bare">
+								<Label text="{i18n>colPriority}" labelFor="reqPriority" />
+								<Select id="reqPriority" selectedKey="{view>/item/priority}" items="{view>/priorities}" width="100%">
+									<core:Item key="{view>id}" text="{view>label}" />
+								</Select>
+							</VBox>
+							<VBox class="qtGrow" renderType="Bare">
+								<Label text="{i18n>colType}" labelFor="reqKind" />
+								<Select id="reqKind" selectedKey="{view>/item/kind}" items="{view>/kinds}" width="100%">
+									<core:Item key="{view>id}" text="{view>label}" />
+								</Select>
+							</VBox>
+						</HBox>
+						<Label text="{i18n>colStatus}" labelFor="reqStatus" />
+						<Select id="reqStatus" selectedKey="{view>/item/status}" items="{view>/statuses}" width="100%">
+							<core:Item key="{view>id}" text="{view>label}" />
+						</Select>
+						<Label text="{i18n>colTags}" labelFor="reqTags" />
+						<Input id="reqTags" value="{view>/item/tags}" valueLiveUpdate="true" placeholder="{i18n>tagsPlaceholder}" />
+						<Label text="{i18n>colSource}" labelFor="reqSource" />
+						<Input id="reqSource" value="{view>/item/source}" valueLiveUpdate="true" placeholder="{i18n>sourcePlaceholder}" />
+						<Label text="{i18n>colOwner}" labelFor="reqOwner" />
+						<Input id="reqOwner" value="{view>/item/owner}" valueLiveUpdate="true" />
+					</VBox>
+				</HBox>
+
+				<!-- verified by -->
+				<VBox class="qtCard" renderType="Bare" visible="{= !!${view>/item/ID}}">
+					<HBox class="qtFilters">
+						<Title text="{i18n>verifiedBy}" level="H4" />
+						<ToolbarSpacer />
+						<Button id="reqNewCase" icon="sap-icon://add" text="{i18n>newCaseForThis}" press=".onNewCase" />
+					</HBox>
+					<VBox class="sapUiSmallMarginBeginEnd" renderType="Bare">
+						<Label text="{i18n>linkCases}" labelFor="reqLinks" />
+						<MultiComboBox id="reqLinks" selectedKeys="{view>/linked}" items="{view>/allCases}" selectionFinish=".onLinksChanged" width="100%" placeholder="{i18n>linkCasesPlaceholder}">
+							<core:Item key="{view>ID}" text="{view>text}" />
+						</MultiComboBox>
+					</VBox>
+					<Table id="reqCases" items="{view>/item/cases}" noDataText="{i18n>noLinkedCases}" class="sapUiSmallMarginTop">
+						<columns>
+							<Column width="6.5rem"><Text text="{i18n>colId}" /></Column>
+							<Column><Text text="{i18n>colTitle}" /></Column>
+							<Column width="8rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colAutomation}" /></Column>
+							<Column width="9rem"><Text text="{i18n>colLastResult}" /></Column>
+						</columns>
+						<items>
+							<ColumnListItem type="Navigation" press=".onOpenCase">
+								<cells>
+									<Text text="{view>code}" class="qtCode" />
+									<Text text="{view>title}" class="qtRowTitle" />
+									<ObjectStatus text="{path: 'view>automation', formatter: 'Format.automationText'}" state="{path: 'view>automation', formatter: 'Format.automationState'}" />
+									<ObjectStatus text="{path: 'view>lastResult', formatter: 'Format.resultText'}" state="{path: 'view>lastResult', formatter: 'Format.resultState'}" icon="{path: 'view>lastResult', formatter: 'Format.resultIcon'}" />
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+				</VBox>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

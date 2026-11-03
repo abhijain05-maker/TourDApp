@@ -12,8 +12,10 @@ import { backfillWorkspace, registerWorkspace } from './lib/service/workspace.js
 import { registerTourApply } from './lib/service/tour-apply.js'
 import { registerTestPlans } from './lib/service/test-plans.js'
 import { registerHelp } from './lib/service/help.js'
+import { registerReadiness } from './lib/service/readiness.js'
 import { registerPreviewRecording } from './lib/service/preview-recording.js'
 import { registerAuthz } from './lib/service/authz.js'
+import { deleteProjectData } from './lib/qtest/service/cleanup.js'
 import { mint, SCOPES } from './lib/capability.js'
 import { getProvider, listProviders, defaultProviderId } from './lib/llm/provider.js'
 import { refineStep } from './lib/llm/refine.js'
@@ -33,6 +35,9 @@ export default class TourService extends cds.ApplicationService {
 
     // who may do what (only where the deployment enforces roles)
     registerAuthz(this)
+
+    // QuickTest's tables hang on the project without a foreign key: remove them with it
+    this.before('DELETE', srv.Projects, (req) => deleteProjectData(req.data.ID ?? req.params?.at(-1)?.ID ?? req.params?.at(-1)))
 
     // ---- helpers -------------------------------------------------------------------------------
 
@@ -605,6 +610,7 @@ export default class TourService extends cds.ApplicationService {
     registerTourApply(this, { project, rebuildInventory, guarded, workspace })
     registerTestPlans(this, { project, rebuildInventory, guarded, workspace })
     registerHelp(this, { project, rebuildInventory, guarded, workspace })
+    registerReadiness(this, { project, guarded })
     registerPreviewRecording(this, { project, guarded })
     // files uploaded before the workspace existed get their hashes once
     cds.once('served', () =>

@@ -1,0 +1,36 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="newRunDialog" title="{i18n>newRun}" icon="sap-icon://play" contentWidth="34rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin qtStack" renderType="Bare">
+				<MessageStrip type="Error" showIcon="true" text="{run>/error}" visible="{= !!${run>/error}}" />
+				<Label text="{i18n>runName}" labelFor="runName" required="true" />
+				<Input id="runName" value="{run>/name}" valueLiveUpdate="true" placeholder="{i18n>runNamePlaceholder}" />
+				<HBox>
+					<VBox class="sapUiSmallMarginEnd qtGrow" renderType="Bare">
+						<Label text="{i18n>runBuild}" labelFor="runBuild" />
+						<Input id="runBuild" value="{run>/build}" valueLiveUpdate="true" placeholder="1.12.0" />
+					</VBox>
+					<VBox class="qtGrow" renderType="Bare">
+						<Label text="{i18n>runEnvironment}" labelFor="runEnvironment" />
+						<Input id="runEnvironment" value="{run>/environment}" valueLiveUpdate="true" placeholder="QA" />
+					</VBox>
+				</HBox>
+				<Label text="{i18n>runWhich}" />
+				<RadioButtonGroup id="runWhich" selectedIndex="{run>/which}" columns="1">
+					<RadioButton text="{run>/selectedText}" enabled="{= ${run>/caseIDs}.length > 0}" />
+					<RadioButton text="{i18n>runReady}" />
+					<RadioButton text="{i18n>runAll}" />
+					<RadioButton text="{i18n>runAutomated}" />
+				</RadioButtonGroup>
+				<Label text="{i18n>runNote}" labelFor="runNote" />
+				<TextArea id="runNote" value="{run>/note}" valueLiveUpdate="true" rows="2" width="100%" />
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="runCreate" text="{i18n>create}" type="Emphasized" enabled="{= !!${run>/name} &amp;&amp; !${run>/busy}}" press=".onRunCreate" />
+		</beginButton>
+		<endButton>
+			<Button id="runCancel" text="{i18n>cancel}" press=".onRunCancel" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

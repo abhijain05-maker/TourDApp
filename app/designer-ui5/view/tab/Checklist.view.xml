@@ -1,0 +1,172 @@
+<mvc:View
+	controllerName="tourd.designer.controller.tab.Checklist"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:layout="sap.ui.layout">
+	<VBox class="tourdStack sapUiSmallMargin" renderType="Bare">
+		<HBox justifyContent="SpaceBetween" wrap="Wrap" alignItems="Center">
+			<VBox renderType="Bare" class="tourdGrow">
+				<Title text="{i18n>rChecklistTitle}" level="H4" />
+				<Text text="{i18n>rChecklistIntro}" class="tourdMuted" />
+			</VBox>
+			<HBox>
+				<Button id="rAdd" text="{i18n>rAddCheck}" icon="sap-icon://add" press=".onAdd" class="sapUiTinyMarginEnd" />
+				<Button
+					id="rChecklistScan"
+					text="{i18n>rScanAgain}"
+					icon="sap-icon://refresh"
+					busy="{readiness>/scanning}"
+					enabled="{= !!${readiness>/summary/hasFiles}}"
+					press=".onScan" />
+			</HBox>
+		</HBox>
+		<MessageStrip id="rChecklistError" type="Error" showIcon="true" text="{readiness>/error}" visible="{= !!${readiness>/error}}" />
+		<MessageStrip id="rChecklistOutdated" type="Warning" showIcon="true" text="{i18n>rOutdated}" visible="{= !!${readiness>/summary/outdated}}">
+			<link>
+				<Link text="{i18n>rScanAgain}" press=".onScan" />
+			</link>
+		</MessageStrip>
+
+		<VBox id="rEmpty" class="tourdEmpty tourdCard" alignItems="Center" visible="{= !!${readiness>/loaded} &amp;&amp; ${readiness>/items}.length === 0}">
+			<core:Icon src="sap-icon://checklist-item" class="tourdEmptyIcon" />
+			<Title text="{i18n>rListEmptyTitle}" level="H4" />
+			<Text text="{i18n>rListEmptyText}" class="tourdMuted tourdEmptyText" />
+			<Button text="{i18n>rGoOverview}" type="Emphasized" press=".onOverview" />
+		</VBox>
+
+		<VBox id="rList" renderType="Bare" class="tourdStack" visible="{= ${readiness>/items}.length > 0}">
+			<IconTabHeader id="rTabs" selectedKey="{view>/category}" select=".onCategoryTab" items="{readiness>/tabs}" mode="Inline" class="tourdRTabs tourdCard">
+				<items>
+					<IconTabFilter key="{readiness>id}" text="{readiness>label}" count="{readiness>total}" icon="{readiness>icon}" />
+				</items>
+			</IconTabHeader>
+
+			<OverflowToolbar class="tourdToolbar">
+				<SearchField id="rSearch" width="18rem" placeholder="{i18n>rSearch}" value="{view>/query}" liveChange=".onFilter" search=".onFilter" />
+				<Select id="rStatus" selectedKey="{view>/status}" change=".onFilter" width="11rem" items="{view>/statusChoices}">
+					<core:Item key="{view>key}" text="{view>text}" />
+				</Select>
+				<ToggleButton id="rAttention" text="{i18n>rOnlyAttention}" icon="sap-icon://alert" pressed="{view>/attention}" press=".onFilter" />
+				<ToggleButton id="rAbsent" text="{= ${i18n>rShowRemoved} + ' (' + ${readiness>/summary/absent} + ')'}" pressed="{view>/showAbsent}" visible="{= ${readiness>/summary/absent} > 0}" press=".onFilter" />
+				<ToolbarSpacer />
+				<Text id="rCount" text="{view>/countText}" class="tourdMuted" />
+			</OverflowToolbar>
+
+			<layout:DynamicSideContent id="rSplit" class="tourdRSplit" sideContentFallDown="BelowM" sideContentPosition="End" showSideContent="true" containerQuery="true">
+				<layout:mainContent>
+					<List
+						id="rItems"
+						items="{view>/shown}"
+						mode="None"
+						showSeparators="None"
+						noDataText="{i18n>rNoMatch}"
+						growing="true"
+						growingThreshold="60"
+						growingScrollToLoad="false"
+						busy="{readiness>/loading}"
+						class="tourdRList">
+						<CustomListItem type="Active" press=".onSelect" class="tourdRRow tourdCard">
+							<customData>
+								<core:CustomData key="status" value="{view>status}" writeToDom="true" />
+								<core:CustomData key="picked" value="{= ${view>ID} === ${view>/selID} ? 'true' : 'false'}" writeToDom="true" />
+								<core:CustomData key="absent" value="{= ${view>absent} ? 'true' : 'false'}" writeToDom="true" />
+							</customData>
+							<HBox alignItems="Center" class="tourdRRowBody">
+								<core:Icon src="{view>categoryIcon}" tooltip="{view>categoryLabel}" class="tourdRRowIcon" />
+								<VBox renderType="Bare" class="tourdRRowMain">
+									<HBox alignItems="Center" wrap="Wrap">
+										<Text text="{view>title}" class="tourdBold tourdRRowTitle" />
+										<ObjectStatus text="{i18n>rNoLongerFound}" state="Warning" inverted="true" visible="{view>absent}" class="sapUiTinyMarginBegin" />
+										<ObjectStatus text="{i18n>rAddedByHand}" inverted="true" visible="{view>manual}" class="sapUiTinyMarginBegin" />
+									</HBox>
+									<Text text="{view>summary}" class="tourdMuted" maxLines="1" visible="{= !!${view>summary}}" />
+									<ObjectStatus text="{view>findingsText}" state="{= ${view>errors} > 0 ? 'Error' : 'Warning'}" icon="sap-icon://alert" visible="{view>hasFindings}" />
+								</VBox>
+								<ObjectStatus text="{view>statusText}" state="{view>statusState}" icon="{view>statusIcon}" class="tourdRRowStatus" />
+								<Button icon="sap-icon://accept" type="Transparent" tooltip="{i18n>rMarkWorking}" press=".onQuick" class="tourdRQuick tourdRQuickOk">
+									<customData><core:CustomData key="answer" value="working" /></customData>
+								</Button>
+								<Button icon="sap-icon://decline" type="Transparent" tooltip="{i18n>rMarkBroken}" press=".onQuick" class="tourdRQuick tourdRQuickNo">
+									<customData><core:CustomData key="answer" value="broken" /></customData>
+								</Button>
+							</HBox>
+						</CustomListItem>
+					</List>
+				</layout:mainContent>
+
+				<layout:sideContent>
+					<VBox id="rDetailEmpty" class="tourdRDetail tourdCard tourdEmpty" alignItems="Center" visible="{= !${view>/hasSel}}">
+						<core:Icon src="sap-icon://hint" class="tourdEmptyIcon" />
+						<Text text="{i18n>rPickOne}" class="tourdMuted tourdEmptyText" />
+					</VBox>
+
+					<VBox id="rDetail" class="tourdRDetail tourdCard" renderType="Bare" visible="{view>/hasSel}">
+						<HBox alignItems="Start" justifyContent="SpaceBetween">
+							<HBox alignItems="Center">
+								<core:Icon src="{view>/sel/categoryIcon}" class="tourdRRowIcon" />
+								<VBox renderType="Bare">
+									<Title id="rDetailTitle" text="{view>/sel/title}" level="H4" wrapping="true" />
+									<Text text="{= ${view>/sel/categoryLabel} + (${view>/sel/priorityText} ? ' · ' + ${view>/sel/priorityText} : '')}" class="tourdMeta" />
+								</VBox>
+							</HBox>
+							<Button icon="sap-icon://decline" type="Transparent" tooltip="{i18n>close}" press=".onCloseDetail" />
+						</HBox>
+						<Text text="{view>/sel/summary}" class="tourdMuted sapUiTinyMarginTop" visible="{= !!${view>/sel/summary}}" />
+
+						<Label text="{i18n>rIsItWorking}" class="tourdRLabel" />
+						<HBox id="rAnswer" wrap="Wrap" items="{readiness>/meta/statuses}" class="tourdRAnswer">
+							<ToggleButton text="{readiness>label}" icon="{readiness>icon}" pressed="{= ${view>/sel/status} === ${readiness>id}}" press=".onAnswer" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+						</HBox>
+						<Text id="rCheckedAt" text="{view>/sel/checkedText}" class="tourdMeta" visible="{= !!${view>/sel/checkedText}}" />
+
+						<VBox items="{view>/sel/signals}" class="tourdRSignals">
+							<MessageStrip type="{view>state}" showIcon="true" text="{view>message}" class="sapUiTinyMarginTop" />
+						</VBox>
+
+						<Title text="{i18n>rHowToCheck}" level="H5" class="tourdRSection" visible="{= ${view>/sel/verify}.length > 0}" />
+						<VBox id="rSteps" items="{view>/sel/verify}" renderType="Bare">
+							<HBox class="tourdRStep">
+								<Text text="{view>n}" class="tourdRStepNo" />
+								<Text text="{view>text}" class="tourdRStepText" />
+							</HBox>
+						</VBox>
+
+						<Title text="{i18n>rYourNotes}" level="H5" class="tourdRSection" />
+						<VBox items="{view>/sel/fields}" renderType="Bare">
+							<VBox renderType="Bare" class="tourdRField">
+								<Label text="{view>label}" tooltip="{view>hint}" />
+								<Input value="{view>value}" placeholder="{view>hint}" change=".onSaveFields" />
+							</VBox>
+						</VBox>
+						<Label text="{i18n>rOwner}" class="tourdRLabel" />
+						<Input id="rOwner" value="{view>/sel/owner}" placeholder="{i18n>rOwnerHint}" maxLength="120" change=".onSaveOwner" />
+						<Label text="{i18n>rNote}" class="tourdRLabel" />
+						<TextArea id="rNote" value="{view>/sel/note}" rows="3" growing="true" growingMaxLines="8" width="100%" maxLength="2000" placeholder="{i18n>rNoteHint}" change=".onSaveNote" />
+
+						<Title text="{i18n>rDetails}" level="H5" class="tourdRSection" visible="{= ${view>/sel/attrs}.length > 0}" />
+						<List items="{view>/sel/attrs}" showSeparators="Inner" backgroundDesign="Transparent" visible="{= ${view>/sel/attrs}.length > 0}">
+							<DisplayListItem label="{view>label}" value="{view>value}" />
+						</List>
+
+						<Title text="{i18n>rFoundIn}" level="H5" class="tourdRSection" visible="{= ${view>/sel/sources}.length > 0}" />
+						<VBox items="{view>/sel/sources}" renderType="Bare">
+							<Link text="{view>text}" press=".onOpenSource" class="tourdMono" />
+						</VBox>
+
+						<Title text="{i18n>rConnected}" level="H5" class="tourdRSection" visible="{= ${view>/sel/links}.length > 0}" />
+						<VBox items="{view>/sel/links}" renderType="Bare">
+							<HBox alignItems="Center" class="tourdRLink">
+								<core:Icon src="{view>icon}" class="sapUiTinyMarginEnd" />
+								<Link text="{view>title}" press=".onRelated" />
+								<Text text="{view>relText}" class="tourdMuted sapUiTinyMarginBegin" />
+							</HBox>
+						</VBox>
+
+						<Button id="rRemove" text="{i18n>rRemove}" icon="sap-icon://delete" type="Reject" class="tourdRRemove" visible="{= ${view>/sel/manual} || ${view>/sel/absent}}" press=".onRemove" />
+					</VBox>
+				</layout:sideContent>
+			</layout:DynamicSideContent>
+		</VBox>
+	</VBox>
+</mvc:View>

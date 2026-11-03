@@ -1,0 +1,120 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="extensionDialog" title="{i18n>extension}" icon="sap-icon://puzzle" contentWidth="48rem" stretchOnPhone="true" afterClose=".onExtensionAfterClose">
+		<content>
+			<VBox class="sapUiSmallMargin qtStack" renderType="Bare">
+				<Text text="{i18n>extIntro}" class="qtMuted" />
+				<MessageStrip id="extError" type="Error" showIcon="true" text="{ext>/error}" visible="{= !!${ext>/error}}" />
+
+				<!-- 1. install -->
+				<VBox class="qtCard qtPadded qtExtSection" renderType="Bare">
+					<HBox alignItems="Center" class="qtExtHead">
+						<core:Icon src="sap-icon://download" class="qtExtIcon" />
+						<VBox renderType="Bare">
+							<Title text="{i18n>extInstallTitle}" level="H5" />
+							<Text text="{i18n>extInstallHint}" class="qtMuted" />
+						</VBox>
+					</HBox>
+					<VBox items="{ext>/steps}" renderType="Bare" class="sapUiTinyMarginTop">
+						<HBox alignItems="Start" class="qtExtStep">
+							<Text text="{ext>n}" class="qtStepNo sapUiSmallMarginEnd" />
+							<FormattedText htmlText="{ext>html}" />
+						</HBox>
+					</VBox>
+				</VBox>
+
+				<!-- 2. pair -->
+				<VBox class="qtCard qtPadded qtExtSection" renderType="Bare">
+					<HBox alignItems="Center" class="qtExtHead">
+						<core:Icon src="sap-icon://key" class="qtExtIcon" />
+						<VBox renderType="Bare">
+							<Title text="{i18n>extPairTitle}" level="H5" />
+							<Text text="{i18n>extPairHint}" class="qtMuted" />
+						</VBox>
+					</HBox>
+
+					<Label text="{i18n>extAddress}" labelFor="extAddress" class="sapUiSmallMarginTop" />
+					<HBox>
+						<Input id="extAddress" value="{ext>/origin}" editable="false" class="qtGrow qtMono sapUiTinyMarginEnd" />
+						<Button id="addressCopy" icon="sap-icon://copy" text="{i18n>copy}" press=".onAddressCopy" />
+					</HBox>
+					<Text id="addressCopied" text="{ext>/addressCopied}" class="qtMuted" visible="{= !!${ext>/addressCopied}}" />
+
+					<Label text="{i18n>extTokenName}" labelFor="tokenName" class="sapUiSmallMarginTop" />
+					<HBox>
+						<Input id="tokenName" value="{ext>/name}" valueLiveUpdate="true" placeholder="{i18n>extTokenPlaceholder}" submit=".onTokenCreate" class="qtGrow sapUiTinyMarginEnd" />
+						<Button id="tokenCreate" text="{i18n>extCreate}" icon="sap-icon://add" type="Emphasized" enabled="{= !!${ext>/name}}" press=".onTokenCreate" />
+					</HBox>
+
+					<!-- the new token: shown once -->
+					<VBox id="tokenBox" visible="{= !!${ext>/created}}" class="qtTokenBox sapUiSmallMarginTop" renderType="Bare">
+						<MessageStrip id="tokenCreated" type="Success" showIcon="true" text="{ext>/createdText}" />
+						<HBox alignItems="Center" class="sapUiTinyMarginTop">
+							<Text id="tokenValue" text="{ext>/created/token}" class="qtMono qtGrow" wrapping="true" />
+							<Button id="tokenCopy" icon="sap-icon://copy" text="{i18n>copy}" type="Emphasized" press=".onTokenCopy" class="sapUiTinyMarginBegin" />
+						</HBox>
+						<Text text="{ext>/copied}" class="qtMuted" visible="{= !!${ext>/copied}}" />
+					</VBox>
+				</VBox>
+
+				<!-- paired browsers -->
+				<VBox class="qtCard qtExtSection" renderType="Bare">
+					<HBox alignItems="Center" class="qtExtHead qtPadded">
+						<core:Icon src="sap-icon://laptop" class="qtExtIcon" />
+						<Title text="{i18n>extPaired}" level="H5" />
+						<ObjectStatus text="{= ${ext>/tokens}.length}" class="sapUiSmallMarginBegin" />
+					</HBox>
+					<HBox visible="{= ${ext>/tokens}.length === 0}" class="qtPadded" alignItems="Center">
+						<core:Icon src="sap-icon://information" class="sapUiSmallMarginEnd qtMuted" />
+						<Text text="{i18n>extNone}" class="qtMuted" />
+					</HBox>
+					<Table id="tokenTable" items="{ext>/tokens}" visible="{= ${ext>/tokens}.length > 0}" width="100%" showSeparators="Inner">
+						<columns>
+							<Column><Text text="{i18n>colName}" /></Column>
+							<Column width="9rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colToken}" /></Column>
+							<Column width="10rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colCreated}" /></Column>
+							<Column width="10rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colLastUsed}" /></Column>
+							<Column width="4rem" hAlign="End" />
+						</columns>
+						<items>
+							<ColumnListItem class="{= ${ext>revoked} ? 'qtOff' : ''}">
+								<cells>
+									<HBox alignItems="Center">
+										<core:Icon src="sap-icon://laptop" class="sapUiTinyMarginEnd qtMuted" />
+										<Text text="{ext>name}" class="qtBold sapUiTinyMarginEnd" />
+										<ObjectStatus text="{i18n>revoked}" state="Warning" inverted="true" visible="{ext>revoked}" />
+									</HBox>
+									<Text text="{= ${ext>prefix} + '…'}" class="qtMono" />
+									<VBox renderType="Bare">
+										<Text text="{ext>createdText}" />
+									</VBox>
+									<VBox renderType="Bare">
+										<Text text="{ext>lastUsedText}" />
+									</VBox>
+									<Button icon="sap-icon://delete" type="Transparent" tooltip="{i18n>revoke}" visible="{= !${ext>revoked}}" press=".onTokenRevoke" />
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+				</VBox>
+
+				<!-- without the extension -->
+				<VBox class="qtCard qtPadded qtExtSection" renderType="Bare">
+					<HBox alignItems="Center" class="qtExtHead">
+						<core:Icon src="sap-icon://source-code" class="qtExtIcon" />
+						<VBox renderType="Bare">
+							<Title text="{i18n>extNoExtension}" level="H5" />
+							<Text text="{i18n>extSnippetHelp}" class="qtMuted" />
+						</VBox>
+					</HBox>
+					<HBox alignItems="Center" class="sapUiSmallMarginTop">
+						<Button id="snippetCopy" icon="sap-icon://copy" text="{i18n>extSnippetCopy}" press=".onSnippetCopy" class="sapUiTinyMarginEnd" />
+						<Text id="snippetState" text="{ext>/snippet}" class="qtMuted" />
+					</HBox>
+				</VBox>
+			</VBox>
+		</content>
+		<endButton>
+			<Button id="extensionClose" text="{i18n>close}" press=".onExtensionClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

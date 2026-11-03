@@ -1,6 +1,6 @@
 sap.ui.define(
-	["sap/ui/core/UIComponent", "sap/ui/model/json/JSONModel", "sap/ui/core/EventBus", "sap/ui/Device", "tourd/designer/util/Api", "tourd/designer/util/Theme"],
-	function (UIComponent, JSONModel, EventBus, Device, Api, Theme) {
+	["sap/ui/core/UIComponent", "sap/ui/model/json/JSONModel", "sap/ui/core/EventBus", "sap/ui/Device", "tourd/designer/util/Api", "tourd/designer/util/Theme", "tourd/designer/util/Readiness"],
+	function (UIComponent, JSONModel, EventBus, Device, Api, Theme, Readiness) {
 		"use strict";
 
 		return UIComponent.extend("tourd.designer.Component", {
@@ -24,6 +24,9 @@ sap.ui.define(
 					}),
 					"app"
 				);
+				// the readiness checklist of the open project: shared by its tabs and the tiles of the project page
+				this.readiness = new Readiness(this);
+				this.setModel(this.readiness.model, "readiness");
 				Theme.init();
 				this.refreshProjects();
 				this.getRouter().initialize();

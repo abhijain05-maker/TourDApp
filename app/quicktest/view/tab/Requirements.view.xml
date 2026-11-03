@@ -1,0 +1,67 @@
+<mvc:View
+	controllerName="quicktest.controller.tab.Requirements"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	core:require="{Format: 'quicktest/util/Format'}">
+	<VBox renderType="Bare">
+		<MessageStrip type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+		<VBox class="qtCard" renderType="Bare">
+			<HBox class="qtFilters">
+				<SearchField id="reqSearch" value="{view>/query}" liveChange=".onFilter" search=".onFilter" width="16rem" placeholder="{i18n>searchPlaceholder}" />
+				<Select id="reqPriority" selectedKey="{view>/priority}" items="{view>/priorities}" change=".onFilter" width="10rem">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Select id="reqStatus" selectedKey="{view>/status}" items="{view>/statuses}" change=".onFilter" width="10rem">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Select id="reqVerify" selectedKey="{view>/verify}" items="{view>/verifies}" change=".onFilter" width="11rem">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<ToolbarSpacer />
+				<Text text="{view>/countText}" class="qtMuted" />
+				<Button id="reqAi" icon="sap-icon://ai" text="{i18n>aiFromText}" press=".onAiRequirements" />
+				<Button id="reqAiCases" icon="sap-icon://ai" text="{i18n>aiCasesForSelected}" press=".onAiCases" />
+				<Button id="reqNew" icon="sap-icon://add" text="{i18n>newRequirement}" type="Emphasized" press=".onNew" />
+			</HBox>
+			<HBox class="qtBulk" visible="{= ${view>/selected} > 0}">
+				<Text text="{view>/selectedText}" class="qtBold" />
+				<Select id="bulkPriority" width="9rem" selectedKey="" items="{view>/bulkPriorities}" change=".onBulkPriority" tooltip="{i18n>bulkPriority}">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Select id="bulkStatus" width="9rem" selectedKey="" items="{view>/bulkStatuses}" change=".onBulkStatus" tooltip="{i18n>bulkStatus}">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Button id="bulkGenerate" icon="sap-icon://ai" text="{i18n>aiCasesForSelected}" press=".onAiCases" />
+				<Button id="bulkDelete" icon="sap-icon://delete" text="{i18n>delete}" type="Reject" press=".onBulkDelete" />
+			</HBox>
+			<Table id="reqTable" items="{view>/shown}" mode="MultiSelect" selectionChange=".onSelect" growing="true" growingThreshold="50" noDataText="{view>/emptyText}" busy="{view>/busy}" sticky="ColumnHeaders" class="qtTable">
+				<columns>
+					<Column width="6.5rem"><Text text="{i18n>colId}" /></Column>
+					<Column><Text text="{i18n>colTitle}" /></Column>
+					<Column width="7rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colPriority}" /></Column>
+					<Column width="8rem" minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colType}" /></Column>
+					<Column width="8rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colStatus}" /></Column>
+					<Column width="11rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colCoverage}" /></Column>
+					<Column width="12rem" minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colTests}" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Navigation" press=".onOpen">
+						<cells>
+							<Text text="{view>code}" class="qtCode" />
+							<VBox renderType="Bare">
+								<Text text="{view>title}" class="qtRowTitle" />
+								<Text text="{view>description}" class="qtMuted" maxLines="1" visible="{= !!${view>description}}" />
+							</VBox>
+							<ObjectStatus text="{path: 'view>priority', formatter: 'Format.priorityText'}" state="{path: 'view>priority', formatter: 'Format.priorityState'}" />
+							<Text text="{path: 'view>kind', formatter: 'Format.reqKindText'}" />
+							<ObjectStatus text="{path: 'view>status', formatter: 'Format.reqStatusText'}" state="{path: 'view>status', formatter: 'Format.reqStatusState'}" />
+							<ObjectStatus text="{path: 'view>verification', formatter: 'Format.verifyText'}" state="{path: 'view>verification', formatter: 'Format.verifyState'}" icon="{path: 'view>verification', formatter: 'Format.verifyIcon'}" />
+							<Text text="{view>testsText}" class="qtCode" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</VBox>
+	</VBox>
+</mvc:View>

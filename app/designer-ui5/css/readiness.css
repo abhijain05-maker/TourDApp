@@ -1,0 +1,324 @@
+/* Readiness feature: only what the standard controls do not give. Colours come from the theme variables, so light and dark follow. */
+
+/* ---- feature switch on the project page ---- */
+
+.tourdFeatureBar {
+	gap: 0.75rem 1rem;
+	margin-bottom: 0.75rem;
+}
+
+.tourdFeatureSwitch {
+	flex: none;
+}
+
+/* ---- empty states ---- */
+
+.tourdEmpty {
+	padding: 2.5rem 1.5rem;
+	text-align: center;
+	gap: 0.5rem;
+}
+
+.tourdEmptyIcon {
+	font-size: 2.5rem;
+	color: var(--sapContent_NonInteractiveIconColor);
+}
+
+.tourdEmptyText {
+	max-width: 34rem;
+	margin-bottom: 0.5rem;
+}
+
+/* ---- progress ring ---- */
+
+.tourdRing {
+	position: relative;
+	flex: none;
+	--tourdRingColor: var(--sapButton_Emphasized_Background, var(--sapBrandColor));
+}
+
+.tourdRingSuccess {
+	--tourdRingColor: var(--sapPositiveElementColor);
+}
+
+.tourdRingWarning {
+	--tourdRingColor: var(--sapCriticalElementColor);
+}
+
+.tourdRingError {
+	--tourdRingColor: var(--sapNegativeElementColor);
+}
+
+.tourdRing svg {
+	width: 100%;
+	height: 100%;
+	transform: none;
+}
+
+.tourdRingTrack,
+.tourdRingValue {
+	fill: none;
+	stroke-width: 3;
+}
+
+.tourdRingTrack {
+	stroke: var(--sapList_BorderColor);
+}
+
+.tourdRingValue {
+	stroke: var(--tourdRingColor);
+	stroke-linecap: round;
+	transition: stroke-dasharray 0.6s ease;
+}
+
+.tourdRingText {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	line-height: 1.1;
+}
+
+.tourdRingNumber {
+	font-size: 1.75rem;
+	font-weight: 700;
+	color: var(--sapTextColor);
+}
+
+.tourdRingCaption {
+	font-size: var(--sapFontSmallSize);
+	color: var(--sapContent_LabelColor);
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* ---- overview ---- */
+
+.tourdRHero {
+	padding: 1.25rem 1.5rem;
+	gap: 1.5rem;
+}
+
+.tourdRHeroBody {
+	flex: 1 1 18rem;
+	min-width: 0;
+	gap: 0.25rem;
+}
+
+.tourdRHeroAction {
+	flex: none;
+}
+
+.tourdRStats {
+	gap: 0.25rem 1.25rem;
+	margin: 0.5rem 0;
+}
+
+.tourdRStat {
+	margin-right: 1rem;
+}
+
+.tourdRSection {
+	margin-top: 0.5rem;
+}
+
+.tourdRGrid .sapMListUl {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+	gap: 1rem;
+	padding: 0;
+	background: transparent;
+}
+
+.tourdRGrid .sapMLIB {
+	height: auto;
+	border: 1px solid transparent;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.tourdRGrid .sapMLIB:hover {
+	border-color: var(--sapButton_Emphasized_Background, var(--sapBrandColor));
+}
+
+.tourdRCardBody {
+	padding: 1rem;
+	gap: 0.75rem;
+}
+
+.tourdRCardIcon {
+	flex: none;
+	width: 2.5rem;
+	height: 2.5rem;
+	margin-right: 0.75rem;
+	border-radius: 0.625rem;
+	background: var(--sapHighlightColor);
+	color: var(--sapButton_Emphasized_TextColor, #fff);
+	font-size: 1.25rem;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+}
+
+.tourdRCardHead {
+	min-width: 0;
+}
+
+.tourdRCardBar {
+	width: 100%;
+}
+
+.tourdRNotes {
+	padding: 1rem 1.25rem;
+	gap: 0.5rem;
+}
+
+/* ---- checklist ---- */
+
+.tourdRTabs {
+	padding: 0 0.5rem;
+}
+
+.tourdRSplit {
+	margin-top: 0.25rem;
+}
+
+.tourdRList .sapMListUl {
+	background: transparent;
+	padding: 0 0.5rem 0 0;
+}
+
+.tourdRRow {
+	margin: 0 0 0.5rem;
+	border-left: 4px solid var(--sapList_BorderColor);
+	cursor: pointer;
+}
+
+.tourdRRow[data-status="working"] {
+	border-left-color: var(--sapPositiveElementColor);
+}
+
+.tourdRRow[data-status="broken"] {
+	border-left-color: var(--sapNegativeElementColor);
+}
+
+.tourdRRow[data-status="na"] {
+	opacity: 0.7;
+}
+
+.tourdRRow[data-absent="true"] {
+	opacity: 0.6;
+	border-left-style: dashed;
+}
+
+.tourdRRow[data-picked="true"] {
+	outline: 2px solid var(--sapButton_Emphasized_Background, var(--sapBrandColor));
+	outline-offset: -2px;
+}
+
+.tourdRRowBody {
+	padding: 0.625rem 0.75rem;
+	gap: 0.75rem;
+}
+
+.tourdRRowIcon {
+	flex: none;
+	color: var(--sapContent_IconColor);
+	margin-right: 0.5rem;
+}
+
+.tourdRRowMain {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.tourdRRowStatus {
+	flex: none;
+	white-space: nowrap;
+}
+
+.tourdRQuick {
+	flex: none;
+}
+
+.tourdRQuickOk .sapMBtnIcon {
+	color: var(--sapPositiveElementColor);
+}
+
+.tourdRQuickNo .sapMBtnIcon {
+	color: var(--sapNegativeElementColor);
+}
+
+.tourdRDetail {
+	padding: 1rem;
+	margin-left: 0.5rem;
+	box-sizing: border-box;
+}
+
+.tourdRDetail.tourdEmpty {
+	min-height: 12rem;
+	justify-content: center;
+}
+
+.tourdRLabel {
+	display: block;
+	margin-top: 0.75rem;
+}
+
+.tourdRAnswer {
+	margin-top: 0.25rem;
+	max-width: 100%;
+}
+
+.tourdRSteps,
+.tourdRStep {
+	align-items: flex-start;
+}
+
+.tourdRStep {
+	margin-bottom: 0.5rem;
+	gap: 0.5rem;
+}
+
+.tourdRStepNo {
+	flex: none;
+	width: 1.5rem;
+	height: 1.5rem;
+	border-radius: 50%;
+	background: var(--sapHighlightColor);
+	color: var(--sapButton_Emphasized_TextColor, #fff);
+	font-size: var(--sapFontSmallSize);
+	font-weight: 700;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+}
+
+.tourdRStepText {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.tourdRField {
+	margin-top: 0.5rem;
+}
+
+.tourdRLink {
+	margin-bottom: 0.25rem;
+}
+
+.tourdRRemove {
+	margin-top: 1rem;
+}
+
+@media (max-width: 700px) {
+	.tourdRHero {
+		justify-content: center;
+		text-align: center;
+	}
+
+	.tourdRDetail {
+		margin-left: 0;
+	}
+}

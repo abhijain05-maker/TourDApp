@@ -51,7 +51,18 @@ sap.ui.define(
 				window.addEventListener("keydown", this._onKey);
 				const base = "/export/project/" + this._project().ID;
 				this.viewModel().setProperty("/dl", { changes: base + "/changes.zip", patch: base + "/changes.patch", full: base + "/full.zip" });
-				this._load();
+				this._load().then(() => this._openPending());
+				// the readiness checklist asks to show the file a check was found in
+				this.getBus().subscribe("tourd", "openFile", this._openPending, this);
+			},
+
+			_openPending() {
+				const store = this.getOwnerComponent().readiness;
+				const path = store.model.getProperty("/openFile");
+				if (!path || !this._files.length) return;
+				store.model.setProperty("/openFile", "");
+				const file = this._files.find((f) => f.path === path);
+				if (file) this._open(file);
 			},
 
 			/** The files and the workspace actions for the command palette (Ctrl+K). */
@@ -70,6 +81,7 @@ sap.ui.define(
 			},
 
 			onExit() {
+				this.getBus().unsubscribe("tourd", "openFile", this._openPending, this);
 				this.getOwnerComponent().unregisterCommands("workspace");
 				window.removeEventListener("beforeunload", this._onUnload);
 				window.removeEventListener("keydown", this._onKey);

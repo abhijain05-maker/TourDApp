@@ -1,0 +1,24 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="rAddDialog" title="{i18n>rAddTitle}" contentWidth="30rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin" renderType="Bare">
+				<Text text="{i18n>rAddText}" class="tourdMuted" />
+				<MessageStrip type="Error" showIcon="true" text="{add>/error}" visible="{= !!${add>/error}}" class="sapUiSmallMarginTop" />
+				<Label text="{i18n>rAddCategory}" labelFor="rAddCategory" class="sapUiSmallMarginTop" />
+				<Select id="rAddCategory" selectedKey="{add>/category}" width="100%" items="{add>/categories}">
+					<core:Item key="{add>id}" text="{add>label}" />
+				</Select>
+				<Label text="{i18n>rAddName}" labelFor="rAddName" required="true" class="sapUiSmallMarginTop" />
+				<Input id="rAddName" value="{add>/title}" valueLiveUpdate="true" maxLength="300" placeholder="{i18n>rAddNameHint}" />
+				<Label text="{i18n>rAddSummary}" labelFor="rAddSummary" class="sapUiSmallMarginTop" />
+				<TextArea id="rAddSummary" value="{add>/summary}" rows="3" width="100%" maxLength="500" />
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="rAddConfirm" text="{i18n>rAddConfirm}" type="Emphasized" enabled="{= !!${add>/title} &amp;&amp; ${add>/title}.trim().length > 0 &amp;&amp; !${add>/busy}}" press=".onAddConfirm" />
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>cancel}" press=".onAddCancel" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

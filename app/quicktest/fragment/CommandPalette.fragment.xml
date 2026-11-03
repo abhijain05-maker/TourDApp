@@ -1,0 +1,17 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="paletteDialog" title="{i18n>paletteTitle}" contentWidth="40rem" stretchOnPhone="true" afterOpen=".onPaletteOpened">
+		<content>
+			<VBox class="sapUiSmallMargin" renderType="Bare">
+				<SearchField id="paletteInput" value="{pal>/query}" placeholder="{i18n>paletteSearch}" liveChange=".onPaletteSearch" search=".onPaletteEnter" />
+				<Text text="{i18n>paletteNothing}" class="qtMuted sapUiSmallMarginTop" visible="{= ${pal>/items}.length === 0}" />
+				<List id="paletteList" items="{pal>/items}" mode="None" showSeparators="None" class="sapUiTinyMarginTop qtPaletteList">
+					<StandardListItem id="paletteItem" title="{pal>title}" description="{pal>hint}" info="{pal>group}" type="Active" selected="{pal>selected}" press=".onPalettePick" class="{= ${pal>selected} ? 'qtPaletteSel' : ''}" />
+				</List>
+				<Text text="{i18n>paletteFoot}" class="qtMuted sapUiSmallMarginTop" />
+			</VBox>
+		</content>
+		<endButton>
+			<Button text="{i18n>close}" press=".onPaletteClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

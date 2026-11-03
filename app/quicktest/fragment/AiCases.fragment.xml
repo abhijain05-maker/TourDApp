@@ -1,0 +1,64 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core" core:require="{Format: 'quicktest/util/Format'}">
+	<Dialog id="aiCasesDialog" title="{i18n>aiCasesTitle}" icon="sap-icon://ai" contentWidth="58rem" contentHeight="44rem" stretchOnPhone="true" resizable="true" draggable="true">
+		<content>
+			<VBox class="sapUiSmallMargin qtStack" renderType="Bare" busy="{ai>/busy}" busyIndicatorDelay="0">
+				<HBox alignItems="Center">
+					<core:Icon src="sap-icon://ai" class="sapUiTinyMarginEnd" color="{= ${ai>/ai} ? 'Marker' : 'Default'}" />
+					<Text text="{ai>/mode}" class="qtMuted" />
+				</HBox>
+				<MessageStrip type="Error" showIcon="true" text="{ai>/error}" visible="{= !!${ai>/error}}" />
+
+				<Label text="{i18n>aiCasesFor}" labelFor="aiCasesReqs" />
+				<MultiComboBox id="aiCasesReqs" selectedKeys="{ai>/picked}" items="{ai>/requirements}" width="100%" placeholder="{i18n>aiCasesPick}">
+					<core:Item key="{ai>ID}" text="{ai>text}" />
+				</MultiComboBox>
+				<HBox wrap="Wrap" alignItems="End">
+					<VBox class="sapUiSmallMarginEnd qtGrow" renderType="Bare">
+						<Label text="{i18n>aiKinds}" labelFor="aiCasesKinds" />
+						<MultiComboBox id="aiCasesKinds" selectedKeys="{ai>/kindKeys}" items="{ai>/kinds}" width="100%">
+							<core:Item key="{ai>id}" text="{ai>label}" />
+						</MultiComboBox>
+					</VBox>
+					<VBox renderType="Bare">
+						<Label text="{i18n>aiCount}" labelFor="aiCasesCount" />
+						<StepInput id="aiCasesCount" value="{ai>/count}" min="1" max="8" width="8rem" />
+					</VBox>
+				</HBox>
+				<Input id="aiCasesInstruction" value="{ai>/instruction}" valueLiveUpdate="true" placeholder="{i18n>aiInstruction}" visible="{ai>/ai}" />
+				<HBox alignItems="Center">
+					<Button id="aiCasesDraft" text="{= ${ai>/ai} ? ${i18n>aiDraftAi} : ${i18n>aiDraftRules}}" icon="sap-icon://ai" type="Emphasized" enabled="{= ${ai>/picked}.length > 0 &amp;&amp; !${ai>/busy}}" press=".onDraft" />
+				</HBox>
+				<MessageStrip type="Information" showIcon="true" text="{ai>/note}" visible="{= !!${ai>/note}}" />
+
+				<VBox visible="{= ${ai>/items}.length > 0}" renderType="Bare">
+					<HBox alignItems="Center" justifyContent="SpaceBetween">
+						<Title text="{i18n>aiReview}" level="H5" />
+						<CheckBox text="{i18n>aiAll}" selected="{ai>/all}" select=".onAll" />
+					</HBox>
+					<Text text="{i18n>aiReviewHint}" class="qtMuted sapUiTinyMarginBottom" />
+					<VBox id="aiCasesList" items="{ai>/items}" class="qtCard qtReviewList" renderType="Bare">
+						<HBox class="qtReviewItem">
+							<CheckBox selected="{ai>selected}" select=".onTick" />
+							<VBox class="qtGrow" renderType="Bare">
+								<Input value="{ai>title}" valueLiveUpdate="true" />
+								<Text text="{ai>preconditions}" class="qtMuted sapUiTinyMarginTop" visible="{= !!${ai>preconditions}}" />
+								<Text text="{ai>stepText}" class="sapUiTinyMarginTop" renderWhitespace="true" />
+							</VBox>
+							<VBox renderType="Bare" alignItems="End">
+								<ObjectStatus text="{path: 'ai>priority', formatter: 'Format.priorityText'}" state="{path: 'ai>priority', formatter: 'Format.priorityState'}" />
+								<Text text="{ai>kindText}" class="qtMuted" />
+								<Text text="{ai>reqText}" class="qtCode" />
+							</VBox>
+						</HBox>
+					</VBox>
+				</VBox>
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="aiCasesSave" text="{i18n>aiSaveSelected}" type="Emphasized" icon="sap-icon://save" enabled="{= ${ai>/chosen} > 0 &amp;&amp; !${ai>/busy}}" press=".onSave" />
+		</beginButton>
+		<endButton>
+			<Button id="aiCasesClose" text="{i18n>close}" press=".onClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

@@ -1,0 +1,65 @@
+<mvc:View
+	controllerName="quicktest.controller.tab.Setup"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	core:require="{Format: 'quicktest/util/Format'}">
+	<VBox renderType="Bare">
+		<MessageStrip type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+
+		<HBox class="qtTwoCols" renderType="Bare">
+			<!-- the app under test -->
+			<VBox class="qtCard qtPadded" renderType="Bare" busy="{view>/importing}">
+				<Title text="{i18n>setupApp}" level="H4" />
+				<Text text="{i18n>setupAppHint}" class="qtMuted sapUiTinyMarginBottom" />
+				<MessageStrip type="{= ${view>/files} > 0 ? 'Success' : 'Warning'}" showIcon="true" text="{view>/appText}" />
+				<MessageStrip type="Success" showIcon="true" text="{view>/outcome}" visible="{= !!${view>/outcome}}" class="sapUiSmallMarginTop" />
+				<VBox items="{view>/skipped}" renderType="Bare" class="sapUiSmallMarginTop">
+					<MessageStrip type="Information" showIcon="true" text="{view>text}" class="sapUiTinyMarginBottom" />
+				</VBox>
+				<HBox wrap="Wrap" class="sapUiSmallMarginTop">
+					<Button id="setupFolder" icon="sap-icon://open-folder" text="{i18n>setupFolder}" type="Emphasized" press=".onPickFolder" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+					<Button id="setupZip" icon="sap-icon://attachment-zip-file" text="{i18n>setupZip}" press=".onPickZip" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+					<Button id="setupFiles" icon="sap-icon://add-document" text="{i18n>setupFiles}" press=".onPickFiles" class="sapUiTinyMarginBottom" />
+				</HBox>
+				<Text text="{i18n>setupFolderHint}" class="qtMuted" />
+			</VBox>
+
+			<!-- AI -->
+			<VBox class="qtCard qtPadded" renderType="Bare">
+				<Title text="{i18n>setupAi}" level="H4" />
+				<Text text="{i18n>setupAiHint}" class="qtMuted sapUiTinyMarginBottom" />
+				<VBox items="{path: 'view>/providers', templateShareable: false}" renderType="Bare">
+					<VBox class="qtProviderRow" renderType="Bare">
+						<HBox alignItems="Center" justifyContent="SpaceBetween" wrap="Wrap">
+							<HBox alignItems="Center">
+								<core:Icon src="{= ${view>id} === 'rules' ? 'sap-icon://hint' : 'sap-icon://ai'}" class="sapUiSmallMarginEnd" />
+								<VBox renderType="Bare">
+									<Text text="{view>label}" class="qtBold" />
+									<Text text="{view>detail}" class="qtMuted" />
+								</VBox>
+							</HBox>
+							<HBox alignItems="Center">
+								<ObjectStatus text="{view>statusText}" state="{view>statusState}" inverted="true" class="sapUiTinyMarginEnd" />
+								<Button icon="sap-icon://connected" text="{i18n>setupTest}" press=".onTestProvider" visible="{= ${view>id} !== 'rules'}" enabled="{= ${view>configured} &amp;&amp; !${view>testing}}" />
+							</HBox>
+						</HBox>
+						<MessageStrip text="{view>result}" type="{view>resultType}" showIcon="true" visible="{= !!${view>result}}" class="sapUiTinyMarginTop" />
+						<Text text="{view>hint}" class="qtMuted sapUiTinyMarginTop" visible="{= !${view>configured} &amp;&amp; ${view>id} !== 'rules'}" />
+					</VBox>
+				</VBox>
+				<MessageStrip type="Information" showIcon="true" text="{i18n>setupAiNone}" visible="{= !${app>/aiReady}}" class="sapUiSmallMarginTop" />
+			</VBox>
+		</HBox>
+
+		<!-- the recorder -->
+		<VBox class="qtCard qtPadded" renderType="Bare">
+			<Title text="{i18n>setupRecorder}" level="H4" />
+			<Text text="{i18n>setupRecorderHint}" class="qtMuted sapUiTinyMarginBottom" />
+			<HBox wrap="Wrap">
+				<Button id="setupPair" icon="sap-icon://puzzle" text="{i18n>recorderPair}" press=".onRecorder" class="sapUiTinyMarginEnd" />
+				<Link text="{i18n>setupOpenDesigner}" href="{view>/designerUrl}" target="_blank" class="sapUiTinyMarginTop" />
+			</HBox>
+		</VBox>
+	</VBox>
+</mvc:View>

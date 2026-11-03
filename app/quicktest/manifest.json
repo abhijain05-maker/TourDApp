@@ -1,0 +1,55 @@
+{
+	"_version": "1.60.0",
+	"sap.app": {
+		"id": "quicktest",
+		"type": "application",
+		"i18n": "i18n/i18n.properties",
+		"title": "{{appTitle}}",
+		"description": "{{appDescription}}",
+		"applicationVersion": { "version": "1.0.0" }
+	},
+	"sap.ui": {
+		"technology": "UI5",
+		"deviceTypes": { "desktop": true, "tablet": true, "phone": true }
+	},
+	"sap.ui5": {
+		"rootView": { "viewName": "quicktest.view.App", "type": "XML", "async": true, "id": "app" },
+		"dependencies": {
+			"minUI5Version": "1.120.0",
+			"libs": { "sap.m": {}, "sap.ui.core": {}, "sap.ui.layout": {}, "sap.tnt": {}, "sap.f": {} }
+		},
+		"contentDensities": { "compact": true, "cozy": true },
+		"models": {
+			"i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"settings": { "bundleName": "quicktest.i18n.i18n", "supportedLocales": [""], "fallbackLocale": "" }
+			}
+		},
+		"resources": { "css": [{ "uri": "css/style.css" }] },
+		"routing": {
+			"config": {
+				"routerClass": "sap.m.routing.Router",
+				"viewType": "XML",
+				"viewPath": "quicktest.view",
+				"controlId": "pages",
+				"controlAggregation": "pages",
+				"transition": "show",
+				"async": true
+			},
+			"routes": [
+				{ "name": "projects", "pattern": ":?query:", "target": "projects" },
+				{ "name": "project", "pattern": "p/{id}:?query:", "target": "project" },
+				{ "name": "requirement", "pattern": "p/{id}/req/{reqId}", "target": "requirement" },
+				{ "name": "case", "pattern": "p/{id}/case/{caseId}:?query:", "target": "case" },
+				{ "name": "run", "pattern": "p/{id}/run/{runId}", "target": "run" }
+			],
+			"targets": {
+				"projects": { "viewName": "Projects", "viewId": "projects" },
+				"project": { "viewName": "Project", "viewId": "project" },
+				"requirement": { "viewName": "Requirement", "viewId": "requirement" },
+				"case": { "viewName": "Case", "viewId": "case" },
+				"run": { "viewName": "Run", "viewId": "run" }
+			}
+		}
+	}
+}

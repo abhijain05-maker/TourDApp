@@ -1,0 +1,115 @@
+<mvc:View
+	controllerName="tourd.designer.controller.tab.Readiness"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:tourd="tourd.designer.control">
+	<VBox class="tourdStack sapUiSmallMargin" renderType="Bare">
+		<HBox justifyContent="SpaceBetween" wrap="Wrap" alignItems="Center">
+			<VBox renderType="Bare" class="tourdGrow">
+				<Title text="{i18n>rTitle}" level="H4" />
+				<Text text="{i18n>rIntro}" class="tourdMuted" />
+			</VBox>
+			<Button
+				id="rScan"
+				text="{= ${readiness>/summary/scan} ? ${i18n>rScanAgain} : ${i18n>rScan}}"
+				icon="sap-icon://refresh"
+				type="Emphasized"
+				enabled="{= !!${readiness>/summary/hasFiles} &amp;&amp; !${readiness>/scanning}}"
+				press=".onScan" />
+		</HBox>
+		<MessageStrip id="rError" type="Error" showIcon="true" text="{readiness>/error}" visible="{= !!${readiness>/error}}" />
+
+		<!-- nothing to read yet: upload -->
+		<VBox id="rNoFiles" class="tourdEmpty tourdCard" alignItems="Center" visible="{= !!${readiness>/loaded} &amp;&amp; !${readiness>/summary/hasFiles}}">
+			<core:Icon src="sap-icon://upload-to-cloud" class="tourdEmptyIcon" />
+			<Title text="{i18n>rNoFilesTitle}" level="H4" />
+			<Text text="{i18n>rNoFilesText}" class="tourdMuted tourdEmptyText" />
+			<Button text="{i18n>rGoWorkspace}" type="Emphasized" press=".onWorkspace" />
+		</VBox>
+
+		<!-- files, but never scanned -->
+		<VBox id="rNotScanned" class="tourdEmpty tourdCard" alignItems="Center" visible="{= !!${readiness>/summary/hasFiles} &amp;&amp; !${readiness>/summary/scan}}">
+			<core:Icon src="sap-icon://search" class="tourdEmptyIcon" />
+			<Title text="{i18n>rNotScannedTitle}" level="H4" />
+			<Text text="{i18n>rNotScannedText}" class="tourdMuted tourdEmptyText" />
+			<Button text="{i18n>rScan}" icon="sap-icon://refresh" type="Emphasized" busy="{readiness>/scanning}" press=".onScan" />
+		</VBox>
+
+		<!-- scanned, nothing found -->
+		<VBox id="rNothing" class="tourdEmpty tourdCard" alignItems="Center" visible="{= !!${readiness>/summary/scan} &amp;&amp; ${readiness>/summary/total} === 0}">
+			<core:Icon src="sap-icon://hint" class="tourdEmptyIcon" />
+			<Title text="{i18n>rNothingTitle}" level="H4" />
+			<Text text="{i18n>rNothingText}" class="tourdMuted tourdEmptyText" />
+			<Button text="{i18n>rAddCheck}" icon="sap-icon://add" press=".onAdd" />
+		</VBox>
+
+		<MessageStrip
+			id="rOutdated"
+			type="Warning"
+			showIcon="true"
+			text="{i18n>rOutdated}"
+			visible="{= !!${readiness>/summary/outdated}}">
+			<link>
+				<Link text="{i18n>rScanAgain}" press=".onScan" />
+			</link>
+		</MessageStrip>
+
+		<!-- the result -->
+		<VBox id="rResult" renderType="Bare" class="tourdStack" visible="{= ${readiness>/summary/total} > 0}">
+			<HBox id="rHero" class="tourdRHero tourdCard" alignItems="Center" wrap="Wrap">
+				<tourd:ProgressRing
+					id="rRing"
+					value="{= ${readiness>/summary/progress} || 0}"
+					state="{readiness>/state}"
+					caption="{i18n>rVerified}"
+					label="{i18n>rVerifiedLabel}" />
+				<VBox renderType="Bare" class="tourdRHeroBody">
+					<Title id="rHeroTitle" text="{readiness>/summary/doneText}" level="H3" />
+					<Text text="{i18n>rHeroHint}" class="tourdMuted" />
+					<HBox wrap="Wrap" class="tourdRStats">
+						<ObjectStatus id="rStatAttention" text="{= ${i18n>rStatAttention} + ' ' + ${readiness>/summary/attention}}" state="{= ${readiness>/summary/attention} > 0 ? 'Error' : 'None'}" icon="sap-icon://alert" class="tourdRStat" />
+						<ObjectStatus id="rStatOpen" text="{= ${i18n>rStatOpen} + ' ' + ${readiness>/summary/open}}" icon="sap-icon://pending" class="tourdRStat" />
+						<ObjectStatus id="rStatWorking" text="{= ${i18n>rStatWorking} + ' ' + ${readiness>/summary/working}}" state="Success" icon="sap-icon://sys-enter-2" class="tourdRStat" />
+						<ObjectStatus id="rStatBroken" text="{= ${i18n>rStatBroken} + ' ' + ${readiness>/summary/broken}}" state="{= ${readiness>/summary/broken} > 0 ? 'Error' : 'None'}" icon="sap-icon://error" class="tourdRStat" />
+					</HBox>
+					<Text id="rScanInfo" class="tourdMeta" text="{path: 'readiness>/summary/scan', formatter: '.scanInfo'}" />
+				</VBox>
+				<Button text="{i18n>rReviewAttention}" type="Emphasized" visible="{= ${readiness>/summary/attention} > 0}" press=".onAttention" class="tourdRHeroAction" />
+			</HBox>
+
+			<Title text="{i18n>rByCategory}" level="H5" class="tourdRSection" />
+			<List
+				id="rCategories"
+				class="tourdRGrid"
+				items="{readiness>/categories}"
+				showSeparators="None"
+				backgroundDesign="Transparent">
+				<CustomListItem type="Active" press=".onCategory" visible="{= ${readiness>total} > 0}" class="tourdRCard tourdCard">
+					<VBox renderType="Bare" class="tourdRCardBody">
+						<HBox alignItems="Center">
+							<core:Icon src="{readiness>icon}" class="tourdRCardIcon" />
+							<VBox renderType="Bare" class="tourdRCardHead">
+								<Title text="{readiness>label}" level="H5" />
+								<Text text="{readiness>description}" class="tourdMeta" maxLines="2" />
+							</VBox>
+						</HBox>
+						<ProgressIndicator percentValue="{readiness>percent}" displayValue="{readiness>doneText}" state="{= ${readiness>state} === 'None' ? 'Information' : ${readiness>state}}" class="tourdRCardBar" />
+						<HBox wrap="Wrap">
+							<ObjectStatus text="{readiness>findingsText}" state="Warning" icon="sap-icon://alert" visible="{readiness>hasWarnings}" class="tourdRStat" />
+							<ObjectStatus text="{= ${readiness>attention} + ' ' + ${i18n>rNeedAttention}}" state="Error" visible="{= ${readiness>attention} > 0}" class="tourdRStat" />
+						</HBox>
+					</VBox>
+				</CustomListItem>
+			</List>
+
+			<VBox id="rReport" class="tourdRNotes tourdCard" visible="{= !!${readiness>/report} &amp;&amp; (${readiness>/report/added}.length > 0 || ${readiness>/report/removed}.length > 0 || ${readiness>/report/warnings}.length > 0)}">
+				<Title text="{i18n>rLastScan}" level="H5" />
+				<Text text="{path: 'readiness>/report', formatter: '.reportText'}" />
+				<VBox items="{readiness>/report/warnings}">
+					<MessageStrip type="Warning" showIcon="true" text="{readiness>message}" class="sapUiTinyMarginTop" />
+				</VBox>
+			</VBox>
+		</VBox>
+	</VBox>
+</mvc:View>

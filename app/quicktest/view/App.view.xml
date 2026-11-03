@@ -1,0 +1,47 @@
+<mvc:View
+	controllerName="quicktest.controller.App"
+	displayBlock="true"
+	height="100%"
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:tnt="sap.tnt">
+	<tnt:ToolPage id="toolPage" sideExpanded="{app>/navExpanded}">
+		<tnt:header>
+			<tnt:ToolHeader>
+				<Button id="navToggle" icon="sap-icon://menu2" type="Transparent" tooltip="{i18n>toggleNavigation}" press=".onToggleNav" />
+				<core:Icon src="sap-icon://task" class="qtBrandIcon" />
+				<Title text="{i18n>brand}" level="H1" class="qtBrand" />
+				<Text text="{i18n>tagline}" class="qtTagline" />
+				<ToolbarSpacer />
+				<Button id="paletteButton" icon="sap-icon://search" text="{i18n>paletteHint}" type="Transparent" press=".onPalette" />
+				<ToolbarSpacer />
+				<core:Icon src="sap-icon://ai" class="{= ${app>/provider} === 'rules' ? 'qtAiIcon' : 'qtAiIcon qtAiOn'}" tooltip="{i18n>aiTooltip}" />
+				<Select
+					id="providerSelect"
+					width="13rem"
+					selectedKey="{app>/provider}"
+					items="{app>/providers}"
+					change=".onProvider"
+					tooltip="{i18n>aiTooltip}">
+					<core:Item key="{app>id}" text="{app>text}" enabled="{app>usable}" />
+				</Select>
+				<Button id="extensionButton" icon="sap-icon://puzzle" text="{i18n>recorder}" tooltip="{i18n>recorderTooltip}" type="Transparent" press=".onExtension" />
+				<Button id="themeButton" icon="{= ${app>/theme} === 'dark' ? 'sap-icon://dark-mode' : 'sap-icon://light-mode'}" tooltip="{app>/themeText}" type="Transparent" press=".onTheme" />
+			</tnt:ToolHeader>
+		</tnt:header>
+		<tnt:sideContent>
+			<tnt:SideNavigation id="sideNav" selectedKey="{app>/navKey}" itemSelect=".onNavSelect">
+				<tnt:NavigationList>
+					<tnt:NavigationListItem id="navProjects" text="{i18n>projects}" icon="sap-icon://home" key="projects" />
+					<tnt:NavigationListItem id="navRecent" text="{i18n>recent}" icon="sap-icon://folder-blank" expanded="true" visible="{= ${app>/recent}.length > 0}" items="{app>/recent}">
+						<tnt:NavigationListItem text="{app>name}" key="{app>ID}" tooltip="{app>name}" />
+					</tnt:NavigationListItem>
+				</tnt:NavigationList>
+			</tnt:SideNavigation>
+		</tnt:sideContent>
+		<tnt:mainContents>
+			<NavContainer id="pages" defaultTransitionName="show" />
+		</tnt:mainContents>
+	</tnt:ToolPage>
+</mvc:View>

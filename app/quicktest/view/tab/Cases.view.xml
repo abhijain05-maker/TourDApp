@@ -1,0 +1,91 @@
+<mvc:View
+	controllerName="quicktest.controller.tab.Cases"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	core:require="{Format: 'quicktest/util/Format'}">
+	<VBox renderType="Bare">
+		<MessageStrip type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+		<VBox class="qtCard" renderType="Bare">
+			<HBox class="qtFilters">
+				<SearchField id="caseSearch" value="{view>/query}" liveChange=".onFilter" search=".onFilter" width="12rem" placeholder="{i18n>searchPlaceholder}" />
+				<Select id="caseStatus" selectedKey="{view>/status}" items="{view>/statuses}" change=".onFilter" width="8rem">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Select id="casePriority" selectedKey="{view>/priority}" items="{view>/priorities}" change=".onFilter" width="8rem">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Select id="caseKind" selectedKey="{view>/kind}" items="{view>/kinds}" change=".onFilter" width="8rem">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Select id="caseAutomation" selectedKey="{view>/automation}" items="{view>/automations}" change=".onFilter" width="10rem">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Select id="caseResult" selectedKey="{view>/result}" items="{view>/resultsList}" change=".onFilter" width="8rem">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<ToolbarSpacer />
+				<Text text="{view>/countText}" class="qtMuted" />
+				<MenuButton id="caseAiMenu" icon="sap-icon://ai" text="{i18n>aiMenu}">
+					<menu>
+						<Menu itemSelected=".onAiMenu">
+							<MenuItem key="cases" text="{i18n>aiCasesForRequirements}" icon="sap-icon://ai" />
+							<MenuItem key="recording" text="{i18n>fromRecording}" icon="sap-icon://record" />
+						</Menu>
+					</menu>
+				</MenuButton>
+				<Button id="caseNew" icon="sap-icon://add" text="{i18n>newCase}" type="Emphasized" press=".onNew" />
+			</HBox>
+			<HBox class="qtBulk" visible="{= ${view>/selected} > 0}">
+				<Text text="{view>/selectedText}" class="qtBold" />
+				<Select id="bulkCaseStatus" width="9rem" selectedKey="" items="{view>/bulkStatuses}" change=".onBulk('status', $event)">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Select id="bulkCasePriority" width="9rem" selectedKey="" items="{view>/bulkPriorities}" change=".onBulk('priority', $event)">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Select id="bulkCaseKind" width="9rem" selectedKey="" items="{view>/bulkKinds}" change=".onBulk('kind', $event)">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Select id="bulkCaseAutomation" width="10rem" selectedKey="" items="{view>/bulkAutomations}" change=".onBulk('automation', $event)">
+					<core:Item key="{view>id}" text="{view>label}" />
+				</Select>
+				<Button id="bulkAddToRun" icon="sap-icon://play" text="{i18n>addToRun}" press=".onAddToRun" />
+				<Button id="bulkAutomate" icon="sap-icon://source-code" text="{i18n>automateSelected}" press=".onAutomate" />
+				<Button id="bulkWdi5" icon="sap-icon://download" text="{i18n>downloadWdi5}" press=".onDownloadWdi5" />
+				<Button id="bulkCaseDelete" icon="sap-icon://delete" text="{i18n>delete}" type="Reject" press=".onBulkDelete" />
+			</HBox>
+			<Table id="caseTable" items="{view>/shown}" mode="MultiSelect" selectionChange=".onSelect" growing="true" growingThreshold="50" noDataText="{view>/emptyText}" busy="{view>/busy}" sticky="ColumnHeaders">
+				<columns>
+					<Column width="5.5rem"><Text text="{i18n>colId}" /></Column>
+					<Column minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colTitle}" /></Column>
+					<Column width="5.5rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colPriority}" /></Column>
+					<Column width="6.5rem" minScreenWidth="1500px" demandPopin="true"><Text text="{i18n>colType}" /></Column>
+					<Column width="6rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colStatus}" /></Column>
+					<Column width="7.5rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colAutomation}" /></Column>
+					<Column width="3.5rem" minScreenWidth="Desktop" demandPopin="true" hAlign="End"><Text text="{i18n>colSteps}" /></Column>
+					<Column width="7rem" minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colRequirements}" /></Column>
+					<Column width="7.5rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colLastResult}" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem type="Navigation" press=".onOpen">
+						<cells>
+							<Text text="{view>code}" class="qtCode" />
+							<VBox renderType="Bare">
+								<Text text="{view>title}" class="qtRowTitle" />
+								<Text text="{view>tags}" class="qtMuted" maxLines="1" visible="{= !!${view>tags}}" />
+							</VBox>
+							<ObjectStatus text="{path: 'view>priority', formatter: 'Format.priorityText'}" state="{path: 'view>priority', formatter: 'Format.priorityState'}" />
+							<Text text="{path: 'view>kind', formatter: 'Format.caseKindText'}" />
+							<ObjectStatus text="{path: 'view>status', formatter: 'Format.caseStatusText'}" state="{path: 'view>status', formatter: 'Format.caseStatusState'}" />
+							<ObjectStatus text="{path: 'view>automation', formatter: 'Format.automationText'}" state="{path: 'view>automation', formatter: 'Format.automationState'}" icon="{= ${view>automation} === 'automated' ? 'sap-icon://source-code' : ''}" />
+							<Text text="{view>stepsText}" />
+							<Text text="{view>reqText}" class="qtCode" />
+							<ObjectStatus text="{path: 'view>lastResult', formatter: 'Format.resultText'}" state="{path: 'view>lastResult', formatter: 'Format.resultState'}" icon="{path: 'view>lastResult', formatter: 'Format.resultIcon'}" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</VBox>
+	</VBox>
+</mvc:View>

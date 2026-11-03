@@ -1,0 +1,57 @@
+<mvc:View
+	controllerName="quicktest.controller.Project"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	core:require="{Format: 'quicktest/util/Format'}">
+	<Page id="projectPage" showHeader="false" enableScrolling="true" class="qtPageBg">
+		<content>
+			<VBox class="qtPage" renderType="Bare">
+				<MessageStrip id="projectError" type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+
+				<HBox class="qtCard qtBanner" alignItems="Center" busy="{view>/loading}">
+					<Button icon="sap-icon://nav-back" type="Transparent" tooltip="{i18n>projects}" press=".onHome" />
+					<Text text="{path: 'app>/project/name', formatter: 'Format.initial'}" class="qtAvatar" />
+					<VBox class="qtBannerBody" renderType="Bare">
+						<Title id="projectName" text="{app>/project/name}" level="H2" wrapping="true" />
+						<Text text="{= ${app>/project/appId} || ${app>/project/description} || ''}" class="qtMuted" />
+					</VBox>
+					<HBox alignItems="Center" class="qtBannerActions" wrap="Wrap">
+						<Button id="importButton" icon="sap-icon://upload" text="{i18n>importBook}" press=".onImport" class="sapUiTinyMarginEnd" />
+						<MenuButton id="exportButton" icon="sap-icon://download" text="{i18n>exportBook}" class="sapUiTinyMarginEnd">
+							<menu>
+								<Menu itemSelected=".onExport">
+									<MenuItem key="testbook.xlsx" text="{i18n>exportXlsx}" icon="sap-icon://excel-attachment" />
+									<MenuItem key="testbook.json" text="{i18n>exportJson}" icon="sap-icon://syntax" />
+									<MenuItem key="cases.csv" text="{i18n>exportCsv}" icon="sap-icon://table-view" />
+									<MenuItem key="wdi5.zip" text="{i18n>exportWdi5}" icon="sap-icon://source-code" startsSection="true" />
+									<MenuItem key="template.xlsx" text="{i18n>exportTemplate}" icon="sap-icon://action-settings" startsSection="true" />
+								</Menu>
+							</menu>
+						</MenuButton>
+					</HBox>
+				</HBox>
+
+				<IconTabHeader id="tabs" selectedKey="{view>/tab}" select=".onTabSelect" mode="Inline" class="qtTabs">
+					<items>
+						<IconTabFilter key="dashboard" text="{i18n>tabDashboard}" icon="sap-icon://business-objects-experience" />
+						<IconTabFilter key="requirements" text="{i18n>tabRequirements}" icon="sap-icon://request" count="{app>/dash/requirements/total}" />
+						<IconTabFilter key="cases" text="{i18n>tabCases}" icon="sap-icon://task" count="{app>/dash/cases/total}" />
+						<IconTabFilter key="matrix" text="{i18n>tabMatrix}" icon="sap-icon://org-chart" />
+						<IconTabFilter key="runs" text="{i18n>tabRuns}" icon="sap-icon://play" count="{app>/dash/runs/total}" />
+						<IconTabFilter key="automation" text="{i18n>tabAutomation}" icon="sap-icon://source-code" />
+						<IconTabFilter key="setup" text="{i18n>tabSetup}" icon="sap-icon://action-settings" />
+					</items>
+				</IconTabHeader>
+
+				<VBox id="paneDashboard" visible="{= ${view>/tab} === 'dashboard'}" renderType="Bare" class="sapUiSmallMarginTop" />
+				<VBox id="paneRequirements" visible="{= ${view>/tab} === 'requirements'}" renderType="Bare" class="sapUiSmallMarginTop" />
+				<VBox id="paneCases" visible="{= ${view>/tab} === 'cases'}" renderType="Bare" class="sapUiSmallMarginTop" />
+				<VBox id="paneMatrix" visible="{= ${view>/tab} === 'matrix'}" renderType="Bare" class="sapUiSmallMarginTop" />
+				<VBox id="paneRuns" visible="{= ${view>/tab} === 'runs'}" renderType="Bare" class="sapUiSmallMarginTop" />
+				<VBox id="paneAutomation" visible="{= ${view>/tab} === 'automation'}" renderType="Bare" class="sapUiSmallMarginTop" />
+				<VBox id="paneSetup" visible="{= ${view>/tab} === 'setup'}" renderType="Bare" class="sapUiSmallMarginTop" />
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

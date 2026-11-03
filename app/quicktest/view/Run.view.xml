@@ -1,0 +1,128 @@
+<mvc:View
+	controllerName="quicktest.controller.Run"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:qt="quicktest.control"
+	core:require="{Format: 'quicktest/util/Format'}">
+	<Page id="runPage" showHeader="false" enableScrolling="true" class="qtPageBg">
+		<content>
+			<VBox class="qtPage" renderType="Bare">
+				<MessageStrip id="runError" type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+
+				<HBox class="qtCard qtBanner" alignItems="Center" wrap="Wrap" busy="{view>/busy}">
+					<Button icon="sap-icon://nav-back" type="Transparent" tooltip="{i18n>back}" press=".onBack" />
+					<core:Icon src="sap-icon://play" class="qtAvatar" />
+					<VBox class="qtBannerBody" renderType="Bare">
+						<Title id="runTitle" text="{view>/run/name}" level="H2" wrapping="true" />
+						<Text text="{view>/runMeta}" class="qtMuted" />
+					</VBox>
+					<HBox wrap="Wrap" alignItems="Center">
+						<ObjectStatus text="{= ${view>/run/status} === 'closed' ? ${i18n>runClosed} : ${i18n>runOpen}}" state="{= ${view>/run/status} === 'closed' ? 'Success' : 'Information'}" inverted="true" class="sapUiSmallMarginEnd" />
+						<Button id="runAddCases" icon="sap-icon://add" text="{i18n>runAddCases}" enabled="{= ${view>/run/status} === 'open'}" press=".onAddCases" class="sapUiTinyMarginEnd" />
+						<MenuButton id="runExport" icon="sap-icon://download" text="{i18n>exportBook}" class="sapUiTinyMarginEnd">
+							<menu>
+								<Menu itemSelected=".onExport">
+									<MenuItem key="report.html" text="{i18n>reportHtml}" icon="sap-icon://document-text" />
+									<MenuItem key="report.xlsx" text="{i18n>reportXlsx}" icon="sap-icon://excel-attachment" />
+									<MenuItem key="junit.xml" text="{i18n>reportJunit}" icon="sap-icon://syntax" />
+								</Menu>
+							</menu>
+						</MenuButton>
+						<Button id="runClose" text="{= ${view>/run/status} === 'closed' ? ${i18n>runReopen} : ${i18n>runCloseIt}}" icon="{= ${view>/run/status} === 'closed' ? 'sap-icon://reset' : 'sap-icon://complete'}" type="{= ${view>/run/status} === 'closed' ? 'Default' : 'Emphasized'}" press=".onToggleClose" />
+					</HBox>
+				</HBox>
+
+				<VBox class="qtCard qtRunSummary" renderType="Bare">
+					<HBox alignItems="Center" wrap="Wrap" class="qtRunSummaryRow">
+						<qt:ProgressRing size="5rem" value="{view>/passValue}" state="{view>/passState}" caption="{i18n>dashPassed}" class="sapUiMediumMarginEnd" />
+						<VBox class="qtGrow" renderType="Bare">
+							<Text text="{view>/progressText}" class="qtBold sapUiTinyMarginBottom" />
+							<qt:StackBar id="runBar" segments="{view>/bar}" />
+						</VBox>
+					</HBox>
+				</VBox>
+
+				<HBox class="qtRunLayout" renderType="Bare">
+					<!-- the test cases of the run -->
+					<VBox class="qtCard" renderType="Bare">
+						<VBox class="qtPadded" renderType="Bare">
+							<Select id="runFilter" selectedKey="{view>/filter}" items="{view>/filters}" change=".onFilter" width="100%">
+								<core:Item key="{view>id}" text="{view>label}" />
+							</Select>
+						</VBox>
+						<List id="runItems" items="{view>/shown}" mode="SingleSelectMaster" selectionChange=".onPick" noDataText="{i18n>runNoItems}" includeItemInSelection="true">
+							<StandardListItem title="{view>caseTitle}" description="{view>caseCode}" icon="{path: 'view>status', formatter: 'Format.resultIcon'}" info="{path: 'view>status', formatter: 'Format.resultText'}" infoState="{path: 'view>status', formatter: 'Format.resultState'}" selected="{view>picked}" />
+						</List>
+					</VBox>
+
+					<!-- one test case: the steps, the verdict -->
+					<VBox class="qtCard" renderType="Bare" busy="{view>/itemBusy}">
+						<VBox class="qtEmptyNote" visible="{= !${view>/cur}}" renderType="Bare">
+							<core:Icon src="sap-icon://play" size="2rem" class="qtMuted" />
+							<Text text="{i18n>runPick}" class="sapUiSmallMarginTop" />
+						</VBox>
+						<VBox visible="{= !!${view>/cur}}" renderType="Bare">
+							<HBox class="qtFilters" justifyContent="SpaceBetween">
+								<VBox renderType="Bare" class="qtGrow">
+									<HBox alignItems="Center">
+										<Text text="{view>/cur/caseCode}" class="qtCode sapUiTinyMarginEnd" />
+										<ObjectStatus text="{path: 'view>/cur/status', formatter: 'Format.resultText'}" state="{path: 'view>/cur/status', formatter: 'Format.resultState'}" icon="{path: 'view>/cur/status', formatter: 'Format.resultIcon'}" />
+									</HBox>
+									<Title text="{view>/cur/caseTitle}" level="H4" wrapping="true" />
+								</VBox>
+								<HBox>
+									<Button id="runPrev" icon="sap-icon://navigation-up-arrow" tooltip="{i18n>runPrev}" type="Transparent" press=".onPrev" />
+									<Button id="runNext" icon="sap-icon://navigation-down-arrow" tooltip="{i18n>runNext}" type="Transparent" press=".onNext" />
+									<Button icon="sap-icon://detail-view" tooltip="{i18n>openCase}" type="Transparent" press=".onOpenCase" />
+								</HBox>
+							</HBox>
+							<MessageStrip type="Information" showIcon="true" text="{view>/cur/preconditions}" visible="{= !!${view>/cur/preconditions}}" class="sapUiSmallMarginBeginEnd sapUiSmallMarginBottom" />
+							<MessageStrip type="Warning" showIcon="true" text="{i18n>runReadOnly}" visible="{= ${view>/run/status} === 'closed'}" class="sapUiSmallMarginBeginEnd sapUiSmallMarginBottom" />
+							<VBox id="runSteps" items="{view>/cur/steps}" renderType="Bare">
+								<HBox class="qtRunStep">
+									<customData><core:CustomData key="status" value="{view>status}" writeToDom="true" /></customData>
+									<Text text="{view>n}" class="qtStepNo" />
+									<VBox renderType="Bare">
+										<Text text="{view>action}" class="qtBold" />
+										<Text text="{= 'Data: ' + ${view>data}}" class="qtMuted" visible="{= !!${view>data}}" />
+										<Text text="{view>expected}" class="qtExpected" visible="{= !!${view>expected}}" />
+										<Input value="{view>actual}" valueLiveUpdate="false" change=".onStepNote" placeholder="{i18n>runActualPlaceholder}" visible="{= ${view>status} === 'failed' || ${view>status} === 'blocked'}" class="sapUiTinyMarginTop" editable="{= ${view>/run/status} === 'open'}" />
+									</VBox>
+									<SegmentedButton selectedKey="{view>status}" selectionChange=".onStepResult" enabled="{= ${view>/run/status} === 'open'}">
+										<items>
+											<SegmentedButtonItem key="none" visible="false" />
+											<SegmentedButtonItem key="passed" icon="sap-icon://accept" tooltip="{i18n>resPassed}" />
+											<SegmentedButtonItem key="failed" icon="sap-icon://decline" tooltip="{i18n>resFailed}" />
+											<SegmentedButtonItem key="blocked" icon="sap-icon://status-error" tooltip="{i18n>resBlocked}" />
+											<SegmentedButtonItem key="skipped" icon="sap-icon://journey-arrive" tooltip="{i18n>resSkipped}" />
+										</items>
+									</SegmentedButton>
+								</HBox>
+							</VBox>
+							<Text text="{i18n>runNoSteps}" class="qtEmptyNote" visible="{= ${view>/cur/steps}.length === 0}" />
+							<VBox class="qtVerdictBox" renderType="Bare">
+								<HBox class="qtVerdict" visible="{= ${view>/run/status} === 'open'}">
+									<Text text="{i18n>runVerdict}" class="qtBold" />
+									<Button id="verdictPass" icon="sap-icon://sys-enter-2" text="{i18n>resPassed}" type="Accept" press=".onVerdict('passed')" />
+									<Button id="verdictFail" icon="sap-icon://error" text="{i18n>resFailed}" type="Reject" press=".onVerdict('failed')" />
+									<Button id="verdictBlock" icon="sap-icon://status-error" text="{i18n>resBlocked}" type="Attention" press=".onVerdict('blocked')" />
+									<Button id="verdictSkip" icon="sap-icon://journey-arrive" text="{i18n>resSkipped}" press=".onVerdict('skipped')" />
+									<Button id="verdictReset" icon="sap-icon://reset" tooltip="{i18n>runReset}" type="Transparent" press=".onVerdict('notrun')" />
+									<Text text="{i18n>runKeys}" class="qtMuted" />
+								</HBox>
+								<VBox class="sapUiSmallMargin qtStack" renderType="Bare">
+									<Label text="{i18n>runActual}" labelFor="runActual" />
+									<TextArea id="runActual" value="{view>/cur/actual}" rows="2" growing="true" growingMaxLines="8" width="100%" change=".onNotesChange" editable="{= ${view>/run/status} === 'open'}" placeholder="{i18n>runActualOverall}" />
+									<Label text="{i18n>runDefect}" labelFor="runDefect" />
+									<Input id="runDefect" value="{view>/cur/defect}" change=".onNotesChange" editable="{= ${view>/run/status} === 'open'}" placeholder="BUG-1234" />
+									<Text text="{view>/cur/executedText}" class="qtMuted" />
+								</VBox>
+							</VBox>
+						</VBox>
+					</VBox>
+				</HBox>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

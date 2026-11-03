@@ -58,6 +58,9 @@
 				},
 				{
 					"uri": "css/tour.css"
+				},
+				{
+					"uri": "css/readiness.css"
 				}
 			]
 		},

@@ -1,0 +1,284 @@
+<mvc:View
+	controllerName="quicktest.controller.Case"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	core:require="{Format: 'quicktest/util/Format'}">
+	<Page id="casePage" showHeader="false" enableScrolling="true" class="qtPageBg">
+		<content>
+			<VBox class="qtPage" renderType="Bare">
+				<MessageStrip id="caseError" type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+				<MessageStrip id="caseInfo" type="Success" showIcon="true" text="{view>/info}" visible="{= !!${view>/info}}" class="sapUiSmallMarginBottom" showCloseButton="true" />
+
+				<!-- header -->
+				<HBox class="qtCard qtBanner" alignItems="Center" wrap="Wrap" busy="{view>/busy}">
+					<Button icon="sap-icon://nav-back" type="Transparent" tooltip="{i18n>back}" press=".onBack" />
+					<core:Icon src="sap-icon://task" class="qtAvatar" />
+					<VBox class="qtBannerBody" renderType="Bare">
+						<HBox alignItems="Center" wrap="Wrap">
+							<Text text="{= ${view>/item/code} || ${i18n>newCase}}" class="qtCode sapUiTinyMarginEnd" />
+							<ObjectStatus text="{path: 'view>/item/automation', formatter: 'Format.automationText'}" state="{path: 'view>/item/automation', formatter: 'Format.automationState'}" icon="{= ${view>/item/automation} === 'automated' ? 'sap-icon://source-code' : ''}" class="sapUiTinyMarginEnd" visible="{= !!${view>/item/ID}}" />
+							<ObjectStatus text="{path: 'view>/item/lastResult', formatter: 'Format.resultText'}" state="{path: 'view>/item/lastResult', formatter: 'Format.resultState'}" icon="{path: 'view>/item/lastResult', formatter: 'Format.resultIcon'}" visible="{= !!${view>/item/lastResult}}" />
+						</HBox>
+						<Input id="caseTitle" value="{view>/item/title}" valueLiveUpdate="true" placeholder="{i18n>caseTitlePlaceholder}" class="qtTitleInput" />
+					</VBox>
+					<HBox wrap="Wrap" alignItems="Center">
+						<Button id="caseImprove" icon="sap-icon://ai" text="{i18n>aiImprove}" press=".onImprove" class="sapUiTinyMarginEnd" />
+						<MenuButton id="caseAutomate" icon="sap-icon://source-code" text="{i18n>automate}" enabled="{= !!${view>/item/ID}}" class="sapUiTinyMarginEnd">
+							<menu>
+								<Menu itemSelected=".onAutomateMenu">
+									<MenuItem key="rules" text="{i18n>automateRules}" icon="sap-icon://sys-find" />
+									<MenuItem key="ai" text="{i18n>automateAi}" icon="sap-icon://ai" enabled="{app>/aiReady}" />
+									<MenuItem key="recording" text="{i18n>fromRecording}" icon="sap-icon://record" startsSection="true" />
+									<MenuItem key="detach" text="{i18n>automateRemove}" icon="sap-icon://delete" enabled="{= ${view>/item/automation} === 'automated'}" startsSection="true" />
+								</Menu>
+							</menu>
+						</MenuButton>
+						<MenuButton id="caseMore" icon="sap-icon://overflow" tooltip="{i18n>more}" type="Transparent" enabled="{= !!${view>/item/ID}}" class="sapUiTinyMarginEnd">
+							<menu>
+								<Menu itemSelected=".onMore">
+									<MenuItem key="run" text="{i18n>addToRun}" icon="sap-icon://play" />
+									<MenuItem key="duplicate" text="{i18n>duplicate}" icon="sap-icon://duplicate" />
+									<MenuItem key="delete" text="{i18n>delete}" icon="sap-icon://delete" startsSection="true" />
+								</Menu>
+							</menu>
+						</MenuButton>
+						<Button id="caseSave" icon="sap-icon://save" text="{i18n>save}" type="Emphasized" enabled="{= ${view>/dirty} &amp;&amp; !!${view>/item/title}}" press=".onSave" />
+					</HBox>
+				</HBox>
+
+				<IconTabHeader id="caseTabs" selectedKey="{view>/section}" select=".onSection" mode="Inline" class="qtTabs">
+					<items>
+						<IconTabFilter key="steps" text="{i18n>secSteps}" icon="sap-icon://list" count="{view>/steps/length}" />
+						<IconTabFilter key="details" text="{i18n>secDetails}" icon="sap-icon://hint" />
+						<IconTabFilter key="requirements" text="{i18n>secRequirements}" icon="sap-icon://request" count="{view>/linked/length}" />
+						<IconTabFilter key="automation" text="{i18n>secAutomation}" icon="sap-icon://source-code" />
+						<IconTabFilter key="history" text="{i18n>secHistory}" icon="sap-icon://history" />
+					</items>
+				</IconTabHeader>
+
+				<!-- steps -->
+				<VBox id="secSteps" visible="{= ${view>/section} === 'steps'}" class="sapUiSmallMarginTop" renderType="Bare">
+					<VBox class="qtCard qtPadded qtStack" renderType="Bare">
+						<HBox wrap="Wrap">
+							<VBox class="qtGrow sapUiSmallMarginEnd" renderType="Bare">
+								<Label text="{i18n>preconditions}" labelFor="casePre" />
+								<TextArea id="casePre" value="{view>/item/preconditions}" valueLiveUpdate="true" rows="2" growing="true" growingMaxLines="6" width="100%" placeholder="{i18n>preconditionsPlaceholder}" />
+							</VBox>
+							<VBox class="qtGrow" renderType="Bare">
+								<Label text="{i18n>objective}" labelFor="caseObjective" />
+								<TextArea id="caseObjective" value="{view>/item/objective}" valueLiveUpdate="true" rows="2" growing="true" growingMaxLines="6" width="100%" placeholder="{i18n>objectivePlaceholder}" />
+							</VBox>
+						</HBox>
+					</VBox>
+					<VBox class="qtCard sapUiSmallMarginTop" renderType="Bare">
+						<HBox class="qtFilters">
+							<Title text="{i18n>secSteps}" level="H4" />
+							<Text text="{i18n>stepsHint}" class="qtMuted" />
+							<ToolbarSpacer />
+							<Button id="stepPaste" icon="sap-icon://paste" text="{i18n>pasteSteps}" press=".onPasteSteps" />
+							<Button id="stepAdd" icon="sap-icon://add" text="{i18n>addStep}" type="Emphasized" press=".onAddStep" />
+						</HBox>
+						<HBox class="qtStepRow qtStepHead">
+							<Text text="#" />
+							<Text text="{i18n>stepAction}" />
+							<Text text="{i18n>stepData}" />
+							<Text text="{i18n>stepExpected}" />
+							<Text text="" />
+						</HBox>
+						<VBox id="stepList" items="{view>/steps}" renderType="Bare" class="qtSteps">
+							<HBox class="qtStepRow">
+								<Text text="{view>n}" class="qtStepNo" />
+								<VBox renderType="Bare">
+									<TextArea value="{view>action}" valueLiveUpdate="true" rows="1" growing="true" growingMaxLines="8" width="100%" placeholder="{i18n>stepActionPlaceholder}" />
+									<ObjectStatus text="{parts: ['view>auto/length'], formatter: '.autoText'}" icon="sap-icon://source-code" state="Success" visible="{= ${view>auto/length} > 0}" class="qtStepAuto" />
+								</VBox>
+								<TextArea value="{view>data}" valueLiveUpdate="true" rows="1" growing="true" growingMaxLines="8" width="100%" placeholder="{i18n>stepDataPlaceholder}" />
+								<TextArea value="{view>expected}" valueLiveUpdate="true" rows="1" growing="true" growingMaxLines="8" width="100%" placeholder="{i18n>stepExpectedPlaceholder}" />
+								<HBox>
+									<Button icon="sap-icon://navigation-up-arrow" type="Transparent" tooltip="{i18n>moveUp}" press=".onStepUp" />
+									<Button icon="sap-icon://navigation-down-arrow" type="Transparent" tooltip="{i18n>moveDown}" press=".onStepDown" />
+									<Button icon="sap-icon://add-document" type="Transparent" tooltip="{i18n>insertBelow}" press=".onStepInsert" />
+									<Button icon="sap-icon://decline" type="Transparent" tooltip="{i18n>remove}" press=".onStepRemove" />
+								</HBox>
+							</HBox>
+						</VBox>
+						<Text text="{i18n>noSteps}" class="qtEmptyNote" visible="{= ${view>/steps}.length === 0}" />
+					</VBox>
+				</VBox>
+
+				<!-- details -->
+				<VBox id="secDetails" visible="{= ${view>/section} === 'details'}" class="sapUiSmallMarginTop qtCard qtPadded qtStack" renderType="Bare">
+					<HBox wrap="Wrap">
+						<VBox class="sapUiSmallMarginEnd qtGrow" renderType="Bare">
+							<Label text="{i18n>colPriority}" labelFor="casePriority" />
+							<Select id="casePriority" selectedKey="{view>/item/priority}" items="{view>/priorities}" width="100%">
+								<core:Item key="{view>id}" text="{view>label}" />
+							</Select>
+						</VBox>
+						<VBox class="sapUiSmallMarginEnd qtGrow" renderType="Bare">
+							<Label text="{i18n>colType}" labelFor="caseKind" />
+							<Select id="caseKind" selectedKey="{view>/item/kind}" items="{view>/kinds}" width="100%">
+								<core:Item key="{view>id}" text="{view>label}" />
+							</Select>
+						</VBox>
+						<VBox class="qtGrow" renderType="Bare">
+							<Label text="{i18n>colStatus}" labelFor="caseStatus" />
+							<Select id="caseStatus" selectedKey="{view>/item/status}" items="{view>/statuses}" width="100%">
+								<core:Item key="{view>id}" text="{view>label}" />
+							</Select>
+						</VBox>
+					</HBox>
+					<Label text="{i18n>colTags}" labelFor="caseTags" />
+					<Input id="caseTags" value="{view>/item/tags}" valueLiveUpdate="true" placeholder="{i18n>tagsPlaceholder}" />
+					<Label text="{i18n>colOwner}" labelFor="caseOwner" />
+					<Input id="caseOwner" value="{view>/item/owner}" valueLiveUpdate="true" />
+					<Text text="{view>/metaText}" class="qtMuted" />
+				</VBox>
+
+				<!-- requirements -->
+				<VBox id="secRequirements" visible="{= ${view>/section} === 'requirements'}" class="sapUiSmallMarginTop qtCard qtPadded qtStack" renderType="Bare">
+					<Text text="{i18n>reqLinkHint}" class="qtMuted" />
+					<MultiComboBox id="caseReqs" selectedKeys="{view>/linked}" items="{view>/allReqs}" width="100%" selectionFinish=".onLinksChanged" placeholder="{i18n>linkReqsPlaceholder}">
+						<core:Item key="{view>ID}" text="{view>text}" />
+					</MultiComboBox>
+					<Table items="{view>/linkedRows}" noDataText="{i18n>noLinkedRequirements}">
+						<columns>
+							<Column width="6.5rem"><Text text="{i18n>colId}" /></Column>
+							<Column><Text text="{i18n>colTitle}" /></Column>
+							<Column width="8rem"><Text text="{i18n>colPriority}" /></Column>
+						</columns>
+						<items>
+							<ColumnListItem type="Navigation" press=".onOpenRequirement">
+								<cells>
+									<Text text="{view>code}" class="qtCode" />
+									<Text text="{view>title}" class="qtRowTitle" />
+									<ObjectStatus text="{path: 'view>priority', formatter: 'Format.priorityText'}" state="{path: 'view>priority', formatter: 'Format.priorityState'}" />
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+				</VBox>
+
+				<!-- automation -->
+				<VBox id="secAutomation" visible="{= ${view>/section} === 'automation'}" class="sapUiSmallMarginTop" renderType="Bare" busy="{view>/autoBusy}">
+					<VBox class="qtCard qtEmptyNote" visible="{= !${view>/auto}}" renderType="Bare">
+						<core:Icon src="sap-icon://source-code" size="2.5rem" class="qtMuted" />
+						<Title text="{i18n>autoNoneTitle}" level="H4" class="sapUiSmallMarginTop" />
+						<Text text="{i18n>autoNoneText}" class="qtMuted sapUiTinyMarginTop" />
+						<HBox justifyContent="Center" wrap="Wrap" class="sapUiSmallMarginTop">
+							<Button id="autoRules" icon="sap-icon://sys-find" text="{i18n>automateRules}" type="Emphasized" enabled="{= !!${view>/item/ID}}" press=".onAutomateRules" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+							<Button id="autoAi" icon="sap-icon://ai" text="{i18n>automateAi}" enabled="{= !!${view>/item/ID} &amp;&amp; ${app>/aiReady}}" press=".onAutomateAi" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+							<Button id="autoRecording" icon="sap-icon://record" text="{i18n>fromRecording}" enabled="{= !!${view>/item/ID}}" press=".onAttachRecording" class="sapUiTinyMarginBottom" />
+						</HBox>
+					</VBox>
+
+					<VBox visible="{= !!${view>/auto}}" renderType="Bare">
+						<HBox class="qtTwoCols" renderType="Bare">
+							<VBox class="qtCard qtPadded qtStack" renderType="Bare">
+								<HBox justifyContent="SpaceBetween" alignItems="Center">
+									<Title text="{i18n>autoPlan}" level="H4" />
+									<ObjectStatus text="{view>/auto/generatorText}" state="Information" inverted="true" />
+								</HBox>
+								<Text text="{view>/auto/coverageText}" />
+								<Text text="{view>/auto/dryText}" class="qtMuted" />
+								<HBox wrap="Wrap">
+									<Button id="autoRebuild" icon="sap-icon://refresh" text="{i18n>autoRebuild}" press=".onAutomateRules" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+									<Button id="autoRebuildAi" icon="sap-icon://ai" text="{i18n>automateAi}" enabled="{app>/aiReady}" press=".onAutomateAi" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+									<Button id="autoApply" icon="sap-icon://add-folder" text="{i18n>autoAddToProject}" press=".onAddToProject" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+									<Button id="autoZip" icon="sap-icon://download" text="{i18n>downloadWdi5}" press=".onDownloadCase" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+									<Link text="{i18n>autoOpenDesigner}" href="{view>/auto/designerUrl}" target="_blank" class="sapUiTinyMarginTop" />
+								</HBox>
+							</VBox>
+							<VBox class="qtCard qtPadded qtStack" renderType="Bare">
+								<Title text="{i18n>autoSettings}" level="H4" />
+								<Label text="{i18n>autoBaseUrl}" labelFor="autoBaseUrl" />
+								<Input id="autoBaseUrl" value="{view>/auto/settings/baseUrl}" valueLiveUpdate="true" change=".onSettingsChange" />
+								<HBox wrap="Wrap">
+									<VBox class="sapUiSmallMarginEnd qtGrow" renderType="Bare">
+										<Label text="{i18n>autoFramework}" labelFor="autoFramework" />
+										<Select id="autoFramework" selectedKey="{view>/auto/settings/framework}" change=".onSettingsChange" width="100%">
+											<core:Item key="mocha" text="Mocha" />
+											<core:Item key="jasmine" text="Jasmine" />
+										</Select>
+									</VBox>
+									<VBox class="qtGrow" renderType="Bare">
+										<Label text="{i18n>autoLogin}" labelFor="autoAuth" />
+										<Select id="autoAuth" selectedKey="{view>/auto/settings/auth}" change=".onSettingsChange" width="100%">
+											<core:Item key="none" text="{i18n>authNone}" />
+											<core:Item key="basic" text="{i18n>authBasic}" />
+											<core:Item key="btp" text="{i18n>authBtp}" />
+										</Select>
+									</VBox>
+								</HBox>
+							</VBox>
+						</HBox>
+
+						<VBox class="qtCard" renderType="Bare">
+							<HBox class="qtFilters"><Title text="{i18n>autoSteps}" level="H4" /></HBox>
+							<Table items="{view>/auto/rows}" growing="true" growingThreshold="40">
+								<columns>
+									<Column width="5rem"><Text text="{i18n>autoKind}" /></Column>
+									<Column><Text text="{i18n>autoStep}" /></Column>
+									<Column width="14rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>autoTarget}" /></Column>
+									<Column width="9rem"><Text text="{i18n>autoFound}" /></Column>
+								</columns>
+								<items>
+									<ColumnListItem class="{= ${view>enabled} ? '' : 'qtOff'}">
+										<cells>
+											<Text text="{view>kind}" class="qtCode" />
+											<VBox renderType="Bare">
+												<Text text="{view>title}" />
+												<Text text="{view>note}" class="qtMuted" visible="{= !!${view>note}}" />
+											</VBox>
+											<Text text="{view>target}" class="qtMono" />
+											<ObjectStatus text="{view>foundText}" state="{view>foundState}" />
+										</cells>
+									</ColumnListItem>
+								</items>
+							</Table>
+						</VBox>
+
+						<VBox class="qtCard qtPadded sapUiSmallMarginTop" renderType="Bare">
+							<HBox alignItems="Center" justifyContent="SpaceBetween" wrap="Wrap">
+								<Title text="{i18n>autoCode}" level="H4" />
+								<HBox alignItems="Center">
+									<Select id="autoFile" selectedKey="{view>/code/key}" items="{view>/code/files}" change=".onCodeFile" width="22rem">
+										<core:Item key="{view>path}" text="{view>path}" />
+									</Select>
+									<Button id="autoCopy" icon="sap-icon://copy" tooltip="{i18n>copy}" press=".onCopyCode" class="sapUiTinyMarginBegin" />
+								</HBox>
+							</HBox>
+							<MessageStrip type="Warning" showIcon="true" text="{view>/code/problem}" visible="{= !!${view>/code/problem}}" class="sapUiSmallMarginTop" />
+							<core:HTML id="autoCodeHtml" content="&lt;pre class='qtCodeBox'&gt;&lt;/pre&gt;" />
+						</VBox>
+					</VBox>
+				</VBox>
+
+				<!-- history -->
+				<VBox id="secHistory" visible="{= ${view>/section} === 'history'}" class="sapUiSmallMarginTop qtCard" renderType="Bare">
+					<Table items="{view>/versions}" noDataText="{i18n>noHistory}">
+						<columns>
+							<Column width="5rem"><Text text="{i18n>colVersion}" /></Column>
+							<Column><Text text="{i18n>colNote}" /></Column>
+							<Column width="12rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colWhen}" /></Column>
+							<Column width="9rem" minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colBy}" /></Column>
+							<Column width="8rem" hAlign="End" />
+						</columns>
+						<items>
+							<ColumnListItem>
+								<cells>
+									<Text text="v{view>version}" class="qtCode" />
+									<Text text="{= ${view>note} || '–'}" />
+									<Text text="{path: 'view>createdAt', formatter: 'Format.date'}" />
+									<Text text="{= ${view>createdBy} || '–'}" />
+									<Button text="{i18n>restore}" icon="sap-icon://undo" press=".onRestore" enabled="{= ${view>version} !== ${view>/item/version}}" />
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+				</VBox>
+			</VBox>
+		</content>
+	</Page>
+</mvc:View>

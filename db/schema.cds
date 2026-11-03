@@ -17,6 +17,8 @@ entity Projects : cuid, managed {
   jobs        : Composition of many GenerationJobs on jobs.project = $self;
   testPlans   : Composition of many TestPlans on testPlans.project = $self;
   helpSets    : Composition of many HelpSets on helpSets.project = $self;
+  readinessItems : Composition of many ReadinessItems on readinessItems.project = $self;
+  readinessScans : Composition of many ReadinessScans on readinessScans.project = $self;
 }
 
 /**
@@ -108,4 +110,37 @@ entity ExtensionTokens : cuid, managed {
   tokenHash  : String(64) not null;  // SHA-256 of the token
   lastUsedAt : Timestamp;
   revoked    : Boolean default false;
+}
+
+/**
+ * One thing the project depends on (a destination, a service, a role, a Work Zone app ...). The scan writes what it
+ * knows into `data`; people write the check (status, note, owner, inputs). A later scan keeps the check.
+ */
+entity ReadinessItems : cuid, managed {
+  project   : Association to Projects not null;
+  itemKey   : String(400) not null;       // category:kind:name - the same thing keeps the same key across scans
+  category  : String(30) not null;
+  kind      : String(40);
+  title     : String(300) not null;
+  severity  : String(10) default 'normal'; // high | normal | low: how likely it stops the app
+  level     : String(10);                  // worst finding of the last scan: error | warning | info | ok | ''
+  origin    : String(10) default 'scan';   // scan | manual
+  present   : Boolean default true;        // false: the last scan did not find it any more
+  data      : LargeString;                 // JSON from the scan: summary, sources, attrs, links, verify, fields, signals
+  probe     : LargeString;                 // JSON: result of a live check (reserved; no live check writes it yet)
+  status    : String(10) default 'open';   // open | working | broken | na
+  note      : String(2000);
+  owner     : String(120);
+  inputs    : LargeString;                 // JSON: what people wrote into the fields of the item
+  checkedAt : Timestamp;
+  checkedBy : String(120);
+}
+
+/** One run of the scan: what was read and what changed since the run before. */
+entity ReadinessScans : cuid, managed {
+  project : Association to Projects not null;
+  files   : Integer;
+  stamp   : String(64);   // fingerprint of the files that were read
+  total   : Integer;
+  report  : LargeString;  // JSON: added / removed item keys, warnings
 }

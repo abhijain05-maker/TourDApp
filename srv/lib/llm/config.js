@@ -9,3 +9,25 @@ export function providerDisabled(env, id) {
     .filter(Boolean)
     .includes(id)
 }
+
+/**
+ * The AI Core service key is one line of JSON, awkward to paste into a .env file. AICORE_SERVICE_KEY_FILE names the
+ * file the key was downloaded as (a path, quotes allowed); its content is made the one-line value the SAP Cloud SDK reads.
+ * A key that is set already wins. Returns a sentence when something is wrong (the server logs it), else null.
+ */
+export function loadAiCoreKeyFile(env, readFile) {
+  const path = String(env.AICORE_SERVICE_KEY_FILE ?? '').trim().replace(/^["']|["']$/g, '')
+  if (!path || env.AICORE_SERVICE_KEY) return null
+  let text
+  try {
+    text = readFile(path)
+  } catch (e) {
+    return `AICORE_SERVICE_KEY_FILE: cannot read "${path}" (${e.code ?? e.message})`
+  }
+  try {
+    env.AICORE_SERVICE_KEY = JSON.stringify(JSON.parse(String(text).replace(/^﻿/, '')))
+  } catch {
+    return `AICORE_SERVICE_KEY_FILE: "${path}" is not a JSON service key`
+  }
+  return null
+}

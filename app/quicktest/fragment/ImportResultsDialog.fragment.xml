@@ -1,0 +1,42 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="importResultsDialog" title="{i18n>importResults}" icon="sap-icon://upload" contentWidth="42rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin qtStack" renderType="Bare" busy="{res>/busy}">
+				<Text text="{i18n>resultsIntro}" class="qtMuted" />
+				<MessageStrip type="Error" showIcon="true" text="{res>/error}" visible="{= !!${res>/error}}" />
+				<VBox class="qtDrop" renderType="Bare">
+					<core:Icon src="sap-icon://attachment-text-file" size="1.75rem" class="qtMuted" />
+					<Button id="resultsPick" text="{= ${res>/fileName} ? ${res>/fileName} : ${i18n>importChoose}}" icon="sap-icon://attachment" type="Emphasized" press=".onResultsPick" class="sapUiTinyMarginTop" />
+					<Text text="{i18n>resultsFormats}" class="qtMuted sapUiTinyMarginTop" />
+				</VBox>
+				<HBox visible="{= !!${res>/fileName} &amp;&amp; !${res>/result}}" wrap="Wrap">
+					<VBox class="sapUiSmallMarginEnd" renderType="Bare">
+						<Label text="{i18n>resultsInto}" />
+						<Select id="resultsRun" selectedKey="{res>/runID}" items="{res>/runs}" width="16rem">
+							<core:Item key="{res>ID}" text="{res>name}" />
+						</Select>
+					</VBox>
+					<VBox class="qtGrow" renderType="Bare" visible="{= !${res>/runID}}">
+						<Label text="{i18n>runName}" />
+						<Input id="resultsName" value="{res>/name}" valueLiveUpdate="true" />
+					</VBox>
+				</HBox>
+				<VBox visible="{= !!${res>/result}}" renderType="Bare">
+					<MessageStrip type="Success" showIcon="true" text="{res>/result/text}" />
+					<VBox visible="{= ${res>/result/unmatchedText}.length > 0}" class="sapUiSmallMarginTop" renderType="Bare">
+						<Text text="{i18n>resultsUnmatched}" class="qtMuted" />
+						<List items="{res>/result/unmatchedText}" showSeparators="None" class="qtReviewList">
+							<StandardListItem title="{res>}" />
+						</List>
+					</VBox>
+				</VBox>
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="resultsApply" text="{= ${res>/result} ? ${i18n>openRun} : ${i18n>importResults}}" type="Emphasized" enabled="{= !!${res>/content} &amp;&amp; !${res>/busy}}" press=".onResultsGo" />
+		</beginButton>
+		<endButton>
+			<Button id="resultsClose" text="{i18n>close}" press=".onResultsClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

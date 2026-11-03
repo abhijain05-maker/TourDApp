@@ -1,0 +1,22 @@
+<mvc:View
+	controllerName="quicktest.controller.tab.Matrix"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core">
+	<VBox renderType="Bare">
+		<MessageStrip type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+		<VBox class="qtCard" renderType="Bare">
+			<HBox class="qtFilters">
+				<SearchField id="matrixSearch" value="{view>/query}" liveChange=".onFilter" search=".onFilter" width="16rem" placeholder="{i18n>searchPlaceholder}" />
+				<CheckBox id="matrixGaps" text="{i18n>matrixOnlyGaps}" selected="{view>/gapsOnly}" select=".onFilter" />
+				<ToolbarSpacer />
+				<Text text="{view>/info}" class="qtMuted" />
+				<Button id="matrixRefresh" icon="sap-icon://refresh" tooltip="{i18n>reload}" type="Transparent" press=".onReload" />
+			</HBox>
+			<Text text="{i18n>matrixHint}" class="qtMuted sapUiSmallMarginBeginEnd" />
+			<VBox class="sapUiSmallMargin" renderType="Bare" busy="{view>/busy}">
+				<core:HTML id="matrixHtml" content="&lt;div class='qtMatrixWrap'&gt;&lt;/div&gt;" />
+			</VBox>
+		</VBox>
+	</VBox>
+</mvc:View>

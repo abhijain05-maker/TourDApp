@@ -1,0 +1,17 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="pasteStepsDialog" title="{i18n>pasteSteps}" icon="sap-icon://paste" contentWidth="40rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin qtStack" renderType="Bare">
+				<Text text="{i18n>pasteStepsHint}" class="qtMuted" />
+				<TextArea id="pasteStepsText" value="{paste>/text}" valueLiveUpdate="true" rows="10" width="100%" placeholder="{i18n>pasteStepsPlaceholder}" />
+				<CheckBox id="pasteReplace" text="{i18n>pasteReplace}" selected="{paste>/replace}" />
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="pasteStepsAdd" text="{i18n>add}" type="Emphasized" enabled="{= !!${paste>/text}}" press=".onPasteStepsAdd" />
+		</beginButton>
+		<endButton>
+			<Button text="{i18n>cancel}" press=".onPasteStepsClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

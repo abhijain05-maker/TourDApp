@@ -129,6 +129,20 @@ sap.ui.define([], function () {
 		generateTour: (args) => call("POST", "/generateTour", args),
 		job: (id) => call("GET", "/GenerationJobs(" + id + ")"),
 
+		// readiness: the checklist of what the project depends on
+		readinessMeta: async () => JSON.parse(await text("/readinessMeta()")),
+		readinessSummary: async (projectID) => JSON.parse(await text("/readinessSummary(projectID=" + projectID + ")")),
+		readinessScanReport: async (projectID) => {
+			// no scan yet: the server answers 204 without a body
+			const r = await call("GET", "/readinessScanReport(projectID=" + projectID + ")");
+			return r && r.value ? JSON.parse(r.value) : null;
+		},
+		readinessItems: (projectID) => list("/ReadinessItems?$filter=project_ID eq " + projectID + "&$orderby=category,title"),
+		scanReadiness: async (projectID) => JSON.parse((await call("POST", "/scanReadiness", { projectID })).value),
+		checkReadiness: (args) => call("POST", "/checkReadiness", args),
+		addReadinessItem: (args) => call("POST", "/addReadinessItem", args),
+		removeReadinessItem: (itemID) => call("POST", "/removeReadinessItem", { itemID }),
+
 		extensionTokens: () => list("/ExtensionTokens?$orderby=createdAt desc"),
 		createExtensionToken: (name) => call("POST", "/createExtensionToken", { name }),
 		revokeExtensionToken: (ID) => call("POST", "/revokeExtensionToken", { ID }),

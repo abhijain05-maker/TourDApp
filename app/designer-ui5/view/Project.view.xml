@@ -36,7 +36,41 @@
 						</VBox>
 					</HBox>
 
-					<HBox id="overview" wrap="Wrap" class="tourdOverview">
+					<!-- the two features of a project: they share the project and its files (the Workspace tab) -->
+					<HBox id="featureBar" class="tourdFeatureBar" alignItems="Center" wrap="Wrap">
+						<SegmentedButton id="featureSwitch" selectedKey="{view>/feature}" selectionChange=".onFeature" width="26rem" class="tourdFeatureSwitch">
+							<items>
+								<SegmentedButtonItem id="featureGuided" key="guided" text="{i18n>featureGuided}" icon="sap-icon://learning-assistant" />
+								<SegmentedButtonItem id="featureReadiness" key="readiness" text="{i18n>featureReadiness}" icon="sap-icon://task" />
+							</items>
+						</SegmentedButton>
+						<Text id="featureHint" text="{= ${view>/feature} === 'readiness' ? ${i18n>featureReadinessHint} : ${i18n>featureGuidedHint}}" class="tourdMuted" />
+					</HBox>
+
+					<HBox id="overviewReadiness" wrap="Wrap" class="tourdOverview" visible="{= ${view>/feature} === 'readiness'}">
+						<GenericTile id="tileVerified" header="{i18n>tileVerified}" subheader="{readiness>/summary/doneText}" press=".onTile('readiness')" class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+							<TileContent>
+								<NumericContent value="{= ${readiness>/summary} ? ${readiness>/percent} : '…'}" scale="%" valueColor="{= ${readiness>/state} === 'Success' ? 'Good' : ${readiness>/state} === 'Error' ? 'Error' : ${readiness>/state} === 'Warning' ? 'Critical' : 'Neutral'}" icon="sap-icon://sys-enter-2" withMargin="false" />
+							</TileContent>
+						</GenericTile>
+						<GenericTile id="tileAttention" header="{i18n>tileAttention}" subheader="{i18n>tileAttentionHint}" press=".onReadinessTile('attention')" class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+							<TileContent>
+								<NumericContent value="{= ${readiness>/summary} ? ${readiness>/summary/attention} : '…'}" valueColor="{= ${readiness>/summary/attention} > 0 ? 'Error' : 'Neutral'}" icon="sap-icon://alert" withMargin="false" />
+							</TileContent>
+						</GenericTile>
+						<GenericTile id="tileOpen" header="{i18n>tileNotChecked}" subheader="{i18n>tileNotCheckedHint}" press=".onReadinessTile('open')" class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
+							<TileContent>
+								<NumericContent value="{= ${readiness>/summary} ? ${readiness>/summary/open} : '…'}" icon="sap-icon://pending" withMargin="false" />
+							</TileContent>
+						</GenericTile>
+						<GenericTile id="tileFound" header="{i18n>tileFound}" subheader="{= ${readiness>/summary/scan} ? ${readiness>/scanAgo} : ${i18n>tileNotScanned}}" press=".onTile('readiness')" class="sapUiSmallMarginBottom">
+							<TileContent>
+								<NumericContent value="{= ${readiness>/summary} ? ${readiness>/summary/total} : '…'}" icon="sap-icon://search" withMargin="false" />
+							</TileContent>
+						</GenericTile>
+					</HBox>
+
+					<HBox id="overview" wrap="Wrap" class="tourdOverview" visible="{= ${view>/feature} === 'guided'}">
 						<GenericTile id="tileSources" header="{i18n>tileFiles}" subheader="{view>/extra/sources}" press=".onTile('sources')" class="sapUiSmallMarginEnd sapUiSmallMarginBottom">
 							<TileContent><NumericContent value="{= ${view>/counts/files} === undefined ? '…' : ${view>/counts/files}}" icon="sap-icon://document" withMargin="false" /></TileContent>
 						</GenericTile>
@@ -61,17 +95,23 @@
 							<IconTabFilter id="tabSources" key="sources" text="{i18n>tabWorkspace}">
 								<VBox id="paneSources" class="tourdPane" renderType="Bare" />
 							</IconTabFilter>
-							<IconTabFilter id="tabRecordings" key="recordings" text="{i18n>tabRecordings}">
+							<IconTabFilter id="tabRecordings" key="recordings" text="{i18n>tabRecordings}" visible="{= ${view>/feature} === 'guided'}">
 								<VBox id="paneRecordings" class="tourdPane" renderType="Bare" />
 							</IconTabFilter>
-							<IconTabFilter id="tabTours" key="tours" text="{i18n>tabTours}">
+							<IconTabFilter id="tabTours" key="tours" text="{i18n>tabTours}" visible="{= ${view>/feature} === 'guided'}">
 								<VBox id="paneTours" class="tourdPane" renderType="Bare" />
 							</IconTabFilter>
-							<IconTabFilter id="tabTests" key="tests" text="{i18n>tabTests}">
+							<IconTabFilter id="tabTests" key="tests" text="{i18n>tabTests}" visible="{= ${view>/feature} === 'guided'}">
 								<VBox id="paneTests" class="tourdPane" renderType="Bare" />
 							</IconTabFilter>
-							<IconTabFilter id="tabHelp" key="help" text="{i18n>tabHelp}">
+							<IconTabFilter id="tabHelp" key="help" text="{i18n>tabHelp}" visible="{= ${view>/feature} === 'guided'}">
 								<VBox id="paneHelp" class="tourdPane" renderType="Bare" />
+							</IconTabFilter>
+							<IconTabFilter id="tabReadiness" key="readiness" text="{i18n>tabReadinessOverview}" visible="{= ${view>/feature} === 'readiness'}">
+								<VBox id="paneReadiness" class="tourdPane" renderType="Bare" />
+							</IconTabFilter>
+							<IconTabFilter id="tabChecklist" key="checklist" text="{i18n>tabChecklist}" count="{= ${readiness>/summary} ? ${readiness>/summary/total} : ''}" visible="{= ${view>/feature} === 'readiness'}">
+								<VBox id="paneChecklist" class="tourdPane" renderType="Bare" />
 							</IconTabFilter>
 						</items>
 					</IconTabBar>

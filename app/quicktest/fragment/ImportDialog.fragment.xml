@@ -1,0 +1,82 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="importDialog" title="{i18n>importBook}" icon="sap-icon://upload" contentWidth="52rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin qtStack" renderType="Bare" busy="{imp>/busy}">
+				<Text text="{i18n>importIntro}" class="qtMuted" />
+				<MessageStrip type="Error" showIcon="true" text="{imp>/error}" visible="{= !!${imp>/error}}" />
+				<MessageStrip type="Success" showIcon="true" text="{imp>/done}" visible="{= !!${imp>/done}}" />
+
+				<VBox class="qtDrop" renderType="Bare">
+					<core:Icon src="sap-icon://excel-attachment" size="1.75rem" class="qtMuted" />
+					<Button id="importPick" text="{= ${imp>/name} ? ${imp>/name} : ${i18n>importChoose}}" icon="sap-icon://attachment" type="Emphasized" press=".onImportPick" class="sapUiTinyMarginTop" />
+					<Text text="{i18n>importFormats}" class="qtMuted sapUiTinyMarginTop" />
+					<Link text="{i18n>exportTemplate}" href="/qtest/template.xlsx" target="_blank" />
+				</VBox>
+
+				<HBox visible="{= !!${imp>/name}}" wrap="Wrap" alignItems="End">
+					<VBox class="sapUiSmallMarginEnd" renderType="Bare">
+						<Label text="{i18n>importAs}" />
+						<Select id="importAs" selectedKey="{imp>/as}" change=".onImportChange" width="14rem">
+							<core:Item key="auto" text="{i18n>importAsAuto}" />
+							<core:Item key="requirements" text="{i18n>tabRequirements}" />
+							<core:Item key="cases" text="{i18n>tabCases}" />
+						</Select>
+					</VBox>
+					<VBox renderType="Bare">
+						<Label text="{i18n>importExisting}" />
+						<Select id="importStrategy" selectedKey="{imp>/strategy}" change=".onImportChange" width="18rem">
+							<core:Item key="update" text="{i18n>importUpdate}" />
+							<core:Item key="skip" text="{i18n>importSkip}" />
+						</Select>
+					</VBox>
+				</HBox>
+
+				<VBox visible="{= !!${imp>/preview}}" renderType="Bare">
+					<Title text="{i18n>importPreview}" level="H5" />
+					<Text text="{imp>/preview/summary}" class="sapUiTinyMarginTop" />
+					<VBox items="{imp>/preview/warnings}" visible="{= ${imp>/preview/warnings}.length > 0}" class="sapUiTinyMarginTop" renderType="Bare">
+						<MessageStrip type="Warning" showIcon="true" text="{imp>}" class="sapUiTinyMarginBottom" />
+					</VBox>
+					<Table items="{imp>/preview/rowsReq}" visible="{= ${imp>/preview/rowsReq}.length > 0}" class="sapUiSmallMarginTop" growing="true" growingThreshold="8" headerText="{i18n>tabRequirements}">
+						<columns>
+							<Column width="7rem"><Text text="{i18n>colId}" /></Column>
+							<Column><Text text="{i18n>colTitle}" /></Column>
+							<Column width="8rem"><Text text="{i18n>colWhat}" /></Column>
+						</columns>
+						<items>
+							<ColumnListItem>
+								<cells>
+									<Text text="{imp>code}" class="qtCode" />
+									<Text text="{imp>title}" />
+									<ObjectStatus text="{= ${imp>action} === 'create' ? ${i18n>importNew} : ${imp>action} === 'update' ? ${i18n>importChanged} : ${i18n>importLeft}}" state="{= ${imp>action} === 'create' ? 'Success' : ${imp>action} === 'update' ? 'Warning' : 'None'}" />
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+					<Table items="{imp>/preview/rowsCase}" visible="{= ${imp>/preview/rowsCase}.length > 0}" class="sapUiSmallMarginTop" growing="true" growingThreshold="8" headerText="{i18n>tabCases}">
+						<columns>
+							<Column width="7rem"><Text text="{i18n>colId}" /></Column>
+							<Column><Text text="{i18n>colTitle}" /></Column>
+							<Column width="8rem"><Text text="{i18n>colWhat}" /></Column>
+						</columns>
+						<items>
+							<ColumnListItem>
+								<cells>
+									<Text text="{imp>code}" class="qtCode" />
+									<Text text="{imp>title}" />
+									<ObjectStatus text="{= ${imp>action} === 'create' ? ${i18n>importNew} : ${imp>action} === 'update' ? ${i18n>importChanged} : ${i18n>importLeft}}" state="{= ${imp>action} === 'create' ? 'Success' : ${imp>action} === 'update' ? 'Warning' : 'None'}" />
+								</cells>
+							</ColumnListItem>
+						</items>
+					</Table>
+				</VBox>
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="importApply" text="{i18n>importDo}" type="Emphasized" icon="sap-icon://accept" enabled="{= !!${imp>/preview} &amp;&amp; !${imp>/busy} &amp;&amp; (${imp>/preview/rowsReq}.length + ${imp>/preview/rowsCase}.length) > 0}" press=".onImportApply" />
+		</beginButton>
+		<endButton>
+			<Button id="importClose" text="{i18n>close}" press=".onImportClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

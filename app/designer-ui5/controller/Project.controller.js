@@ -9,16 +9,40 @@ sap.ui.define(
 			recordings: { view: "Recordings", pane: "paneRecordings" },
 			tours: { view: "Tours", pane: "paneTours" },
 			tests: { view: "Tests", pane: "paneTests" },
-			help: { view: "Help", pane: "paneHelp" }
+			help: { view: "Help", pane: "paneHelp" },
+			readiness: { view: "Readiness", pane: "paneReadiness" },
+			checklist: { view: "Checklist", pane: "paneChecklist" }
+		};
+
+		// A project page has two features that share the project and its files (the Workspace tab): the guided experience
+		// (recordings, tours, tests, help) and the readiness checklist. A tab belongs to one feature; Workspace to both.
+		// A new feature is a new entry here, its tabs in TABS above, and its tab filters in Project.view.xml.
+		const FEATURES = {
+			guided: { tabs: ["recordings", "tours", "tests", "help"], start: "recordings" },
+			readiness: { tabs: ["readiness", "checklist"], start: "readiness" }
+		};
+		const featureOf = (tab) => Object.keys(FEATURES).find((f) => FEATURES[f].tabs.includes(tab));
+		const FEATURE_KEY = "tourd.feature";
+		const rememberedFeature = () => {
+			try {
+				const v = window.localStorage.getItem(FEATURE_KEY);
+				return FEATURES[v] ? v : "guided";
+			} catch (e) {
+				return "guided";
+			}
 		};
 
 		return BaseController.extend("tourd.designer.controller.Project", {
 			onInit() {
-				this.initViewModel({ tab: "sources", counts: {}, next: {}, extra: {}, loading: false, error: "", createdValue: "", createdAgo: "", updatedValue: "", updatedAgo: "" });
+				this.initViewModel({ feature: rememberedFeature(), tab: "sources", counts: {}, next: {}, extra: {}, loading: false, error: "", createdValue: "", createdAgo: "", updatedValue: "", updatedAgo: "" });
 				this.getRouter().getRoute("project").attachPatternMatched(this._onMatched, this);
+				this.store = this.getOwnerComponent().readiness;
+				// the readiness numbers follow the store; the hint under the tiles follows them
+				this._summary = this.store.model.bindProperty("/summary");
+				this._summary.attachChange(() => this._computeNext());
 				// a tab changed data: the tiles show the new numbers
-				this.getBus().subscribe("tourd", "changed", () => {
-					if (this._id) this._loadCounts();
+				this.getBus().subscribe("tourd", "changed", (channel, event, data) => {
+					if (this._id && !(data && data.what === "readiness")) this._loadCounts();
 				});
 				this.getBus().subscribe("tourd", "projectChanged", () => this._reloadProject());
 			},
@@ -33,9 +57,21 @@ sap.ui.define(
 					Object.values(TABS).forEach((t) => this.byId(t.pane).destroyItems());
 					this.appModel().setProperty("/project", null);
 					this.viewModel().setProperty("/counts", {});
+					this.store.setProject(args.id);
 					await this._reloadProject();
 				}
 				this.viewModel().setProperty("/tab", tab);
+				// opening a tab of a feature switches to that feature; Workspace keeps the one that was on
+				const feature = featureOf(tab);
+				if (feature) {
+					this.viewModel().setProperty("/feature", feature);
+					try {
+						window.localStorage.setItem(FEATURE_KEY, feature);
+					} catch (e) {
+						/* the choice is just not remembered */
+					}
+				}
+				this._computeNext();
 				if (this.appModel().getProperty("/project")) this._showTab(tab);
 			},
 
@@ -52,6 +88,7 @@ sap.ui.define(
 				model.setProperty("/updatedAgo", Format.ago(project.modifiedAt));
 				this.getOwnerComponent().refreshProjects();
 				this._loadCounts();
+				this.store.refreshSummary();
 			},
 
 			async _loadCounts() {
@@ -69,8 +106,24 @@ sap.ui.define(
 				const model = this.viewModel();
 				model.setProperty("/counts", n);
 				model.setProperty("/extra/sources", n.changes ? this.text("changedCount", [n.changes]) : n.files ? this.text("asUploaded") : this.text("uploadYourApp"));
+				this._computeNext();
+			},
+
+			/** The hint under the tiles: the next useful step of the feature that is on. */
+			_computeNext() {
+				const model = this.viewModel();
+				const n = model.getProperty("/counts") || {};
 				let next = {};
-				if (Object.values(n).every((v) => v !== undefined)) {
+				if (model.getProperty("/feature") === "readiness") {
+					const s = this.store.model.getProperty("/summary");
+					if (s) {
+						if (!s.hasFiles) next = { text: this.text("nextRUpload"), tab: "sources" };
+						else if (!s.scan) next = { text: this.text("nextRScan"), tab: "readiness" };
+						else if (s.outdated) next = { text: this.text("nextRRescan"), tab: "readiness" };
+						else if (s.attention) next = { text: this.text("nextRAttention", [s.attention]), tab: "checklist", intent: { attention: true } };
+						else if (s.open) next = { text: this.text("nextROpen", [s.open]), tab: "checklist", intent: { status: "open" } };
+					}
+				} else if (Object.keys(n).length && Object.values(n).every((v) => v !== undefined)) {
 					if (!n.files) next = { text: this.text("nextUpload"), tab: "sources" };
 					else if (!n.recordings) next = { text: this.text("nextRecord"), tab: "recordings" };
 					else if (!n.tours && !n.plans) next = { text: this.text("nextGenerate"), tab: "tours" };
@@ -116,8 +169,27 @@ sap.ui.define(
 			},
 
 			onNext() {
-				const tab = this.viewModel().getProperty("/next/tab");
-				if (tab) this.onTile(tab);
+				const next = this.viewModel().getProperty("/next");
+				if (!next.tab) return;
+				if (next.intent) this._openChecklist(next.intent, next.tab);
+				else this.onTile(next.tab);
+			},
+
+			/** Switching feature opens its first tab. */
+			onFeature(e) {
+				const feature = e.getParameter("item").getKey();
+				this.getRouter().navTo("project", { id: this._id, "?query": { tab: FEATURES[feature].start } }, true);
+			},
+
+			/** A readiness tile opens the checklist with the filter it stands for ("attention" or "open"). */
+			onReadinessTile(kind) {
+				this._openChecklist(kind === "attention" ? { attention: true } : { status: kind });
+			},
+
+			_openChecklist(intent, tab = "checklist") {
+				this.store.model.setProperty("/intent", intent);
+				this.onTile(tab);
+				this.getBus().publish("tourd", "readinessIntent");
 			},
 
 			onHome() {

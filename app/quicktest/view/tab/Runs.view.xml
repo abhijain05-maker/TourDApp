@@ -1,0 +1,51 @@
+<mvc:View
+	controllerName="quicktest.controller.tab.Runs"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:qt="quicktest.control"
+	core:require="{Format: 'quicktest/util/Format'}">
+	<VBox renderType="Bare">
+		<MessageStrip type="Error" showIcon="true" text="{view>/error}" visible="{= !!${view>/error}}" class="sapUiSmallMarginBottom" />
+		<VBox class="qtCard" renderType="Bare">
+			<HBox class="qtFilters">
+				<Title text="{i18n>tabRuns}" level="H4" />
+				<ToolbarSpacer />
+				<Button id="runImport" icon="sap-icon://upload" text="{i18n>importResults}" press=".onImportResults" />
+				<Button id="runNew" icon="sap-icon://add" text="{i18n>newRun}" type="Emphasized" press=".onNew" />
+			</HBox>
+			<Table id="runTable" items="{view>/runs}" noDataText="{i18n>noRuns}" busy="{view>/busy}">
+				<columns>
+					<Column><Text text="{i18n>colName}" /></Column>
+					<Column width="8rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>runBuild}" /></Column>
+					<Column width="8rem" minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>runEnvironment}" /></Column>
+					<Column width="18rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colResults}" /></Column>
+					<Column width="7rem" hAlign="End"><Text text="{i18n>colPassRate}" /></Column>
+					<Column width="7rem" minScreenWidth="Tablet" demandPopin="true"><Text text="{i18n>colStatus}" /></Column>
+					<Column width="10rem" minScreenWidth="Desktop" demandPopin="true"><Text text="{i18n>colCreated}" /></Column>
+					<Column width="3.5rem" hAlign="End" />
+				</columns>
+				<items>
+					<ColumnListItem type="Navigation" press=".onOpen">
+						<cells>
+							<VBox renderType="Bare">
+								<Text text="{view>name}" class="qtRowTitle" />
+								<Text text="{view>note}" class="qtMuted" maxLines="1" visible="{= !!${view>note}}" />
+							</VBox>
+							<Text text="{= ${view>build} || '–'}" />
+							<Text text="{= ${view>environment} || '–'}" />
+							<VBox renderType="Bare">
+								<qt:StackBar segments="{view>bar}" legend="false" />
+								<Text text="{view>summary}" class="qtMuted" />
+							</VBox>
+							<Text text="{= ${view>progress} ? ${view>passRate} + ' %' : '–'}" class="qtBold" />
+							<ObjectStatus text="{= ${view>status} === 'closed' ? ${i18n>runClosed} : ${i18n>runOpen}}" state="{= ${view>status} === 'closed' ? 'Success' : 'Information'}" />
+							<Text text="{path: 'view>createdAt', formatter: 'Format.date'}" />
+							<Button icon="sap-icon://delete" type="Transparent" tooltip="{i18n>delete}" press=".onDelete" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</VBox>
+	</VBox>
+</mvc:View>

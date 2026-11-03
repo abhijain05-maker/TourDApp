@@ -1,0 +1,94 @@
+<mvc:View
+	controllerName="quicktest.controller.tab.Dashboard"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:core="sap.ui.core"
+	xmlns:qt="quicktest.control"
+	core:require="{Format: 'quicktest/util/Format'}">
+	<VBox renderType="Bare">
+		<!-- the next useful step -->
+		<HBox class="qtCard qtNext" visible="{= !!${view>/next/text}}">
+			<core:Icon src="sap-icon://lightbulb" color="Marker" />
+			<Text text="{view>/next/text}" class="qtGrow" />
+			<Button id="nextAction" text="{view>/next/button}" type="Emphasized" press=".onNext" />
+		</HBox>
+
+		<HBox class="qtTiles" renderType="Bare" visible="{= !!${app>/dash}}">
+			<GenericTile id="tileCoverage" header="{i18n>dashCoverage}" subheader="{view>/tiles/coverage/sub}" press=".onTile('requirements', 'uncovered')" frameType="TwoByOne">
+				<TileContent>
+					<HBox alignItems="Center"><qt:ProgressRing size="5rem" value="{view>/tiles/coverage/value}" state="{view>/tiles/coverage/state}" caption="{i18n>dashCovered}" /></HBox>
+				</TileContent>
+			</GenericTile>
+			<GenericTile id="tilePassing" header="{i18n>dashPassing}" subheader="{view>/tiles/passing/sub}" press=".onTile('requirements', 'failing')" frameType="TwoByOne">
+				<TileContent>
+					<HBox alignItems="Center"><qt:ProgressRing size="5rem" value="{view>/tiles/passing/value}" state="{view>/tiles/passing/state}" caption="{i18n>dashVerified}" /></HBox>
+				</TileContent>
+			</GenericTile>
+			<GenericTile id="tileAutomation" header="{i18n>dashAutomation}" subheader="{view>/tiles/automation/sub}" press=".onTile('automation')" frameType="TwoByOne">
+				<TileContent>
+					<HBox alignItems="Center"><qt:ProgressRing size="5rem" value="{view>/tiles/automation/value}" state="None" caption="{i18n>dashAutomated}" /></HBox>
+				</TileContent>
+			</GenericTile>
+			<GenericTile id="tileRun" header="{i18n>dashLastRun}" subheader="{view>/tiles/run/sub}" press=".onTile('runs')" frameType="TwoByOne">
+				<TileContent>
+					<HBox alignItems="Center"><qt:ProgressRing size="5rem" value="{view>/tiles/run/value}" state="{view>/tiles/run/state}" caption="{i18n>dashPassed}" /></HBox>
+				</TileContent>
+			</GenericTile>
+		</HBox>
+
+		<HBox class="qtTwoCols" renderType="Bare" visible="{= !!${app>/dash}}">
+			<VBox class="qtCard qtPadded" renderType="Bare">
+				<Text text="{i18n>dashVerification}" class="qtSectionTitle" />
+				<Text text="{i18n>dashVerificationHint}" class="qtMuted sapUiSmallMarginBottom" />
+				<qt:StackBar id="barVerification" segments="{view>/verification}" />
+			</VBox>
+			<VBox class="qtCard qtPadded" renderType="Bare">
+				<Text text="{i18n>dashCaseResults}" class="qtSectionTitle" />
+				<Text text="{i18n>dashCaseResultsHint}" class="qtMuted sapUiSmallMarginBottom" />
+				<qt:StackBar id="barResults" segments="{view>/results}" />
+			</VBox>
+		</HBox>
+
+		<HBox class="qtTwoCols" renderType="Bare" visible="{= !!${app>/dash}}">
+			<VBox class="qtCard qtPadded" renderType="Bare">
+				<Text text="{i18n>dashTrend}" class="qtSectionTitle" />
+				<qt:RunTrend id="trend" runs="{view>/recent}" select=".onTrend" visible="{= ${view>/recent}.length > 0}" />
+				<Text text="{i18n>dashNoRuns}" class="qtMuted" visible="{= ${view>/recent}.length === 0}" />
+			</VBox>
+			<VBox class="qtCard qtPadded" renderType="Bare">
+				<Text text="{i18n>dashAi}" class="qtSectionTitle" />
+				<Text text="{i18n>dashAiHint}" class="qtMuted sapUiSmallMarginBottom" />
+				<HBox wrap="Wrap">
+					<Button id="aiDraftRequirements" icon="sap-icon://ai" text="{i18n>aiFromText}" press=".onTile('requirements', '', 'ai')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+					<Button id="aiDraftCases" icon="sap-icon://ai" text="{i18n>aiTestsForGaps}" enabled="{= ${app>/dash/requirements/total} > 0}" press=".onTile('requirements', 'uncovered', 'tests')" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+					<Button id="newCaseButton" icon="sap-icon://add" text="{i18n>newCase}" press=".onNewCase" class="sapUiTinyMarginEnd sapUiTinyMarginBottom" />
+					<Button id="newRequirementButton" icon="sap-icon://add" text="{i18n>newRequirement}" press=".onNewRequirement" class="sapUiTinyMarginBottom" />
+				</HBox>
+			</VBox>
+		</HBox>
+
+		<HBox class="qtTwoCols" renderType="Bare" visible="{= !!${app>/dash}}">
+			<VBox class="qtCard qtPadded" renderType="Bare">
+				<Text text="{i18n>gapUncovered}" class="qtSectionTitle" />
+				<Text text="{i18n>gapNone}" class="qtMuted" visible="{= ${view>/gaps/uncovered}.length === 0}" />
+				<List id="gapUncovered" items="{view>/gaps/uncovered}" showSeparators="Inner" showNoData="false">
+					<StandardListItem title="{view>label}" info="{path: 'view>priority', formatter: 'Format.priorityText'}" infoState="{path: 'view>priority', formatter: 'Format.priorityState'}" type="Navigation" press=".onGapRequirement" />
+				</List>
+			</VBox>
+			<VBox class="qtCard qtPadded" renderType="Bare">
+				<Text text="{i18n>gapFailing}" class="qtSectionTitle" />
+				<Text text="{i18n>gapNone}" class="qtMuted" visible="{= ${view>/gaps/failing}.length === 0}" />
+				<List id="gapFailing" items="{view>/gaps/failing}" showSeparators="Inner" showNoData="false">
+					<StandardListItem title="{view>label}" info="{path: 'view>priority', formatter: 'Format.priorityText'}" infoState="{path: 'view>priority', formatter: 'Format.priorityState'}" type="Navigation" press=".onGapCase" />
+				</List>
+			</VBox>
+			<VBox class="qtCard qtPadded" renderType="Bare">
+				<Text text="{i18n>gapUntraced}" class="qtSectionTitle" />
+				<Text text="{i18n>gapNone}" class="qtMuted" visible="{= ${view>/gaps/untraced}.length === 0}" />
+				<List id="gapUntraced" items="{view>/gaps/untraced}" showSeparators="Inner" showNoData="false">
+					<StandardListItem title="{view>label}" info="{path: 'view>priority', formatter: 'Format.priorityText'}" infoState="{path: 'view>priority', formatter: 'Format.priorityState'}" type="Navigation" press=".onGapCase" />
+				</List>
+			</VBox>
+		</HBox>
+	</VBox>
+</mvc:View>

@@ -22,6 +22,8 @@ service TourService {
   entity TourVersions   as projection on tourd.TourVersions excluding { definition };
   entity GenerationJobs as projection on tourd.GenerationJobs;
   entity ExtensionTokens as projection on tourd.ExtensionTokens excluding { tokenHash };
+  entity ReadinessItems as projection on tourd.ReadinessItems;
+  entity ReadinessScans as projection on tourd.ReadinessScans excluding { report };
 
   type SourceFile { path : String; content : LargeString; binary : Boolean; }
   type Warning    { code : String; message : String; }
@@ -123,6 +125,16 @@ service TourService {
   // AI: writes the topic from the control (when there is no text yet) or improves what is written; JSON {title, summary, text, note, generator}
   action improveHelpTopic(projectID : UUID, topic : LargeString, control : LargeString, screen : String, instruction : String, provider : String, model : String) returns LargeString;
 
+  // readiness: what the project depends on (destinations, services, roles ...), listed by a scan, checked by people.
+  // The functions return JSON (like the ones above) so a new kind of check needs no change here.
+  function readinessMeta() returns LargeString;                              // categories, answers, levels
+  function readinessSummary(projectID : UUID) returns LargeString;           // numbers per category, last scan, outdated?
+  function readinessScanReport(projectID : UUID) returns LargeString;        // what the last scan added / removed / could not read
+  action   scanReadiness(projectID : UUID) returns LargeString;
+  action   checkReadiness(itemID : UUID, status : String, note : String, owner : String, inputs : LargeString) returns ReadinessItems;
+  action   addReadinessItem(projectID : UUID, category : String, title : String, summary : String) returns ReadinessItems;
+  action   removeReadinessItem(itemID : UUID) returns Boolean;
+
   function providers() returns many ProviderInfo;
 
   // browser extension pairing: the token is shown once, only its hash is kept
@@ -140,3 +152,5 @@ annotate TourService.GenerationJobs with @readonly;
 annotate TourService.TourVersions with @readonly;
 annotate TourService.HelpSets with @readonly; // written by the actions above only
 annotate TourService.ExtensionTokens with @readonly;
+annotate TourService.ReadinessItems with @readonly @cds.query.limit: { default: 2000, max: 5000 }; // written by the actions above only
+annotate TourService.ReadinessScans with @readonly;

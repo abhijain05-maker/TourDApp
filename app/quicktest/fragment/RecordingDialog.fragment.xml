@@ -1,0 +1,39 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog id="recordingDialog" title="{rec>/title}" icon="sap-icon://record" contentWidth="40rem" stretchOnPhone="true">
+		<content>
+			<VBox class="sapUiSmallMargin qtStack" renderType="Bare" busy="{rec>/busy}" busyIndicatorDelay="0">
+				<Text text="{rec>/hint}" class="qtMuted" />
+				<MessageStrip type="Error" showIcon="true" text="{rec>/error}" visible="{= !!${rec>/error}}" />
+
+				<VBox visible="{= !${rec>/loading} &amp;&amp; ${rec>/recordings}.length === 0}" class="qtCard qtEmptyNote" renderType="Bare">
+					<core:Icon src="sap-icon://record" size="2rem" class="qtMuted" />
+					<Text text="{i18n>recNone}" class="sapUiTinyMarginTop" />
+					<Button text="{i18n>recOpenRecorder}" icon="sap-icon://puzzle" press=".onRecorder" class="sapUiSmallMarginTop" />
+				</VBox>
+
+				<VBox visible="{= ${rec>/recordings}.length > 0}" class="qtStack" renderType="Bare">
+					<Label text="{i18n>recChoose}" labelFor="recKey" />
+					<Select id="recKey" selectedKey="{rec>/key}" items="{rec>/recordings}" width="100%">
+						<core:Item key="{rec>ID}" text="{rec>text}" />
+					</Select>
+					<VBox visible="{= ${rec>/mode} === 'create'}" class="qtStack" renderType="Bare">
+						<Label text="{i18n>recName}" labelFor="recName" />
+						<Input id="recName" value="{rec>/name}" valueLiveUpdate="true" placeholder="{i18n>recNamePlaceholder}" />
+						<Label text="{i18n>recRequirements}" labelFor="recReqs" />
+						<MultiComboBox id="recReqs" selectedKeys="{rec>/picked}" items="{rec>/requirements}" width="100%">
+							<core:Item key="{rec>ID}" text="{rec>text}" />
+						</MultiComboBox>
+					</VBox>
+					<Label text="{i18n>recBaseUrl}" labelFor="recBaseUrl" />
+					<Input id="recBaseUrl" value="{rec>/baseUrl}" valueLiveUpdate="true" placeholder="http://localhost:8080/index.html" />
+				</VBox>
+			</VBox>
+		</content>
+		<beginButton>
+			<Button id="recSubmit" text="{rec>/action}" type="Emphasized" icon="sap-icon://accept" enabled="{= !!${rec>/key} &amp;&amp; !${rec>/busy}}" press=".onCreate" />
+		</beginButton>
+		<endButton>
+			<Button id="recClose" text="{i18n>cancel}" press=".onClose" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>
